@@ -11,15 +11,11 @@ from slowapi.errors import RateLimitExceeded
 
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.trustedhost import TrustedHostMiddleware
-from starlette.middleware.proxy_headers import ProxyHeadersMiddleware
 
 import os
 import uvicorn
 
 app = FastAPI()
-
-# ✅ Proxy to get real client IP
-app.add_middleware(ProxyHeadersMiddleware, trusted_hosts="*")
 
 # ✅ Rate limiter
 limiter = Limiter(key_func=get_remote_address)
