@@ -1,0 +1,268 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container text-center mt-3 pt-5">
+    <!-- <div class="mb-3">
+        <img src="/static/images/favicon1.png" alt="About BUDASAI" width="50">
+    </div> -->
+    <h1 class="reveal">About BUDASAI</h1>
+    <p class="p-5 reveal reveal-delay-1">
+        Budasai helps businesses increase revenue, eliminate manual work, and make smarter decisions using practical AI
+        systems.
+    </p>
+</div>
+<div class="container mt-5 text-center">
+    <h1 class="reveal reveal-delay-2">Our Process</h1>
+
+    <div class="row justify-content-center mt-5 g-4">
+
+        <!-- Card 1 -->
+        <div class="col-12 col-md-6 col-lg-4 col-xl-3 reveal-left reveal-delay-3">
+            <div class="process-card">
+                <div class="step-number">01</div>
+
+                <div class="icon-circle">
+                    <i class="bi bi-file-text-fill"></i>
+                </div>
+
+                <h5 class="mt-3">Free Guide</h5>
+                <div>
+                    Download our AI starter guide to understand the landscape.
+                </div>
+            </div>
+        </div>
+
+        <!-- Card 2 -->
+        <div class="col-12 col-md-6 col-lg-4 col-xl-3 reveal-left reveal-delay-4">
+            <div class="process-card">
+                <div class="step-number">02</div>
+
+                <div class="icon-circle">
+                    <i class="bi bi-filetype-pdf"></i>
+                </div>
+
+                <h5 class="mt-3">AI Audit PDF</h5>
+
+                <div>
+                    Get a personalized audit revealing your automation opportunities.
+                </div>
+            </div>
+        </div>
+
+        <!-- Card 3 -->
+        <div class="col-12 col-md-6 col-lg-4 col-xl-3 reveal-right reveal-delay-4">
+            <div class="process-card">
+                <div class="step-number">03</div>
+
+                <div class="icon-circle">
+                    <i class="bi bi-tools"></i>
+                </div>
+
+                <h5 class="mt-3">Software Toolkit</h5>
+
+                <div>
+                    Implement plug-and-play AI tools with our automation kit.
+                </div>
+            </div>
+        </div>
+
+        <!-- Card 4 -->
+        <div class="col-12 col-md-6 col-lg-4 col-xl-3 reveal-right reveal-delay-3">
+            <div class="process-card">
+                <div class="step-number">04</div>
+
+                <div class="icon-circle">
+                    <img src="/static/images/crown.png" width="30">
+                </div>
+
+                <h5 class="mt-3">Premium Subscription</h5>
+                <div>
+                    Ongoing support, updates, and advanced AI strategies.
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+
+<div class="container text-center mt-5">
+    <h1 class="mb-4 reveal">Frequently Asked Questions</h1>
+
+    <div class="row justify-content-center">
+        <div class="col-md-6 text-start">
+
+            <!-- Card 1 -->
+            <div class="info-card mb-4 reveal">
+                <button class="toggle-btn w-100 d-flex justify-content-between align-items-center"
+                    data-bs-toggle="collapse" data-bs-target="#item1" aria-expanded="false">
+                    <span class="card-title">Is AI expensive?</span>
+                    <span class="arrow">&#9662;</span>
+                </button>
+
+                <div id="item1" class="collapse dropdown-details mt-2">
+                    Not with BudasAI. Our solutions are designed to deliver ROI within weeks. Most clients save more
+                    than their investment within the first month through time savings alone.
+                </div>
+            </div>
+
+            <!-- Card 2 -->
+            <div class="info-card mb-4 reveal">
+                <button class="toggle-btn w-100 d-flex justify-content-between align-items-center"
+                    data-bs-toggle="collapse" data-bs-target="#item2">
+                    <span class="card-title">Do I need technical knowledge?</span>
+                    <span class="arrow">&#9662;</span>
+                </button>
+
+                <div id="item2" class="collapse dropdown-details mt-2">
+                    Absolutely not. Our tools come with step-by-step guides and video walkthroughs. If you can use
+                    email, you can use our AI solutions.
+                </div>
+            </div>
+
+            <!-- Card 3 -->
+            <div class="info-card mb-4 reveal">
+                <button class="toggle-btn w-100 d-flex justify-content-between align-items-center"
+                    data-bs-toggle="collapse" data-bs-target="#item3">
+                    <span class="card-title">How quickly can I see results?</span>
+                    <span class="arrow">&#9662;</span>
+                </button>
+
+                <div id="item3" class="collapse dropdown-details mt-2">
+                    Most clients report measurable time savings within the first week. Full ROI typically happens within
+                    30–60 days depending on implementation scope.
+                </div>
+            </div>
+
+            <!-- Card 4 -->
+            <div class="info-card mb-4 reveal">
+                <button class="toggle-btn w-100 d-flex justify-content-between align-items-center"
+                    data-bs-toggle="collapse" data-bs-target="#item4">
+                    <span class="card-title">Is this suitable for small businesses?</span>
+                    <span class="arrow">&#9662;</span>
+                </button>
+
+                <div id="item4" class="collapse dropdown-details mt-2">
+                    Yes! Our solutions are specifically designed with small and mid-size businesses in mind. No
+                    enterprise-level complexity or pricing.
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+<div id="contact-section" class="container text-center mt-5 mb-5">
+    <h1 class="reveal">Get in Touch</h1>
+    <div class="text-content reveal">
+        We'd love to hear from you. Let's explore how AI can help your business.
+    </div>
+
+    <div class="container my-5">
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+
+                <form action="/contact" method="POST" class="contact-form p-4 reveal position-relative">
+
+                    <!-- 🔔 Status Message -->
+                    <div id="form-message" class="form-message d-none"></div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Name</label>
+                        <input type="text" class="form-control" placeholder="Your name" name="name" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Email</label>
+                        <input type="email" class="form-control" placeholder="Your email" name="email" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Business Type</label>
+                        <input type="text" class="form-control" placeholder="Business type" name="business_type"
+                            required>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label">Message</label>
+                        <textarea class="form-control" rows="4" placeholder="Write your message" name="message"
+                            required></textarea>
+                    </div>
+
+                    <button type="submit" class="button-fill-square w-100">
+                        <span class="btn-text">Send Message</span>
+                        <span class="btn-loading d-none">Sending...</span>
+                    </button>
+
+                </form>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const form = document.querySelector(".contact-form");
+    const submitBtn = form.querySelector("button[type='submit']");
+    const btnText = submitBtn.querySelector(".btn-text");
+    const btnLoading = submitBtn.querySelector(".btn-loading");
+    const messageBox = document.getElementById("form-message");
+
+    let isSubmitting = false;
+
+    function showMessage(type, text) {
+        messageBox.classList.remove("d-none", "success", "error");
+        messageBox.classList.add(type);
+        messageBox.innerText = text;
+
+        // Auto hide after 5 seconds
+        setTimeout(() => {
+            messageBox.classList.add("d-none");
+        }, 5000);
+    }
+
+    form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+
+        if (isSubmitting) return;
+        isSubmitting = true;
+
+        submitBtn.disabled = true;
+        btnText.classList.add("d-none");
+        btnLoading.classList.remove("d-none");
+
+        const formData = new FormData(form);
+
+        try {
+            const response = await fetch("/contact", {
+                method: "POST",
+                body: formData
+            });
+
+            const result = await response.json();
+
+            if (response.status === 429) {
+                showMessage("error", "Too many requests. Please try again tomorrow.");
+            }
+            else if (result.success) {
+                showMessage("success", "Message sent successfully! We'll contact you soon.");
+                form.reset();
+            } 
+            else {
+                showMessage("error", result.message || "Something went wrong. Please try again.");
+            }
+
+        } catch (err) {
+            console.error(err);
+            showMessage("error", "Unexpected error occurred. Please try again later.");
+        } finally {
+            submitBtn.disabled = false;
+            btnText.classList.remove("d-none");
+            btnLoading.classList.add("d-none");
+            isSubmitting = false;
+        }
+    });
+</script>
+
+{% endblock %}

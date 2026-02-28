@@ -1,0 +1,151 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<!-- Header -->
+<div class="container text-center mt-5 pt-5">
+    <h1 class="reveal">AI Success Stories Across Industries</h1>
+    <div class="subhead reveal reveal-delay-1">
+        Real businesses, real problems, real AI-powered results.
+    </div>
+</div>
+
+<!-- Filters -->
+<div class="container text-center mt-4 reveal reveal-delay-2">
+    <div class="filters d-flex justify-content-center flex-wrap gap-3">
+
+        <button class="filter-btn active" data-filter="all">All</button>
+        <button class="filter-btn" data-filter="real estate">Real Estate</button>
+        <button class="filter-btn" data-filter="marketing">Marketing</button>
+        <button class="filter-btn" data-filter="hr">HR</button>
+        <button class="filter-btn" data-filter="finance">Finance</button>
+        <button class="filter-btn" data-filter="operations">Operations</button>
+
+    </div>
+</div>
+
+
+<div class="container mt-5">
+    <div class="row g-4">
+
+        {% for story in stories %}
+        <div class="col-lg-6 col-md-12 story-card-wrapper d-flex" data-category="{{ story.category|lower }}">
+
+            <div class="story-card reveal reveal-delay-2">
+                <img src="{{ story.img_url }}" class="img-fluid card-img-top">
+
+                <div class="p-4">
+
+                    <span class="category-badge">
+                        {{ story.category }}
+                    </span>
+
+                    <h4 class="mt-3">
+                        {{ story.title }}
+                    </h4>
+
+                    <div class="row mt-4 g-3">
+                        <div class="col-md-4">
+                            <h6 class="text-danger">Problem</h6>
+                            <p class="story-text">
+                                {{ story.problem }}
+                            </p>
+                        </div>
+
+                        <div class="col-md-4">
+                            <h6 class="text-primary">AI Solution</h6>
+                            <p class="story-text">
+                                {{ story.solution }}
+                            </p>
+                        </div>
+
+                        <div class="col-md-4">
+                            <h6 class="text-success">Results</h6>
+                            <ul class="custom-check-list">
+                                {% if story.results %}
+                                {% if story.results is mapping %}
+                                {% for key, value in story.results.items() %}
+                                <li>{{ value }}</li>
+                                {% endfor %}
+                                {% else %}
+                                {% for value in story.results %}
+                                <li>{{ value }}</li>
+                                {% endfor %}
+                                {% endif %}
+                                {% endif %}
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="row mt-4 g-3">
+                        <div class="col-md-6 d-flex">
+                            <div class="before-box h-100 w-100">
+                                <h6 class="before-title">Before</h6>
+                                <p class="story-text">
+                                    {{ story.before_text }}
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6 d-flex">
+                            <div class="after-box h-100 w-100">
+                                <h6 class="after-title">After</h6>
+                                <p class="story-text">
+                                    {{ story.after_text }}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <hr class="my-4">
+
+                    <div class="text-center">
+                        <h5>{{ story.cta_text }}</h5>
+                        <button class="button-fill-square mt-3">
+                            <a href="/products" class="button-fill-square mt-3" style="text-decoration: none;">
+                                Get Personalized AI Audit
+                                <i class="bi bi-arrow-right-short"></i>
+                            </a>
+                            <!-- Get Personalized AI Audit
+                            <i class="bi bi-arrow-right-short"></i> -->
+                        </button>
+
+                    </div>
+
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+
+    </div>
+</div>
+
+
+<div class="container mt-5">
+    <div class="download-card text-center reveal reveal-delay-1">
+
+        <i class="bi bi-download download-icon"></i>
+
+        <h2>Free AI Starter Guide</h2>
+
+        <p class="card-content">
+            Download our comprehensive PDF to discover how AI can transform your daily workflows.
+        </p>
+
+        <form class="download-form">
+            <input type="email" name="email" placeholder="Enter your email  " required>
+            <button type="submit" class="button-fill-square">
+                Download Free PDF
+            </button>
+        </form>
+
+    </div>
+</div>
+
+<div class="card-link text-center mt-4">
+    <a href="/products">
+        Get Your Custom AI Plan
+        <i class="bi bi-arrow-right-short"></i>
+    </a>
+</div>
+
+{% endblock %}

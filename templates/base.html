@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}BUDASAI{% endblock %}</title>
+
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+
+
+
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/static/css/style.css">
+
+    <link rel="icon" type="image/x-icon" href="/static/images/favicon.png">
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+
+            const elements = document.querySelectorAll(
+                ".reveal, .reveal-left, .reveal-right, .reveal-zoom"
+            );
+
+            const observer = new IntersectionObserver((entries, observer) => {
+                entries.forEach(entry => {
+
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add("active");
+
+                        // stop observing after animation (important)
+                        observer.unobserve(entry.target);
+                    }
+
+                });
+            }, {
+                threshold: 0.2,          // 20% visible triggers animation
+                rootMargin: "0px 0px -50px 0px"  // delay until slightly inside viewport
+            });
+
+            elements.forEach(el => observer.observe(el));
+
+        });
+    </script>
+
+
+</head>
+
+<body>
+
+    <nav class="navbar navbar-expand-lg navbar-dark custom-navbar fixed-top">
+        <div class="container-fluid position-relative">
+
+            <!-- Logo -->
+            <a class="navbar-brand navbar-logo" href="/">
+                <img class="logo-img" src="/static/images/budasai-logo.png" alt="BUDASAI">
+            </a>
+
+            <!-- Mobile Toggle -->
+            <button class="navbar-toggler text-white border-0" type="button" data-bs-toggle="collapse"
+                data-bs-target="#navbarContent">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse justify-content-center" id="navbarContent">
+
+                <!-- Menu Items -->
+                <div class="navbar-nav text-center nav-center mx-auto">
+                    <a class="nav-item nav-link invisible d-none d-lg-block">Home</a>
+                    <a class="nav-item nav-link invisible d-none d-lg-block">Home</a> <!-- hidden but takes up space -->
+                    <a class="nav-item nav-link {% if request.url.path == '/' %}active{% endif %}" href="/">Home</a>
+                    <a class="nav-item nav-link {% if request.url.path == '/story' %}active{% endif %}"
+                        href="/story">Story</a>
+                    <a class="nav-item nav-link {% if request.url.path == '/products' %}active{% endif %}"
+                        href="/products">Products</a>
+                    <a class="nav-item nav-link {% if request.url.path == '/blog' %}active{% endif %}"
+                        href="/blog">Blog</a>
+                    <a class="nav-item nav-link {% if request.url.path == '/about' %}active{% endif %}"
+                        href="/about">About</a>
+                </div>
+
+                <!-- Auth button inside collapse -->
+                <div id="navbar-auth">
+                    <button id="login-button" type="button" class="premium-btn d-inline-flex align-items-center gap-2"
+                        data-bs-toggle="modal" data-bs-target="#loginModal">
+                        Login
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+
+    <div class="content-offset">
+        {% block content %}{% endblock %}
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+
+            const filterButtons = document.querySelectorAll(".filter-btn");
+            const cards = document.querySelectorAll(".story-card-wrapper");
+
+            filterButtons.forEach(button => {
+
+                button.addEventListener("click", function () {
+
+                    const filterValue = this.getAttribute("data-filter");
+
+                    // Remove active from all buttons
+                    filterButtons.forEach(btn => btn.classList.remove("active"));
+
+                    // Add active to clicked button
+                    this.classList.add("active");
+
+                    cards.forEach(card => {
+
+                        const category = card.getAttribute("data-category");
+
+                        if (filterValue === "all" || category === filterValue) {
+                            card.classList.remove("d-none");
+                        } else {
+                            card.classList.add("d-none");
+                        }
+
+                    });
+
+                });
+
+            });
+
+        });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        const supabase = window.supabase.createClient(
+            "https://aznlbmkbuwasvaqrnnfo.supabase.co",
+            "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF6bmxibWtidXdhc3ZhcXJubmZvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE1MDg2MTMsImV4cCI6MjA4NzA4NDYxM30.z_PCB9_JEUeQHGTbJGf7JWJqkF90-kStikh4WNz90MQ"
+        );
+
+        /* Google login */
+        async function loginGoogle() {
+            await supabase.auth.signInWithOAuth({
+                provider: 'google'
+            });
+        }
+
+        /* Email signup */
+        async function signupEmail() {
+            const email = document.getElementById("signup_email").value;
+            const password = document.getElementById("signup_password").value;
+
+            await supabase.auth.signUp({
+                email: email,
+                password: password
+            });
+
+            alert("Check your email to confirm signup");
+        }
+    </script>
+
+
+    <!-- Login Modal -->
+    <div class="modal fade" id="loginModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content p-3">
+
+                <div class="modal-header border-0">
+                    <h5 class="modal-title">Login</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+
+                <div class="modal-body">
+
+                    <!-- Email -->
+                    <input type="text" class="form-control mb-3" placeholder="Login ID / Email">
+
+                    <!-- Password -->
+                    <input type="password" class="form-control mb-3" placeholder="Password">
+
+                    <!-- Login Button -->
+                    <div id="auth-section">
+                        <button id="login-btn">Login</button>
+
+                        <div id="user-menu" style="display:none;">
+                            <span id="user-name"></span>
+                            <div class="dropdown">
+                                <a href="#" id="logout-btn">Logout</a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Divider -->
+                    <div class="text-center mb-3">
+                        <small class="text-muted">OR</small>
+                    </div>
+
+                    <!-- Google Login -->
+                    <button class="btn btn-outline-danger w-100 mb-3">
+                        <a href="https://aznlbmkbuwasvaqrnnfo.supabase.co/auth/v1/authorize?provider=google&flow_type=pkce&redirect_to=http://localhost:8000/auth/callback"
+                            style="text-decoration: none; color: inherit;">
+                            <img src="/static/images/google.png" alt="Google Icon" width="20" height="20" class="me-2">
+                            Login with Google
+                        </a>
+                    </button>
+
+                    <!-- Signup -->
+                    <div class="text-center">
+                        <small>
+                            Don't have an account?
+                            <a href="/signup">Sign Up</a>
+                        </small>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function openLoginModal() {
+            var myModal = new bootstrap.Modal(document.getElementById('loginModal'));
+            myModal.show();
+        }
+    </script>
+
+    <script>
+        async function checkUser() {
+            console.log('Checking user...');
+            const response = await fetch("/get-user");
+            const data = await response.json();
+            console.log('User data:', data);
+
+            if (data.user) {
+                console.log('User authenticated:', data.user.email);
+
+                const firstName = data.user.user_metadata?.full_name
+                    ? data.user.user_metadata.full_name.split(" ")[0]
+                    : data.user.email.split("@")[0];
+
+                document.getElementById("navbar-auth").innerHTML = `
+            <div class="dropdown">
+                <button class="premium-btn dropdown-toggle"
+                        type="button"
+                        data-bs-toggle="dropdown">
+                    ${firstName}
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end" style="background-color: transparent; border: none; box-shadow: none; padding: 0;">
+                    <li><a class="dropdown-item" href="#" onclick="logout(); return false;" style="background-color: #dc3545; color: white; border-radius: 4px; margin: 5px; padding: 8px 12px; display: block; text-align: center; text-decoration: none; font-weight: 500;">Logout</a></li>
+                </ul>
+            </div>
+        `;
+            } else {
+                console.log('User not authenticated');
+            }
+        }
+
+        async function logout() {
+            console.log('Logging out...');
+            await fetch("/logout");
+            window.location.href = "/";
+        }
+
+        async function handleDownloadAudit() {
+            console.log('Download audit clicked');
+            const response = await fetch("/get-user");
+            const data = await response.json();
+
+            if (data.user) {
+                console.log('User authenticated, downloading...');
+                // User is logged in, download the PDF
+                window.location.href = '/download-audit-report';
+            } else {
+                console.log('User not authenticated, opening login modal');
+                // User not logged in, open login modal
+                const loginModal = new bootstrap.Modal(document.getElementById('loginModal'));
+                loginModal.show();
+            }
+        }
+
+        // Call checkUser after page fully loads
+        window.addEventListener('load', function () {
+            console.log('Page loaded, checking user...');
+            checkUser();
+
+            // Attach click handler to download button if it exists
+            const downloadBtn = document.getElementById('downloadAuditBtn');
+            if (downloadBtn) {
+                downloadBtn.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    handleDownloadAudit();
+                });
+            }
+
+            // currency selector reload
+            const curSelect = document.getElementById('currency-select');
+            if (curSelect) {
+                curSelect.addEventListener('change', function () {
+                    const url = new URL(window.location.href);
+                    url.searchParams.set('currency', curSelect.value);
+                    window.location.href = url.toString();
+                });
+            }
+        });
+    </script>
+
+
+</body>
+
+
+<footer class="custom-footer mt-5 pt-5">
+    <div class="container-fluid">
+
+        <div class="row gy-4 text-center text-lg-start align-items-center">
+
+            <!-- Left Section (Logo) -->
+            <div class="col-12 col-lg-4 text-lg-start">
+                <img class="logo-img" src="/static/images/budasai-logo.png" alt="BUDASAI">
+                <p class="footer-tagline mt-3">
+                    Simplifying AI. Automating your workflows.
+                </p>
+            </div>
+
+            <!-- Center Navigation -->
+            <div class="col-12 col-lg-3 text-center text-lg-start">
+                <h6 class="footer-heading">Navigate</h6>
+                <div class="footer-links d-flex flex-column align-items-center align-items-lg-start">
+                    <a href="/">Home</a>
+                    <a href="/story">Story</a>
+                    <a href="/products">Products</a>
+                    <a href="/blog">Blog</a>
+                    <a href="/about">About</a>
+                </div>
+            </div>
+
+            <!-- Newsletter -->
+            <div class="col-12 col-lg-5 text-center text-lg-start">
+                <h6 class="footer-heading">Newsletter</h6>
+                <p class="newsletter-text">Get weekly AI insights.</p>
+                <div class="newsletter-box d-flex gap-2 justify-content-center justify-content-lg-start">
+                    <input type="email" placeholder="Enter your email">
+                    <button>Join</button>
+                </div>
+            </div>
+
+        </div>
+
+        <hr class="footer-divider my-4">
+
+        <!-- Bottom Row -->
+        <div class="d-flex flex-column flex-lg-row justify-content-between align-items-center footer-bottom gap-2">
+            <div>
+                © 2026 BUDASAI. All rights reserved.
+            </div>
+
+            <div class="social-links d-flex gap-3">
+                <a href="#">Twitter</a>
+                <a href="#">LinkedIn</a>
+                <a href="#">YouTube</a>
+            </div>
+        </div>
+
+    </div>
+</footer>
+
+
+
+</html>

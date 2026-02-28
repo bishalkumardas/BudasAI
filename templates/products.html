@@ -1,0 +1,477 @@
+{% extends "base.html" %}
+
+{% block content %}
+<!-- FULL WIDTH AI AUDIT SECTION -->
+<div class="audit-hero">
+
+    <div class="container text-center">
+
+        <!-- Capsule -->
+        <div class="audit-pill reveal">AI Audit</div>
+
+        <!-- Heading -->
+        <h2 class="audit-heading reveal reveal-delay-1">
+            Personalized AI Business Audit
+        </h2>
+
+        <p class="audit-sub reveal reveal-delay-2">
+            Discover exactly where AI can save your business time, money, and manual effort.
+        </p>
+
+        <!-- Button -->
+        <a href="#plans" class="button-fill-square reveal reveal-delay-3" style="text-decoration: none;">
+            Get My AI Audit
+            <i class="bi bi-arrow-right-short"></i>
+        </a>
+
+        <!-- Features Row -->
+        <div class="audit-features reveal reveal-delay-4">
+
+            <div>
+                <i class="bi bi-clock"></i>
+                Delivered within 48 hours
+            </div>
+
+            <div>
+                <i class="bi bi-shield"></i>
+                Personalized to your business
+            </div>
+
+            <div>
+                <i class="bi bi-people"></i>
+                No technical knowledge required
+            </div>
+
+        </div>
+
+        <!-- Price -->
+        <h3 class="audit-price reveal reveal-delay-5">Starting at just {{ symbol }}{{ price }}</h3>
+        <div class="d-flex justify-content-center my-3 reveal reveal-delay-5">
+            <select id="currency-select" class="form-select form-select-sm w-auto">
+                <option value="INR" {% if currency == 'INR' %}selected{% endif %}>INR</option>
+                <option value="USD" {% if currency == 'USD' %}selected{% endif %}>USD</option>
+                <option value="AED" {% if currency == 'AED' %}selected{% endif %}>AED</option>
+            </select>
+        </div>
+        <p class="audit-price-sub reveal reveal-delay-6">
+            *price may vary as per business size
+        </p>
+
+        <!-- Capsule -->
+        <div class="audit-pill-orange reveal reveal-delay-7">
+            Limited Launch Offer
+        </div>
+
+    </div>
+
+</div>
+
+<div class="container mt-5 text-center">
+
+    <h2 class="reveal">What You'll Receive</h2>
+6
+    <p class="text-content reveal">
+        A comprehensive, actionable AI report tailored specifically to your business.
+    </p>
+
+    <div class="row g-4 mt-4">
+
+        <!-- CARD -->
+        <div class="col-md-4 reveal-left">
+            <div class="audit-card">
+                <i class="bi bi-graph-up"></i>
+                <h5>Business Workflow Analysis</h5>
+                <p>
+                    Deep dive into your current processes to uncover inefficiencies.
+                </p>
+            </div>
+        </div>
+
+        <div class="col-md-4 reveal-zoom">
+            <div class="audit-card">
+                <i class="bi bi-graph-up"></i>
+                <h5>Business Workflow Analysis</h5>
+                <p>
+                    Deep dive into your current processes to uncover inefficiencies.
+                </p>
+            </div>
+        </div>
+
+        <div class="col-md-4 reveal-right">
+            <div class="audit-card">
+                <i class="bi bi-graph-up"></i>
+                <h5>Business Workflow Analysis</h5>
+                <p>
+                    Deep dive into your current processes to uncover inefficiencies.
+                </p>
+            </div>
+        </div>
+
+        <div class="col-md-4 reveal-left">
+            <div class="audit-card">
+                <i class="bi bi-graph-up"></i>
+                <h5>Business Workflow Analysis</h5>
+                <p>
+                    Deep dive into your current processes to uncover inefficiencies.
+                </p>
+            </div>
+        </div>
+
+        <div class="col-md-4 reveal-zoom">
+            <div class="audit-card">
+                <i class="bi bi-graph-up"></i>
+                <h5>Business Workflow Analysis</h5>
+                <p>
+                    Deep dive into your current processes to uncover inefficiencies.
+                </p>
+            </div>
+        </div>
+
+        <div class="col-md-4 reveal-right">
+            <div class="audit-card">
+                <i class="bi bi-graph-up"></i>
+                <h5>Business Workflow Analysis</h5>
+                <p>
+                    Deep dive into your current processes to uncover inefficiencies.
+                </p>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+
+<div class="container mt-5 text-center">
+
+    <h2 class="reveal">What's Inside</h2>
+
+    <div class="row g-3 mt-4">
+
+        <!-- ITEM -->
+        <div class="col-md-4">
+            <div class="inside-box reveal-left reveal-delay-1">
+                <div class="inside-num">1</div> Overview of your current business workflow
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="inside-box reveal-zoom reveal-delay-1">
+                <div class="inside-num">2</div>
+                Identify automation opportunities
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="inside-box reveal-right reveal-delay-1">
+                <div class="inside-num">3</div>
+                List of 5–10 recommended AI tools
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="inside-box reveal-left reveal-delay-1">
+                <div class="inside-num">4</div>
+                Step-by-step implementation plan
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="inside-box reveal-zoom reveal-delay-1">
+                <div class="inside-num">5</div>
+                Estimated hours saved per week
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="inside-box reveal-right reveal-delay-1">
+                <div class="inside-num">6</div>
+                Cost comparison: free vs paid tools
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+<div class="container mt-5 text-center">
+
+    <h2 class="reveal">Who It's For</h2>
+
+    <p class="text-content reveal reveal-delay-1">
+        Our audit is designed for businesses ready to embrace AI — no matter the industry.
+    </p>
+
+    <div class="row mt-4 g-3">
+
+        <div class="col">
+            <div class="who-box reveal-left reveal-delay-2">
+                <i class="bi bi-buildings"></i>
+                Real Estate <span class="tick">✔</span>
+            </div>
+        </div>
+
+        <div class="col">
+            <div class="who-box reveal-left reveal-delay-2">
+                <i class="bi bi-megaphone"></i>
+                Social Media Agencies <span class="tick">✔</span>
+            </div>
+        </div>
+
+        <div class="col">
+            <div class="who-box reveal-zoom reveal-delay-2">
+                <i class="bi bi-person-check"></i>
+                HR Teams <span class="tick">✔</span>
+            </div>
+        </div>
+
+        <div class="col">
+            <div class="who-box reveal-right reveal-delay-2">
+                <i class="bi bi-bag"></i>
+                Retail Shops <span class="tick">✔</span>
+            </div>
+        </div>
+
+        <div class="col">
+            <div class="who-box reveal-right reveal-delay-2">
+                <i class="bi bi-shop-window"></i>
+                Small Businesses <span class="tick">✔</span>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+
+<div id="plans" class="container mt-5 text-center pricing-section">
+
+    <h2 class="reveal">AI Audit Pricing</h2>
+
+    <p class="text-content reveal reveal-delay-1">
+        Choose the right AI audit plan for your business stage. Upgrade anytime as your automation needs grow.
+    </p>
+
+    <div class="row mt-5 g-4">
+
+        <!-- INSIGHT -->
+        <div class="col-lg-3 col-md-6">
+            <div class="pricing-card premium-card">
+                <div class="plan-badge">Starter</div>
+                <h3 class="plan-title">Budasai Insight</h3>
+                <p class="plan-subtitle">AI Opportunity Starter Kit</p>
+
+                <div class="price">{{ symbol }}0</div>
+
+                <div class="feature-group">
+                    <h6>AI Coverage</h6>
+                    <ul>
+                        <li>AI for Marketing overview</li>
+                        <li>AI for Sales basics</li>
+                        <li>AI for HR & Operations intro</li>
+                    </ul>
+                </div>
+
+                <div class="feature-group">
+                    <h6>Includes</h6>
+                    <ul>
+                        <li>3 Automation examples</li>
+                        <li>Beginner tool stack</li>
+                        <li>AI readiness checklist</li>
+                    </ul>
+                </div>
+
+                <a href="/download/guide" class="button-fill-square w-100 mt-3">Download Guide</a>
+            </div>
+        </div>
+
+
+        <!-- BLUEPRINT -->
+        <div class="col-lg-3 col-md-6">
+            <div class="pricing-card premium-card highlighted">
+                <div class="plan-badge popular">Most Popular</div>
+                <h3 class="plan-title">Budasai Blueprint</h3>
+                <p class="plan-subtitle">Department-Wise AI Strategy</p>
+
+                <div class="price">{{ symbol }}{{ price }}</div>
+
+                <div class="feature-group">
+                    <h6>Department Systems</h6>
+                    <ul>
+                        <li>AI for Marketing system</li>
+                        <li>AI Sales funnel automation</li>
+                        <li>HR screening AI model</li>
+                        <li>Operations workflow design</li>
+                    </ul>
+                </div>
+
+                <div class="feature-group">
+                    <h6>Deliverables</h6>
+                    <ul>
+                        <li>Tool stack recommendations</li>
+                        <li>Workflow diagrams</li>
+                        <li>30-day roadmap</li>
+                    </ul>
+                </div>
+
+                <a href="about#contact-section" class="button-fill-square w-100 mt-3">Get Blueprint</a>
+            </div>
+        </div>
+
+
+        <!-- GROWTH ENGINE -->
+        <div class="col-lg-3 col-md-6">
+            <div class="pricing-card premium-card pro-card">
+                <div class="plan-badge pro">Advanced</div>
+                <h3 class="plan-title">Budasai Growth Engine</h3>
+                <p class="plan-subtitle">Revenue + Automation Audit</p>
+
+                <div class="price">{{ symbol }}{{ adv_price }}</div>
+
+                <div class="feature-group">
+                    <h6>Business Analysis</h6>
+                    <ul>
+                        <li>Revenue leakage audit</li>
+                        <li>Process gap analysis</li>
+                        <li>Automation opportunities</li>
+                    </ul>
+                </div>
+
+                <div class="feature-group">
+                    <h6>Implementation Strategy</h6>
+                    <ul>
+                        <li>AI tech stack mapping</li>
+                        <li>KPI dashboard plan</li>
+                        <li>90-day execution strategy</li>
+                    </ul>
+                </div>
+
+                <a href="about#contact-section" class="button-fill-square w-100 mt-3">Book Audit</a>
+            </div>
+        </div>
+
+
+        <!-- TRANSFORMATION -->
+        <div class="col-lg-3 col-md-6">
+            <div class="pricing-card premium-card enterprise-card">
+                <div class="plan-badge enterprise">Enterprise</div>
+                <h3 class="plan-title">Budasai Transformation Suite</h3>
+                <p class="plan-subtitle">Full AI Business Integration</p>
+
+                <div class="price">Custom</div>
+
+                <div class="feature-group">
+                    <h6>Full Systems</h6>
+                    <ul>
+                        <li>Marketing AI implementation</li>
+                        <li>Sales AI revenue engine</li>
+                        <li>HR automation systems</li>
+                        <li>Operations AI optimization</li>
+                    </ul>
+                </div>
+
+                <div class="feature-group">
+                    <h6>Premium Support</h6>
+                    <ul>
+                        <li>Advanced analytics</li>
+                        <li>Custom automation build</li>
+                        <li>Team AI training</li>
+                        <li>6–12 month partnership</li>
+                    </ul>
+                </div>
+
+                <a href="about#contact-section" class="button-fill-square w-100 mt-3">Contact Sales</a>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+
+
+
+<div class="container mt-5 text-center">
+
+    <h2 class="reveal">Coming Soon</h2>
+
+    <p class="text-content reveal reveal-delay-1">
+        We're building more tools to help you scale with AI.
+    </p>
+
+    <div class="row justify-content-center mt-4 g-4">
+
+        <div class="col-md-4">
+            <div class="coming-card reveal-left reveal-delay-2">
+
+                <i class="bi bi-box-seam"></i>
+
+                <h5>Software Automation Toolkit</h5>
+
+                <p>
+                    Plug-and-play AI tools and templates for common business workflows.
+                </p>
+
+                <div class="coming-pill">
+                    Launching Soon
+                </div>
+
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="coming-card reveal-right reveal-delay-2">
+
+                <i class="bi bi-cpu"></i>
+
+                <h5>AI Workflow Templates</h5>
+
+                <p>
+                    Ready-to-use automation templates for everyday business processes.
+                </p>
+
+                <div class="coming-pill">
+                    Launching Soon
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+<div class="container mt-5">
+
+    <div class="final-cta text-center reveal reveal-delay-2">
+
+        <i class="bi bi-file-earmark-text doc-i"></i>
+
+        <h3>Start With Your AI Audit Today</h3>
+
+        <p>
+            Get a personalized report showing exactly how AI can transform your business workflows.
+        </p>
+
+        <br>
+        <!-- Button -->
+        <a href="#plans" class="button-fill-square" style="text-decoration: none;">
+            Buy Now <i class="bi bi-arrow-right-short"></i>
+        </a>
+        <!-- <a href="#plans" class="button-fill-square">
+            Buy Now – Start Your AI Audit Today <i class="bi bi-arrow-right-short"></i>
+        </a> -->
+        <br>
+        <!-- <p>
+            <div class="audit-pill-orange">
+                Limited Early Launch Pricing
+            </div>
+        </p> -->
+
+    </div>
+
+</div>
+
+
+
+
+{% endblock %}

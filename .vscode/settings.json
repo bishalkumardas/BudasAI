@@ -1,0 +1,8 @@
+{
+    "chat.tools.terminal.autoApprove": {
+        "/^powershell -Command \"\\(Invoke-WebRequest 'https://api\\.exchangerate\\.host/latest\\?base=INR&symbols=USD,AED' -UseBasicParsing\\)\\.Content\"$/": {
+            "approve": true,
+            "matchCommandLine": true
+        }
+    }
+}

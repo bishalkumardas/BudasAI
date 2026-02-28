@@ -1,0 +1,1433 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>BUDASAI Admin Dashboard</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <!-- Main Site CSS -->
+    <link rel="stylesheet" href="/static/css/style.css">
+    <!-- CodeMirror CSS for HTML editor -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/codemirror.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/theme/dracula.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background: linear-gradient(135deg, #0F1729 0%, #1a2a4a 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #3C83F6 0%, #2e68d4 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 14px;
+        }
+
+        .main-tabs {
+            display: flex;
+            flex-direction: column;
+            border-bottom: 2px solid #e0e0e0;
+            background: #f8f9fa;
+        }
+
+        .main-tab-button {
+            flex: 1;
+            padding: 20px;
+            border: none;
+            background: none;
+            cursor: pointer;
+            font-size: 18px;
+            font-weight: 600;
+            color: #666;
+            transition: 0.3s ease;
+            border-left: 3px solid transparent;
+            text-align: left;
+        }
+
+        .main-tab-button.active {
+            color: #3C83F6;
+            border-left-color: #3C83F6;
+            background: rgba(60, 131, 246, 0.1);
+        }
+
+        .main-tab-button:hover {
+            background: #f0f0f0;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .maintab {
+            display: none;
+        }
+
+        .maintab.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .subtabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .subtab-button {
+            padding: 12px 20px;
+            border: none;
+            background: none;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            color: #666;
+            border-bottom: 2px solid transparent;
+            transition: 0.3s ease;
+        }
+
+        .subtab-button.active {
+            color: #3C83F6;
+            border-bottom-color: #3C83F6;
+        }
+
+        .subtab-button:hover {
+            color: #3C83F6;
+        }
+
+        .subtab {
+            display: none;
+        }
+
+        .subtab.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        h2 {
+            margin-bottom: 30px;
+            color: #333;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 500;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 16px;
+            font-family: 'Roboto', sans-serif;
+            transition: border-color 0.3s;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 120px;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #3C83F6;
+            box-shadow: 0 0 0 3px rgba(60, 131, 246, 0.1);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .form-full {
+            grid-column: 1 / -1;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .checkbox-group input[type="checkbox"] {
+            width: auto;
+            cursor: pointer;
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 12px;
+            background-color: #3C83F6;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.3s ease;
+            margin-top: 20px;
+        }
+
+        .submit-btn:hover {
+            background-color: #2e68d4;
+            box-shadow: 0 5px 20px rgba(60, 131, 246, 0.3);
+        }
+
+        .table-responsive {
+            overflow-x: auto;
+            margin-top: 20px;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .data-table thead {
+            background: #f8f9fa;
+        }
+
+        .data-table th {
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+            color: #333;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        .data-table td {
+            padding: 15px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .data-table tr:hover {
+            background: #f8f9fa;
+        }
+
+        .edit-btn {
+            padding: 6px 12px;
+            background-color: #3C83F6;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .edit-btn:hover {
+            background-color: #2e68d4;
+        }
+
+        .status-badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .status-published {
+            background: #c6f6d5;
+            color: #22543d;
+        }
+
+        .status-draft {
+            background: #fed7d7;
+            color: #742a2a;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+        }
+
+        .empty-state p {
+            font-size: 16px;
+        }
+
+        /* Preview Modal Styles */
+        .preview-modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            overflow: auto;
+        }
+
+        .preview-modal.active {
+            display: block;
+        }
+
+        .preview-content {
+            background-color: white;
+            margin: 2% auto;
+            max-width: 1200px;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .preview-close {
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            color: #999;
+            cursor: pointer;
+            padding: 10px 20px;
+        }
+
+        .preview-close:hover {
+            color: #000;
+        }
+
+        .preview-btn {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #009688;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 10px;
+            font-size: 14px;
+        }
+
+        .preview-btn:hover {
+            background-color: #00796b;
+        }
+
+        .preview-iframe {
+            width: 100%;
+            height: 600px;
+            border: none;
+            border-radius: 8px;
+        
+            display: inline-block;
+            margin-top: 30px;
+            padding: 10px 20px;
+            background-color: #666;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            transition: 0.3s ease;
+        }
+
+        .logout-btn:hover {
+            background-color: #555;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+
+        .modal.show {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal-close {
+            float: right;
+            font-size: 24px;
+            cursor: pointer;
+            color: #999;
+        }
+
+        .modal-close:hover {
+            color: #333;
+        }
+
+        .code-editor {
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+
+        .CodeMirror {
+            font-size: 14px;
+            height: 400px;
+        }
+
+        .form-row {
+            grid-template-columns: 1fr;
+        }
+
+        .main-tabs {
+            flex-direction: column;
+        }
+
+        .header h1 {
+            font-size: 24px;
+        }
+
+        .main-tab-button {
+            text-align: left;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>BUDASAI Admin Dashboard</h1>
+            <p>Manage blogs and stories</p>
+        </div>
+
+        <!-- Main Tabs -->
+        <div class="main-tabs">
+            <button class="main-tab-button active" onclick="openMainTab(event, 'blogs')">📝 Blogs</button>
+            <button class="main-tab-button" onclick="openMainTab(event, 'stories')">📖 Stories</button>
+        </div>
+
+        <div class="content">
+            <!-- ==================== BLOGS TAB ==================== -->
+            <div id="blogs" class="maintab active">
+                <div class="subtabs">
+                    <button class="subtab-button active" onclick="openSubTab(event, 'blog-create', 'blogs')">Create
+                        Blog</button>
+                    <button class="subtab-button" onclick="openSubTab(event, 'blog-list', 'blogs')">View Blogs</button>
+                    <button class="subtab-button" onclick="openSubTab(event, 'blog-edit', 'blogs')">Edit Blog</button>
+                </div>
+
+                <!-- Create Blog -->
+                <div id="blog-create" class="subtab active">
+                    <h2>Create New Blog</h2>
+                    <form method="post" action="/admin/blog/create">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="blog-title">Title</label>
+                                <input type="text" id="blog-title" name="title" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="blog-slug">Slug (sub head)</label>
+                                <input type="text" id="blog-slug" name="slug" required>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="blog-category">Category</label>
+                                <select id="blog-category" name="category" required>
+                                    <option value="">-- Select Category --</option>
+                                    <option value="AI Tools">AI Tools</option>
+                                    <option value="Productivity">Productivity</option>
+                                    <option value="Case Study">Case Study</option>
+                                    <option value="Reviews">Reviews</option>
+                                    <option value="AI News">AI News</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="blog-date">Date</label>
+                                <input type="date" id="blog-date" name="date" required>
+                            </div>
+                        </div>
+
+                        <div class="form-group form-full">
+                            <label for="blog-image">Image URL</label>
+                            <input type="url" id="blog-image" name="image_url" required>
+                        </div>
+
+                        <div class="form-group form-full">
+                            <label for="blog-excerpt">Excerpt (sales pich)</label>
+                            <textarea id="blog-excerpt" name="excerpt" required></textarea>
+                        </div>
+
+                        <div class="form-group form-full">
+                            <label for="blog-html">HTML Content</label>
+                            <textarea id="blog-html" name="html_content" placeholder="Enter HTML content..."></textarea>
+                        </div>
+
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="blog-published" name="is_published" value="on">
+                            <label for="blog-published" style="margin-bottom: 0;">Publish Now</label>
+                        </div>
+
+                        <div style="display: flex; gap: 10px; margin-top: 20px;">
+                            <button type="button" class="preview-btn" onclick="previewBlogCreate()">Preview</button>
+                            <button type="submit" class="submit-btn" style="flex: 1;">Create Blog</button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- View Blogs -->
+                <div id="blog-list" class="subtab">
+                    <h2>All Blogs</h2>
+                    {% if blogs %}
+                    <div class="table-responsive">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Title</th>
+                                    <th>Category</th>
+                                    <th>Slug</th>
+                                    <th>Status</th>
+                                    <th>Created</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for blog in blogs %}
+                                <tr>
+                                    <td>{{ blog.title }}</td>
+                                    <td>{{ blog.category }}</td>
+                                    <td>{{ blog.slug }}</td>
+                                    <td>
+                                        <span
+                                            class="status-badge {% if blog.is_published %}status-published{% else %}status-draft{% endif %}">
+                                            {% if blog.is_published %}Published{% else %}Draft{% endif %}
+                                        </span>
+                                    </td>
+                                    <td>{{ blog.create_at if blog.create_at else 'N/A' }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="empty-state">
+                        <p>No blogs found. Create one to get started!</p>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- Edit Blog -->
+                <div id="blog-edit" class="subtab">
+                    <h2>Edit Blog</h2>
+                    {% if blogs %}
+                    <form method="post" action="/admin/blog/update">
+                        <div class="form-group">
+                            <label for="blog-select">Select Blog</label>
+                            <select id="blog-select" name="id" onchange="populateBlogForm()" required>
+                                <option value="">-- Select a blog --</option>
+                                {% for blog in blogs %}
+                                <option value="{{ blog.id }}" data-title="{{ blog.title }}" data-slug="{{ blog.slug }}"
+                                    data-category="{{ blog.category }}" data-image="{{ blog.image_url }}"
+                                    data-excerpt="{{ blog.excerpt }}" data-date="{{ blog.date }}"
+                                    data-html='{{ blog.html_content | tojson | safe }}'
+                                    data-published="{{ blog.is_published }}">
+                                    [ID: {{ blog.id }}] {{ blog.title }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="edit-blog-title">Title</label>
+                                <input type="text" id="edit-blog-title" name="title" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="edit-blog-slug">Slug</label>
+                                <input type="text" id="edit-blog-slug" name="slug" required>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="edit-blog-category">Category</label>
+                                <select id="edit-blog-category" name="category" required>
+                                    <option value="">-- Select Category --</option>
+                                    <option value="AI Tools">AI Tools</option>
+                                    <option value="Productivity">Productivity</option>
+                                    <option value="Case Study">Case Study</option>
+                                    <option value="Reviews">Reviews</option>
+                                    <option value="AI News">AI News</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="edit-blog-date">Date</label>
+                                <input type="date" id="edit-blog-date" name="date" required>
+                            </div>
+                        </div>
+
+                        <div class="form-group form-full">
+                            <label for="edit-blog-image">Image URL</label>
+                            <input type="url" id="edit-blog-image" name="image_url" required>
+                        </div>
+
+                        <div class="form-group form-full">
+                            <label for="edit-blog-excerpt">Excerpt</label>
+                            <textarea id="edit-blog-excerpt" name="excerpt" required></textarea>
+                        </div>
+
+                        <div class="form-group form-full">
+                            <label for="edit-blog-html">HTML Content</label>
+                            <textarea id="edit-blog-html" name="html_content"></textarea>
+                        </div>
+
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="edit-blog-published" name="is_published" value="on">
+                            <label for="edit-blog-published" style="margin-bottom: 0;">Published</label>
+                        </div>
+
+                        <div style="display: flex; gap: 10px; margin-top: 20px;">
+                            <button type="button" class="preview-btn" onclick="previewBlogEdit()">Preview</button>
+                            <button type="submit" class="submit-btn" style="flex: 1;">Update Blog</button>
+                        </div>
+                    </form>
+                    {% else %}
+                    <div class="empty-state">
+                        <p>No blogs to edit. Create one first!</p>
+                    </div>
+                    {% endif %}
+
+
+                    <h1>Classes</h1>
+                    <div style="font-family:Arial, sans-serif; max-width:900px; margin:auto;">
+
+                        <!-- SECTION STRUCTURE -->
+                        <div style="margin-bottom:28px;">
+                            <h2 style="font-size:26px; margin-bottom:12px;">Section Structure</h2>
+
+                            <div style="margin-bottom:20px;">
+                                <h3 style="font-size:22px; font-weight:600; margin-bottom:8px;">.blog-section</h3>
+                                <p style="font-size:15px; line-height:1.7; color:#65758B;">
+                                    Used as the main wrapper for each blog content block. Adds spacing between sections
+                                    for clean vertical layout.
+                                </p>
+
+                                <p style="font-weight:600; margin-top:8px;">Use for:</p>
+                                <ul style="padding-left:18px; color:#65758B; line-height:1.7;">
+                                    <li>Paragraph sections</li>
+                                    <li>Lists</li>
+                                    <li>Subtopics</li>
+                                    <li>Highlight blocks</li>
+                                </ul>
+                            </div>
+
+                            <div style="margin-bottom:20px;">
+                                <h3 style="font-size:22px; font-weight:600; margin-bottom:8px;">.blog-section h3</h3>
+                                <p style="font-size:15px; color:#65758B;">
+                                    Styles section headings with medium-large size, bold emphasis, and consistent
+                                    spacing.
+                                </p>
+                            </div>
+
+                            <div>
+                                <h3 style="font-size:22px; font-weight:600; margin-bottom:8px;">.blog-text</h3>
+                                <p style="font-size:15px; line-height:1.7; color:#65758B;">
+                                    Primary paragraph styling for blog content. Optimized for readability and long-form
+                                    content.
+                                </p>
+
+                                <p style="font-weight:600;">Use for:</p>
+                                <ul style="padding-left:18px; color:#65758B;">
+                                    <li>Paragraphs</li>
+                                    <li>Descriptions</li>
+                                    <li>Supporting explanations</li>
+                                </ul>
+                            </div>
+                        </div>
+
+
+                        <!-- LISTS -->
+                        <div style="margin-bottom:28px;">
+                            <h2 style="font-size:26px; margin-bottom:12px;">Lists</h2>
+
+                            <div style="margin-bottom:18px;">
+                                <h3 style="font-size:22px; font-weight:600;">.blog-list</h3>
+                                <p style="font-size:15px; color:#65758B;">
+                                    Removes default bullets and prepares custom styled lists.
+                                </p>
+                            </div>
+
+                            <div style="margin-bottom:18px;">
+                                <h3 style="font-size:22px; font-weight:600;">.blog-list li</h3>
+                                <p style="font-size:15px; color:#65758B;">
+                                    Adds spacing and layout structure for list items.
+                                </p>
+                            </div>
+
+                            <div>
+                                <h3 style="font-size:22px; font-weight:600;">.blog-list li::before</h3>
+                                <p style="font-size:15px; color:#65758B;">
+                                    Adds a green checkmark icon automatically for benefit-style lists.
+                                </p>
+
+                                <p style="font-weight:600;">Use for:</p>
+                                <ul style="padding-left:18px; color:#65758B;">
+                                    <li>Benefits</li>
+                                    <li>Positive feature lists</li>
+                                    <li>Key points</li>
+                                </ul>
+                            </div>
+                        </div>
+
+
+                        <!-- GRID -->
+                        <div style="margin-bottom:28px;">
+                            <h2 style="font-size:26px; margin-bottom:12px;">Grid Layout</h2>
+
+                            <h3 style="font-size:22px; font-weight:600;">.blog-grid</h3>
+                            <p style="font-size:15px; color:#65758B;">
+                                Creates a two-column layout using CSS Grid.
+                            </p>
+
+                            <p style="font-weight:600;">Use for:</p>
+                            <ul style="padding-left:18px; color:#65758B;">
+                                <li>Comparisons</li>
+                                <li>Pros vs Cons</li>
+                                <li>Dual content blocks</li>
+                            </ul>
+                        </div>
+
+
+                        <!-- BOXES -->
+                        <div style="margin-bottom:28px;">
+                            <h2 style="font-size:26px; margin-bottom:12px;">Content Boxes</h2>
+
+                            <div style="margin-bottom:16px;">
+                                <h3 style="font-size:22px; font-weight:600;">.blog-box</h3>
+                                <p style="font-size:15px; color:#65758B;">
+                                    Base container for boxed content with rounded corners and internal padding.
+                                </p>
+                            </div>
+
+                            <div style="background:#ECFDF5; padding:16px; border-radius:12px; margin-bottom:14px;">
+                                <h3 style="font-size:18px; margin-bottom:6px;">.blog-positive</h3>
+                                <p style="font-size:14px; color:#65758B;">
+                                    Light green background used for advantages and benefits.
+                                </p>
+                            </div>
+
+                            <div style="background:#FEF5F5; padding:16px; border-radius:12px;">
+                                <h3 style="font-size:18px; margin-bottom:6px;">.blog-negative</h3>
+                                <p style="font-size:14px; color:#65758B;">
+                                    Light red background used for limitations or risks.
+                                </p>
+                            </div>
+                        </div>
+
+
+                        <!-- HIGHLIGHT -->
+                        <div style="margin-bottom:28px;">
+                            <h2 style="font-size:26px; margin-bottom:12px;">Highlight Blocks</h2>
+
+                            <div style="background:#EAF1FD; padding:18px; border-radius:12px;">
+                                <h3 style="font-size:20px; margin-bottom:6px;">.blog-highlight</h3>
+                                <p style="font-size:15px; color:#65758B;">
+                                    Soft blue highlighted container for key takeaways or important notes.
+                                </p>
+                            </div>
+                        </div>
+
+
+                        <!-- CTA -->
+                        <div style="margin-bottom:28px;">
+                            <h2 style="font-size:26px; margin-bottom:12px;">Call To Action (CTA)</h2>
+
+                            <div
+                                style="text-align:center; background:#ffffff; padding:26px; border-radius:14px; box-shadow:0 10px 30px rgba(0,0,0,.05);">
+                                <h3 style="font-size:22px; margin-bottom:8px;">.blog-cta</h3>
+                                <p style="font-size:15px; color:#65758B;">
+                                    Styled container for conversion-focused content.
+                                </p>
+
+                                <p style="font-weight:600;">Use for:</p>
+                                <ul style="list-style:none; padding:0; color:#65758B;">
+                                    <li>Product links</li>
+                                    <li>Lead generation blocks</li>
+                                    <li>Signup prompts</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- ==================== STORIES TAB ==================== -->
+            <div id="stories" class="maintab">
+                <div class="subtabs">
+                    <button class="subtab-button active" onclick="openSubTab(event, 'story-create', 'stories')">Create
+                        Story</button>
+                    <button class="subtab-button" onclick="openSubTab(event, 'story-list', 'stories')">View
+                        Stories</button>
+                    <button class="subtab-button" onclick="openSubTab(event, 'story-edit', 'stories')">Edit
+                        Story</button>
+                </div>
+
+                <!-- Create Story -->
+                <div id="story-create" class="subtab active">
+                    <h2>Create New Story</h2>
+                    <form method="post" action="/admin/story/create">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="story-title">Title</label>
+                                <input type="text" id="story-title" name="title" required>
+                            </div>
+                            
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="blog-category">Category</label>
+                                    <select id="blog-category" name="category" required>
+                                        <option value="">-- Select Category --</option>
+                                        <option value="Real Estate">Real Estate</option>
+                                        <option value="Marketing">Marketing</option>
+                                        <option value="HR">HR</option>
+                                        <option value="Finance">Finance</option>
+                                        <option value="Operations">Operations</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group form-full">
+                            <label for="story-image">Image URL</label>
+                            <input type="url" id="story-image" name="img_url" required>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="story-problem">Problem</label>
+                                <textarea id="story-problem" name="problem" required></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label for="story-solution">AI Solution</label>
+                                <textarea id="story-solution" name="solution" required></textarea>
+                            </div>
+                        </div>
+
+                        <div class="form-group form-full">
+                            <label for="story-results">Results (JSON - Array of point strings)</label>
+                            <textarea id="story-results" name="results"
+                                placeholder='["15 hours saved weekly","2x content output","Real-time campaign insights"]'></textarea>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="story-before">Before Text</label>
+                                <textarea id="story-before" name="before_text" required></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label for="story-after">After Text</label>
+                                <textarea id="story-after" name="after_text" required></textarea>
+                            </div>
+                        </div>
+
+                        <div class="form-group form-full">
+                            <label for="story-cta">Call-To-Action Text (add line)</label>
+                            <textarea id="story-cta" name="cta_text" required></textarea>
+                        </div>
+
+
+
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="story-published" name="is_publish" value="on">
+                            <label for="story-published" style="margin-bottom: 0;">Publish Now</label>
+                        </div>
+
+                        <button type="button" class="preview-btn" onclick="previewStoryCreate()">Preview</button>
+                        <button type="submit" class="submit-btn">Create Story</button>
+                    </form>
+                </div>
+
+                <!-- View Stories -->
+                <div id="story-list" class="subtab">
+                    <h2>All Stories</h2>
+                    {% if stories %}
+                    <div class="table-responsive">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Title</th>
+                                    <th>Category</th>
+                                    <th>Status</th>
+                                    <th>Created</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for story in stories %}
+                                <tr>
+                                    <td>{{ story.title }}</td>
+                                    <td>{{ story.category }}</td>
+                                    <td>
+                                        <span
+                                            class="status-badge {% if story.is_publish %}status-published{% else %}status-draft{% endif %}">
+                                            {% if story.is_publish %}Published{% else %}Draft{% endif %}
+                                        </span>
+                                    </td>
+                                    <td>{{ story.created_at if story.created_at else 'N/A' }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="empty-state">
+                        <p>No stories found. Create one to get started!</p>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- Edit Story -->
+                <div id="story-edit" class="subtab">
+                    <h2>Edit Story</h2>
+                    {% if stories %}
+                    <form method="post" action="/admin/story/update">
+                        <div class="form-group">
+                            <label for="story-select">Select Story</label>
+                            <select id="story-select" name="id" onchange="populateStoryForm()" required>
+                                <option value="">-- Select a story --</option>
+                                {% for story in stories %}
+                                <option value="{{ story.id }}" data-title="{{ story.title }}"
+                                    data-category="{{ story.category }}" data-image="{{ story.img_url }}"
+                                    data-problem="{{ story.problem }}" data-solution="{{ story.solution }}"
+                                    data-before="{{ story.before_text }}" data-after="{{ story.after_text }}"
+                                    data-cta="{{ story.cta_text }}"
+                                    data-results='{{ story.results | tojson | safe }}'
+                                    data-published="{{ story.is_publish }}">
+                                    [ID: {{ story.id }}] {{ story.title }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="edit-story-title">Title</label>
+                                <input type="text" id="edit-story-title" name="title" required>
+                            </div>
+                            <!-- <div class="form-group">
+                                <label for="edit-story-category">Category</label>
+                                <input type="text" id="edit-story-category" name="category" required>
+                            </div> -->
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="blog-category">Category</label>
+                                    <select id="edit-story-category" name="category" required>
+                                        <option value="">-- Select Category --</option>
+                                        <option value="Real Estate">Real Estate</option>
+                                        <option value="Marketing">Marketing</option>
+                                        <option value="HR">HR</option>
+                                        <option value="Finance">Finance</option>
+                                        <option value="Operations">Operations</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group form-full">
+                            <label for="edit-story-image">Image URL</label>
+                            <input type="url" id="edit-story-image" name="img_url" required>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="edit-story-problem">Problem</label>
+                                <textarea id="edit-story-problem" name="problem" required></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label for="edit-story-solution">Solution</label>
+                                <textarea id="edit-story-solution" name="solution" required></textarea>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="edit-story-before">Before Text</label>
+                                <textarea id="edit-story-before" name="before_text" required></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label for="edit-story-after">After Text</label>
+                                <textarea id="edit-story-after" name="after_text" required></textarea>
+                            </div>
+                        </div>
+
+                        <div class="form-group form-full">
+                            <label for="edit-story-cta">Call-To-Action Text</label>
+                            <textarea id="edit-story-cta" name="cta_text" required></textarea>
+                        </div>
+
+                        <div class="form-group form-full">
+                            <label for="edit-story-results">Results (JSON - Array of point strings)</label>
+                            <textarea id="edit-story-results" name="results"></textarea>
+                        </div>
+
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="edit-story-published" name="is_publish" value="on">
+                            <label for="edit-story-published" style="margin-bottom: 0;">Published</label>
+                        </div>
+
+                        <div style="display: flex; gap: 10px; margin-top: 20px;">
+                            <button type="button" class="preview-btn" onclick="previewStoryEdit()">Preview</button>
+                            <button type="submit" class="submit-btn" style="flex: 1;">Update Story</button>
+                        </div>
+                    </form>
+                    {% else %}
+                    <div class="empty-state">
+                        <p>No stories to edit. Create one first!</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div style="text-align: center; padding: 20px;">
+            <a href="/admin/logout" class="logout-btn">Logout</a>
+        </div>
+    </div>
+
+    <!-- CodeMirror JS for HTML editor -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/codemirror.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/htmlmixed/htmlmixed.min.js"></script>
+
+    <script>
+        // Initialize CodeMirror for create blog
+        const createEditor = CodeMirror.fromTextArea(document.getElementById("blog-html"), {
+            mode: "htmlmixed",
+            theme: "dracula",
+            lineNumbers: true,
+            indentUnit: 4,
+            indentWithTabs: false,
+            lineWrapping: true
+        });
+
+        // Initialize CodeMirror for edit blog
+        const editEditor = CodeMirror.fromTextArea(document.getElementById("edit-blog-html"), {
+            mode: "htmlmixed",
+            theme: "dracula",
+            lineNumbers: true,
+            indentUnit: 4,
+            indentWithTabs: false,
+            lineWrapping: true
+        });
+
+        function openMainTab(evt, tabName) {
+            const tabs = document.getElementsByClassName("maintab");
+            for (let i = 0; i < tabs.length; i++) {
+                tabs[i].classList.remove("active");
+            }
+
+            const buttons = document.getElementsByClassName("main-tab-button");
+            for (let i = 0; i < buttons.length; i++) {
+                buttons[i].classList.remove("active");
+            }
+
+            document.getElementById(tabName).classList.add("active");
+            evt.currentTarget.classList.add("active");
+
+            // Reset subtabs when switching main tabs
+            const firstSubTab = document.getElementById(tabName).querySelector(".subtab");
+            if (firstSubTab) {
+                const allSubTabs = document.getElementById(tabName).querySelectorAll(".subtab");
+                allSubTabs.forEach(el => el.classList.remove("active"));
+                firstSubTab.classList.add("active");
+
+                const allSubButtons = document.getElementById(tabName).querySelectorAll(".subtab-button");
+                allSubButtons.forEach(el => el.classList.remove("active"));
+                allSubButtons[0].classList.add("active");
+            }
+        }
+
+        function openSubTab(evt, tabName, parentTab) {
+            const parent = document.getElementById(parentTab);
+            const tabs = parent.querySelectorAll(".subtab");
+            tabs.forEach(el => el.classList.remove("active"));
+
+            const buttons = parent.querySelectorAll(".subtab-button");
+            buttons.forEach(el => el.classList.remove("active"));
+
+            document.getElementById(tabName).classList.add("active");
+            evt.currentTarget.classList.add("active");
+
+            // Refresh CodeMirror when switching to edit tab
+            if (tabName === "blog-edit") {
+                setTimeout(() => editEditor.refresh(), 100);
+            }
+        }
+
+        function populateBlogForm() {
+            const select = document.getElementById("blog-select");
+            const option = select.options[select.selectedIndex];
+
+            if (option.value) {
+                document.getElementById("edit-blog-title").value = option.getAttribute("data-title");
+                document.getElementById("edit-blog-slug").value = option.getAttribute("data-slug");
+                document.getElementById("edit-blog-category").value = option.getAttribute("data-category");
+                document.getElementById("edit-blog-image").value = option.getAttribute("data-image");
+                document.getElementById("edit-blog-excerpt").value = option.getAttribute("data-excerpt");
+                document.getElementById("edit-blog-date").value = option.getAttribute("data-date");
+                (function () {
+                    const val = (option.getAttribute("data-published") || "").toString().toLowerCase();
+                    document.getElementById("edit-blog-published").checked = (val === "true" || val === "t" || val === "1" || val === "on");
+                })();
+
+                // Set CodeMirror content (data-html is JSON-encoded string)
+                try {
+                    const raw = option.getAttribute("data-html") || '""';
+                    const htmlContent = JSON.parse(raw);
+                    editEditor.setValue(htmlContent);
+                } catch (e) {
+                    editEditor.setValue("");
+                }
+            }
+        }
+
+        function populateStoryForm() {
+            const select = document.getElementById("story-select");
+            const option = select.options[select.selectedIndex];
+
+            if (option.value) {
+                document.getElementById("edit-story-title").value = option.getAttribute("data-title");
+                document.getElementById("edit-story-category").value = option.getAttribute("data-category");
+                document.getElementById("edit-story-image").value = option.getAttribute("data-image");
+                document.getElementById("edit-story-problem").value = option.getAttribute("data-problem");
+                document.getElementById("edit-story-solution").value = option.getAttribute("data-solution");
+                document.getElementById("edit-story-before").value = option.getAttribute("data-before");
+                document.getElementById("edit-story-after").value = option.getAttribute("data-after");
+                document.getElementById("edit-story-cta").value = option.getAttribute("data-cta");
+
+                // Parse and format results JSON
+                const resultsStr = option.getAttribute("data-results") || "{}";
+                try {
+                    const resultsData = JSON.parse(resultsStr);
+                    document.getElementById("edit-story-results").value = JSON.stringify(resultsData, null, 2);
+                } catch (e) {
+                    document.getElementById("edit-story-results").value = resultsStr;
+                }
+
+                (function () {
+                    const val = (option.getAttribute("data-published") || "").toString().toLowerCase();
+                    document.getElementById("edit-story-published").checked = (val === "true" || val === "t" || val === "1" || val === "on");
+                })();
+            }
+        }
+
+        // Sync CodeMirror content with hidden textarea before form submission
+        document.querySelectorAll('form').forEach(form => {
+            form.addEventListener('submit', function () {
+                if (typeof createEditor !== 'undefined') {
+                    createEditor.save();
+                }
+                if (typeof editEditor !== 'undefined') {
+                    editEditor.save();
+                }
+            });
+        });
+    </script>
+
+    <!-- jQuery (required for Select2) -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Select2 CSS and JS for searchable dropdowns -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+    <script>
+        // Initialize Select2 on blog and story select elements
+        $(document).ready(function() {
+            $('#blog-select').select2({
+                placeholder: '-- Select a blog --',
+                allowClear: true,
+                width: '100%'
+            });
+            $('#story-select').select2({
+                placeholder: '-- Select a story --',
+                allowClear: true,
+                width: '100%'
+            });
+
+            // Trigger form population when Select2 changes
+            $('#blog-select').on('change', function() {
+                populateBlogForm();
+            });
+            $('#story-select').on('change', function() {
+                populateStoryForm();
+            });
+        });
+    </script>
+
+    <!-- Preview Modals -->
+    <div id="blog-preview-modal" class="preview-modal">
+        <div class="preview-content">
+            <span class="preview-close" onclick="closeBlogPreview()">&times;</span>
+            <div style="padding: 20px;">
+                <h2 id="preview-blog-title"></h2>
+                <img id="preview-blog-image" src="" style="width: 100%; max-height: 400px; object-fit: cover; border-radius: 8px; margin: 20px 0;">
+                <div id="preview-blog-content"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="story-preview-modal" class="preview-modal">
+        <div class="preview-content">
+            <span class="preview-close" onclick="closeStoryPreview()">&times;</span>
+            <div style="padding: 20px;">
+                <div style="background: #EAF1FD; padding: 20px; border-radius: 12px; margin-bottom: 20px;">
+                    <h2 id="preview-story-title"></h2>
+                    <span id="preview-story-category" class="category-badge"></span>
+                </div>
+                <img id="preview-story-image" src="" style="width: 100%; max-height: 400px; object-fit: cover; border-radius: 8px; margin: 20px 0;">
+                <div id="preview-story-content"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Preview Functions for Blogs
+        function previewBlogCreate() {
+            const title = document.getElementById("blog-title").value;
+            const image = document.getElementById("blog-image").value;
+            const content = createEditor.getValue();
+            
+            if (!title) {
+                alert("Please enter a blog title");
+                return;
+            }
+            
+            document.getElementById("preview-blog-title").textContent = title;
+            document.getElementById("preview-blog-image").src = image || "/static/images/placeholder.jpg";
+            document.getElementById("preview-blog-content").innerHTML = content || "<p>No content yet</p>";
+            document.getElementById("blog-preview-modal").classList.add("active");
+        }
+
+        function previewBlogEdit() {
+            const title = document.getElementById("edit-blog-title").value;
+            const image = document.getElementById("edit-blog-image").value;
+            const content = editEditor.getValue();
+            
+            if (!title) {
+                alert("Please select a blog to preview");
+                return;
+            }
+            
+            document.getElementById("preview-blog-title").textContent = title;
+            document.getElementById("preview-blog-image").src = image || "/static/images/placeholder.jpg";
+            document.getElementById("preview-blog-content").innerHTML = content || "<p>No content yet</p>";
+            document.getElementById("blog-preview-modal").classList.add("active");
+        }
+
+        function closeBlogPreview() {
+            document.getElementById("blog-preview-modal").classList.remove("active");
+        }
+
+        // Preview Functions for Stories
+        function previewStoryCreate() {
+            const title = document.getElementById("story-title").value;
+            const category = document.getElementById("blog-category").value;
+            const image = document.getElementById("story-image").value;
+            const problem = document.getElementById("story-problem").value;
+            const solution = document.getElementById("story-solution").value;
+            const results = document.getElementById("story-results").value;
+            const before = document.getElementById("story-before").value;
+            const after = document.getElementById("story-after").value;
+            const cta = document.getElementById("story-cta").value;
+            
+            if (!title || !category) {
+                alert("Please fill in title and category");
+                return;
+            }
+            
+            let resultsHtml = "";
+            try {
+                const resultsList = JSON.parse(results || "[]");
+                if (Array.isArray(resultsList)) {
+                    resultsHtml = resultsList.map(r => `<li>${r}</li>`).join("");
+                }
+            } catch (e) {
+                resultsHtml = "<li>Invalid results format</li>";
+            }
+            
+            const content = `
+                <div style="text-align: center; margin: 20px 0;">
+                    <span class="category-badge">${category}</span>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; margin: 30px 0;">
+                    <div>
+                        <h5 style="color: #dc3545;">Problem</h5>
+                        <p>${problem}</p>
+                    </div>
+                    <div>
+                        <h5 style="color: #007bff;">AI Solution</h5>
+                        <p>${solution}</p>
+                    </div>
+                    <div>
+                        <h5 style="color: #28a745;">Results</h5>
+                        <ul>${resultsHtml}</ul>
+                    </div>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin: 30px 0;">
+                    <div style="background: #f8f9fa; padding: 15px; border-radius: 8px;">
+                        <h5>Before</h5>
+                        <p>${before}</p>
+                    </div>
+                    <div style="background: #e8f5e9; padding: 15px; border-radius: 8px;">
+                        <h5>After</h5>
+                        <p>${after}</p>
+                    </div>
+                </div>
+                <div style="text-align: center; margin-top: 30px; padding: 20px; background: #eaf1fd; border-radius: 8px;">
+                    <h5>${cta || "Get Your AI Audit"}</h5>
+                </div>
+            `;
+            
+            document.getElementById("preview-story-title").textContent = title;
+            document.getElementById("preview-story-category").textContent = category;
+            document.getElementById("preview-story-image").src = image || "/static/images/placeholder.jpg";
+            document.getElementById("preview-story-content").innerHTML = content;
+            document.getElementById("story-preview-modal").classList.add("active");
+        }
+
+        function previewStoryEdit() {
+            const title = document.getElementById("edit-story-title").value;
+            const category = document.getElementById("edit-story-category").value;
+            const image = document.getElementById("edit-story-image").value;
+            const problem = document.getElementById("edit-story-problem").value;
+            const solution = document.getElementById("edit-story-solution").value;
+            const results = document.getElementById("edit-story-results").value;
+            const before = document.getElementById("edit-story-before").value;
+            const after = document.getElementById("edit-story-after").value;
+            const cta = document.getElementById("edit-story-cta").value;
+            
+            if (!title || !category) {
+                alert("Please fill in title and category");
+                return;
+            }
+            
+            let resultsHtml = "";
+            try {
+                const resultsList = JSON.parse(results || "[]");
+                if (Array.isArray(resultsList)) {
+                    resultsHtml = resultsList.map(r => `<li>${r}</li>`).join("");
+                }
+            } catch (e) {
+                resultsHtml = "<li>Invalid results format</li>";
+            }
+            
+            const content = `
+                <div style="text-align: center; margin: 20px 0;">
+                    <span class="category-badge">${category}</span>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; margin: 30px 0;">
+                    <div>
+                        <h5 style="color: #dc3545;">Problem</h5>
+                        <p>${problem}</p>
+                    </div>
+                    <div>
+                        <h5 style="color: #007bff;">AI Solution</h5>
+                        <p>${solution}</p>
+                    </div>
+                    <div>
+                        <h5 style="color: #28a745;">Results</h5>
+                        <ul>${resultsHtml}</ul>
+                    </div>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin: 30px 0;">
+                    <div style="background: #f8f9fa; padding: 15px; border-radius: 8px;">
+                        <h5>Before</h5>
+                        <p>${before}</p>
+                    </div>
+                    <div style="background: #e8f5e9; padding: 15px; border-radius: 8px;">
+                        <h5>After</h5>
+                        <p>${after}</p>
+                    </div>
+                </div>
+                <div style="text-align: center; margin-top: 30px; padding: 20px; background: #eaf1fd; border-radius: 8px;">
+                    <h5>${cta || "Get Your AI Audit"}</h5>
+                </div>
+            `;
+            
+            document.getElementById("preview-story-title").textContent = title;
+            document.getElementById("preview-story-category").textContent = category;
+            document.getElementById("preview-story-image").src = image || "/static/images/placeholder.jpg";
+            document.getElementById("preview-story-content").innerHTML = content;
+            document.getElementById("story-preview-modal").classList.add("active");
+        }
+
+        function closeStoryPreview() {
+            document.getElementById("story-preview-modal").classList.remove("active");
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const blogModal = document.getElementById("blog-preview-modal");
+            const storyModal = document.getElementById("story-preview-modal");
+            if (event.target == blogModal) {
+                blogModal.classList.remove("active");
+            }
+            if (event.target == storyModal) {
+                storyModal.classList.remove("active");
+            }
+        }
+    </script>
