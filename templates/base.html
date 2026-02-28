@@ -308,6 +308,19 @@
                 });
             }
         });
+
+        document.addEventListener("DOMContentLoaded", function () {
+            const urlParams = new URLSearchParams(window.location.search);
+
+            // If the URL has ?login=required, open the modal
+            if (urlParams.get('login') === 'required') {
+                var myModal = new bootstrap.Modal(document.getElementById('loginModal'));
+                myModal.show();
+
+                // Optional: Clean up the URL so it looks nice again
+                window.history.replaceState({}, document.title, window.location.pathname);
+            }
+        });
     </script>
 
 

@@ -14,6 +14,9 @@ app = FastAPI()
 app.include_router(pages_router)
 app.include_router(admin_router)
 
+for route in app.routes:
+    print(f"Path: {route.path} | Name: {route.name}")
+
 # Static files
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
@@ -29,7 +32,7 @@ app.add_middleware(
 # Trusted hosts
 app.add_middleware(
     TrustedHostMiddleware,
-    allowed_hosts=["budasai.com", "www.budasai.com", "localhost"]
+    allowed_hosts=["budasai.com", "www.budasai.com", "localhost", "127.0.0.1"]
 )
 
 if __name__ == "__main__":

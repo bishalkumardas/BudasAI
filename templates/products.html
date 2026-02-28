@@ -48,9 +48,9 @@
         <h3 class="audit-price reveal reveal-delay-5">Starting at just {{ symbol }}{{ price }}</h3>
         <div class="d-flex justify-content-center my-3 reveal reveal-delay-5">
             <select id="currency-select" class="form-select form-select-sm w-auto">
-                <option value="INR" {% if currency == 'INR' %}selected{% endif %}>INR</option>
-                <option value="USD" {% if currency == 'USD' %}selected{% endif %}>USD</option>
-                <option value="AED" {% if currency == 'AED' %}selected{% endif %}>AED</option>
+                <option value="INR" {% if currency=='INR' %}selected{% endif %}>INR</option>
+                <option value="USD" {% if currency=='USD' %}selected{% endif %}>USD</option>
+                <option value="AED" {% if currency=='AED' %}selected{% endif %}>AED</option>
             </select>
         </div>
         <p class="audit-price-sub reveal reveal-delay-6">
@@ -69,7 +69,7 @@
 <div class="container mt-5 text-center">
 
     <h2 class="reveal">What You'll Receive</h2>
-6
+    6
     <p class="text-content reveal">
         A comprehensive, actionable AI report tailored specifically to your business.
     </p>
@@ -280,7 +280,9 @@
                     </ul>
                 </div>
 
-                <a href="/download/guide" class="button-fill-square w-100 mt-3">Download Guide</a>
+                <a href="/download-guide" class="button-fill-square w-100 mt-3">
+                    Download Guide
+                </a>
             </div>
         </div>
 
