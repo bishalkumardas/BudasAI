@@ -32,7 +32,7 @@ app.add_middleware(
 # Trusted hosts
 app.add_middleware(
     TrustedHostMiddleware,
-    allowed_hosts=["budasai.com", "www.budasai.com", "localhost", "127.0.0.1"]
+    allowed_hosts=["*"] # Use quotes to make it a string
 )
 
 if __name__ == "__main__":
