@@ -11,14 +11,17 @@ from slowapi.errors import RateLimitExceeded
 
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.trustedhost import TrustedHostMiddleware
+from starlette.middleware.proxy_headers import ProxyHeadersMiddleware
 
-# from starlette.middleware.proxy_headers import ProxyHeadersMiddleware
-
+import os
+import uvicorn
 
 app = FastAPI()
 
-# app.add_middleware(ProxyHeadersMiddleware, trusted_hosts="*")
-# ✅ Use proper key function (auto handles proxy if configured correctly)
+# ✅ Proxy to get real client IP
+app.add_middleware(ProxyHeadersMiddleware, trusted_hosts="*")
+
+# ✅ Rate limiter
 limiter = Limiter(key_func=get_remote_address)
 app.state.limiter = limiter
 
@@ -26,22 +29,32 @@ app.state.limiter = limiter
 async def rate_limit_handler(request: Request, exc: RateLimitExceeded):
     return JSONResponse(
         status_code=429,
-        content={
-            "success": False,
-            "message": "Too many requests. Maximum 5 per day allowed."
-        },
+        content={"success": False, "message": "Too many requests. Maximum 5 per day allowed."},
     )
 
-# Mount static
+# ✅ Static files
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
+# ✅ CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # change later to domain
+    allow_origins=["*"],  # replace with your domain(s) later
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
-# Include routers
+
+# ✅ Trusted hosts
+app.add_middleware(
+    TrustedHostMiddleware,
+    allowed_hosts=["budasai.com", "www.budasai.com", "localhost"]
+)
+
+# ✅ Routers
 app.include_router(pages_router)
 app.include_router(admin_router)
+
+# ✅ Uvicorn run
+if __name__ == "__main__":
+    port = int(os.environ.get("PORT", 8000))
+    uvicorn.run("main:app", host="0.0.0.0", port=port, reload=True)
