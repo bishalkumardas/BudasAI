@@ -20,7 +20,7 @@ templates = Jinja2Templates(directory="templates")
 
 SECRET_KEY = os.getenv("SECRET_KEY")
 ALGORITHM = "HS256"
-ADMIN_EMAIL = os.getenv("ADMIN_EMAIL")
+ADMIN_EMAIL = os.getenv("ADMIN_EMAIL_ADDRESS")
 
 def check_auth(request: Request):
     token = request.cookies.get("admin_token")

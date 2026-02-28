@@ -9,7 +9,9 @@ from slowapi import Limiter
 from slowapi.util import get_remote_address
 from slowapi.errors import RateLimitExceeded
 
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.trustedhost import TrustedHostMiddleware
+
 # from starlette.middleware.proxy_headers import ProxyHeadersMiddleware
 
 
@@ -33,6 +35,13 @@ async def rate_limit_handler(request: Request, exc: RateLimitExceeded):
 # Mount static
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # change later to domain
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 # Include routers
 app.include_router(pages_router)
 app.include_router(admin_router)
