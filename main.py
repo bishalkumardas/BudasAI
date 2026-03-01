@@ -1,6 +1,7 @@
 import os
 import uvicorn
 import traceback
+from contextlib import asynccontextmanager
 from fastapi import FastAPI, Request
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
@@ -10,22 +11,10 @@ from fastapi.responses import JSONResponse, FileResponse
 from routes.pages import router as pages_router
 from admin_routes import router as admin_router
 
-app = FastAPI()
-
-# Global exception handler
-@app.exception_handler(Exception)
-async def global_exception_handler(request: Request, exc: Exception):
-    print(f"❌ Unhandled exception on {request.method} {request.url.path}")
-    print(f"Error: {exc}")
-    traceback.print_exc()
-    return JSONResponse(
-        status_code=500,
-        content={"detail": "Internal server error", "path": str(request.url.path)}
-    )
-
-# Startup event to verify critical dependencies
-@app.on_event("startup")
-async def startup_event():
+# Startup and shutdown events
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Startup
     print("🚀 Starting BudasAI application...")
     print(f"📍 Environment: {'Railway' if os.getenv('RAILWAY_ENVIRONMENT') else 'Local'}")
     
@@ -39,6 +28,22 @@ async def startup_event():
         traceback.print_exc()
     
     print("✅ Application startup complete!")
+    yield
+    # Shutdown
+    print("🛑 Shutting down BudasAI application...")
+
+app = FastAPI(lifespan=lifespan)
+
+# Global exception handler
+@app.exception_handler(Exception)
+async def global_exception_handler(request: Request, exc: Exception):
+    print(f"❌ Unhandled exception on {request.method} {request.url.path}")
+    print(f"Error: {exc}")
+    traceback.print_exc()
+    return JSONResponse(
+        status_code=500,
+        content={"detail": "Internal server error", "path": str(request.url.path)}
+    )
 
 # Health check endpoint for Railway
 @app.get("/health")
@@ -48,30 +53,29 @@ async def health_check():
 # Favicon handler
 @app.get("/favicon.ico")
 async def favicon():
-    # Return 204 No Content if favicon doesn't exist
     return JSONResponse(content=None, status_code=204)
 
-# CORS - Add middleware BEFORE routes
+# CORS middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # replace with your domain later
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"]
 )
 
-# Trusted hosts
+# Trusted hosts middleware
 app.add_middleware(
     TrustedHostMiddleware,
-    allowed_hosts=["*"] # Use quotes to make it a string
+    allowed_hosts=["*"]
 )
 
-# Static files - mount BEFORE routers
+# Static files mount
 if os.path.isdir("static"):
     app.mount("/static", StaticFiles(directory="static"), name="static")
     print("✅ Static files mounted")
 
-# Routers
+# Include routers
 print("📌 Registering routes...")
 app.include_router(pages_router)
 print("✅ Pages router registered")
