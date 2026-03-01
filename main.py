@@ -136,6 +136,7 @@ print("\n✅ [MAIN] Application initialization complete!")
 print("🔵 [MAIN] Waiting for Uvicorn to start server...\n")
 
 if __name__ == "__main__":
+    # Use PORT env variable if set by Railway, otherwise default to 8000
     port = int(os.environ.get("PORT", 8000))
     print(f"🚀 Starting Uvicorn server on http://0.0.0.0:{port}")
     uvicorn.run("main:app", host="0.0.0.0", port=port, log_level="info")
