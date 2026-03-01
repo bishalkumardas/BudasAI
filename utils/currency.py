@@ -34,33 +34,48 @@ async def load_currency_rates():
     if _cache["rates"] and now - _cache["timestamp"] < CACHE_TTL:
         return _cache["rates"]
 
+    # Default rates as fallback
+    default_rates = {
+        "INR": 1.0,
+        "USD": 0.012,
+        "AED": 0.044
+    }
+
     if not SHEET_CSV_URL:
-        raise RuntimeError("GOOGLE_SHEET_CSV_URL not configured")
+        print("⚠️ WARNING: GOOGLE_SHEET_CSV_URL not configured. Using default rates.")
+        _cache["rates"] = default_rates
+        _cache["timestamp"] = now
+        return default_rates
 
-    async with httpx.AsyncClient(follow_redirects=True) as client:
-        resp = await client.get(SHEET_CSV_URL, timeout=10.0)
-        resp.raise_for_status()
+    try:
+        async with httpx.AsyncClient(follow_redirects=True) as client:
+            resp = await client.get(SHEET_CSV_URL, timeout=10.0)
+            resp.raise_for_status()
 
-    lines = resp.text.splitlines()
-    headers = lines[0].split(",")
+        lines = resp.text.splitlines()
+        headers = lines[0].split(",")
 
-    currency_idx = headers.index("Curruncy")
-    rate_idx = headers.index("Rate")
+        currency_idx = headers.index("Curruncy")
+        rate_idx = headers.index("Rate")
 
-    rates = {}
+        rates = {}
 
-    for row in lines[1:]:
-        cols = row.split(",")
-        currency = cols[currency_idx].strip().upper()
-        rate = float(cols[rate_idx])
-        rates[currency] = rate
+        for row in lines[1:]:
+            cols = row.split(",")
+            currency = cols[currency_idx].strip().upper()
+            rate = float(cols[rate_idx])
+            rates[currency] = rate
 
-    _cache["rates"] = rates
-    _cache["timestamp"] = now
+        _cache["rates"] = rates
+        _cache["timestamp"] = now
 
-    print("Loaded currency rates from Google Sheet:", rates)
-
-    return rates
+        print("✅ Loaded currency rates from Google Sheet:", rates)
+        return rates
+    except Exception as e:
+        print(f"⚠️ ERROR fetching currency rates: {e}. Using default rates.")
+        _cache["rates"] = default_rates
+        _cache["timestamp"] = now
+        return default_rates
 
 
 async def calculate_price(currency: str, amount_in_inr: int | None = None):
@@ -95,27 +110,20 @@ async def calculate_price(currency: str, amount_in_inr: int | None = None):
 
 
 async def get_price_context(request: Request):
-    try:
-        currency = request.query_params.get("currency", "INR").upper()
-        if currency not in CURRENCY_SYMBOL:
-            currency = "INR"
+    """
+    Template context helper
+    """
+    currency = request.query_params.get("currency", "INR").upper()
+    if currency not in CURRENCY_SYMBOL:
+        currency = "INR"
 
-        price = await calculate_price(currency, BASE_PRICE_INR)
-        adv_price = await calculate_price(currency, ADVANCE_PLAN_PRICE)
-        symbol = CURRENCY_SYMBOL.get(currency, "")
+    price = await calculate_price(currency, BASE_PRICE_INR)
+    adv_price = await calculate_price(currency, ADVANCE_PLAN_PRICE)
+    symbol = CURRENCY_SYMBOL.get(currency, "")
 
-        return {
-            "currency": currency,
-            "price": price,
-            "adv_price": adv_price,
-            "symbol": symbol,
-        }
-
-    except Exception as e:
-        print("Pricing error:", e)
-        return {
-            "currency": "INR",
-            "price": BASE_PRICE_INR,
-            "adv_price": ADVANCE_PLAN_PRICE,
-            "symbol": "₹",
-        }
+    return {
+        "currency": currency,
+        "price": price,
+        "adv_price": adv_price,
+        "symbol": symbol,
+    }

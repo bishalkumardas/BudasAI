@@ -10,6 +10,11 @@ from admin_routes import router as admin_router
 
 app = FastAPI()
 
+# Health check endpoint for Railway
+@app.get("/health")
+async def health_check():
+    return {"status": "healthy", "timestamp": "ok"}
+
 # Routers
 app.include_router(pages_router)
 app.include_router(admin_router)
@@ -38,4 +43,6 @@ app.add_middleware(
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 8000))
+    print(f"🚀 Starting BudasAI server on 0.0.0.0:{port}")
+    print(f"📍 Environment: {'Production' if os.getenv('RAILWAY_ENVIRONMENT') else 'Development'}")
     uvicorn.run("main:app", host="0.0.0.0", port=port)
