@@ -1,14 +1,27 @@
 import os
 import uvicorn
-from fastapi import FastAPI
+import traceback
+from fastapi import FastAPI, Request
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.trustedhost import TrustedHostMiddleware
+from fastapi.responses import JSONResponse, FileResponse
 
 from routes.pages import router as pages_router
 from admin_routes import router as admin_router
 
 app = FastAPI()
+
+# Global exception handler
+@app.exception_handler(Exception)
+async def global_exception_handler(request: Request, exc: Exception):
+    print(f"❌ Unhandled exception on {request.method} {request.url.path}")
+    print(f"Error: {exc}")
+    traceback.print_exc()
+    return JSONResponse(
+        status_code=500,
+        content={"detail": "Internal server error", "path": str(request.url.path)}
+    )
 
 # Startup event to verify critical dependencies
 @app.on_event("startup")
@@ -23,6 +36,7 @@ async def startup_event():
         print(f"✅ Currency rates loaded: {list(rates.keys())}")
     except Exception as e:
         print(f"⚠️ Currency rate loading issue (will use defaults): {e}")
+        traceback.print_exc()
     
     print("✅ Application startup complete!")
 
@@ -31,18 +45,13 @@ async def startup_event():
 async def health_check():
     return {"status": "healthy", "timestamp": "ok"}
 
-# Routers
-app.include_router(pages_router)
-app.include_router(admin_router)
+# Favicon handler
+@app.get("/favicon.ico")
+async def favicon():
+    # Return 204 No Content if favicon doesn't exist
+    return JSONResponse(content=None, status_code=204)
 
-for route in app.routes:
-    print(f"Path: {route.path} | Name: {route.name}")
-
-# Static files
-if os.path.isdir("static"):
-    app.mount("/static", StaticFiles(directory="static"), name="static")
-
-# CORS
+# CORS - Add middleware BEFORE routes
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],  # replace with your domain later
@@ -56,6 +65,18 @@ app.add_middleware(
     TrustedHostMiddleware,
     allowed_hosts=["*"] # Use quotes to make it a string
 )
+
+# Static files - mount BEFORE routers
+if os.path.isdir("static"):
+    app.mount("/static", StaticFiles(directory="static"), name="static")
+    print("✅ Static files mounted")
+
+# Routers
+print("📌 Registering routes...")
+app.include_router(pages_router)
+print("✅ Pages router registered")
+app.include_router(admin_router)
+print("✅ Admin router registered")
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 8000))
