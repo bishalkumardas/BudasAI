@@ -18,7 +18,8 @@ for route in app.routes:
     print(f"Path: {route.path} | Name: {route.name}")
 
 # Static files
-app.mount("/static", StaticFiles(directory="static"), name="static")
+if os.path.isdir("static"):
+    app.mount("/static", StaticFiles(directory="static"), name="static")
 
 # CORS
 app.add_middleware(

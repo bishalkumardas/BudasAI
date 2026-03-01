@@ -13,7 +13,7 @@ from auth import SECRET_KEY, ALGORITHM
 
 
 # pricing utilities
-# from utils.currency import get_price_context
+from utils.currency import get_price_context
 
 router = APIRouter()
 templates = Jinja2Templates(directory="templates")
@@ -21,8 +21,7 @@ templates = Jinja2Templates(directory="templates")
 
 @router.get("/", response_class=HTMLResponse)
 async def home(request: Request):
-    # ctx = await get_price_context(request)
-    ctx = {}
+    ctx = await get_price_context(request)
     return templates.TemplateResponse("home.html", {"request": request, **ctx})
 
 
@@ -38,10 +37,10 @@ async def admin_page(request: Request):
     return templates.TemplateResponse("admin.html", {"request": request, **ctx})
 
 
-@router.get("/admin", response_class=HTMLResponse)
-async def admin_page(request: Request):
+@router.get("/about")
+async def about(request:Request):
     ctx = await get_price_context(request)
-    return templates.TemplateResponse("admin.html", {"request": request, **ctx})
+    return templates.TemplateResponse("about.html", {"request": request, **ctx})
 
 
 
@@ -214,6 +213,8 @@ async def contact(request: Request):
 @router.get("/health")
 def health():
     return {"status": "ok"}
+
+
 
 
 # @router.get("/download-guide")
