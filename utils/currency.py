@@ -95,20 +95,27 @@ async def calculate_price(currency: str, amount_in_inr: int | None = None):
 
 
 async def get_price_context(request: Request):
-    """
-    Template context helper
-    """
-    currency = request.query_params.get("currency", "INR").upper()
-    if currency not in CURRENCY_SYMBOL:
-        currency = "INR"
+    try:
+        currency = request.query_params.get("currency", "INR").upper()
+        if currency not in CURRENCY_SYMBOL:
+            currency = "INR"
 
-    price = await calculate_price(currency, BASE_PRICE_INR)
-    adv_price = await calculate_price(currency, ADVANCE_PLAN_PRICE)
-    symbol = CURRENCY_SYMBOL.get(currency, "")
+        price = await calculate_price(currency, BASE_PRICE_INR)
+        adv_price = await calculate_price(currency, ADVANCE_PLAN_PRICE)
+        symbol = CURRENCY_SYMBOL.get(currency, "")
 
-    return {
-        "currency": currency,
-        "price": price,
-        "adv_price": adv_price,
-        "symbol": symbol,
-    }
+        return {
+            "currency": currency,
+            "price": price,
+            "adv_price": adv_price,
+            "symbol": symbol,
+        }
+
+    except Exception as e:
+        print("Pricing error:", e)
+        return {
+            "currency": "INR",
+            "price": BASE_PRICE_INR,
+            "adv_price": ADVANCE_PLAN_PRICE,
+            "symbol": "₹",
+        }
