@@ -10,6 +10,22 @@ from admin_routes import router as admin_router
 
 app = FastAPI()
 
+# Startup event to verify critical dependencies
+@app.on_event("startup")
+async def startup_event():
+    print("🚀 Starting BudasAI application...")
+    print(f"📍 Environment: {'Railway' if os.getenv('RAILWAY_ENVIRONMENT') else 'Local'}")
+    
+    # Test currency loading (with fallback)
+    try:
+        from utils.currency import load_currency_rates
+        rates = await load_currency_rates()
+        print(f"✅ Currency rates loaded: {list(rates.keys())}")
+    except Exception as e:
+        print(f"⚠️ Currency rate loading issue (will use defaults): {e}")
+    
+    print("✅ Application startup complete!")
+
 # Health check endpoint for Railway
 @app.get("/health")
 async def health_check():
