@@ -71,14 +71,76 @@ async def lifespan(app: FastAPI):
 print("✅ [MAIN] Creating app with lifespan...")
 app = FastAPI(lifespan=lifespan)
 
+# Request/Response logging middleware
+from starlette.middleware.base import BaseHTTPMiddleware
+from time import time
+
+class DebugMiddleware(BaseHTTPMiddleware):
+    async def dispatch(self, request: Request, call_next):
+        request_id = id(request)
+        start_time = time()
+        
+        print(f"\n{'='*70}")
+        print(f"📨 REQUEST #{request_id}")
+        print(f"{'='*70}")
+        print(f"Method: {request.method}")
+        print(f"Path: {request.url.path}")
+        print(f"Query: {request.url.query}")
+        print(f"Headers: {dict(request.headers)}")
+        print(f"{'='*70}")
+        
+        try:
+            response = await call_next(request)
+            process_time = time() - start_time
+            
+            print(f"\n{'='*70}")
+            print(f"📤 RESPONSE #{request_id}")
+            print(f"{'='*70}")
+            print(f"Status: {response.status_code}")
+            print(f"Process Time: {process_time:.3f}s")
+            print(f"Method: {request.method} {request.url.path}")
+            print(f"{'='*70}\n")
+            
+            return response
+        except Exception as e:
+            process_time = time() - start_time
+            print(f"\n{'='*70}")
+            print(f"❌ ERROR IN MIDDLEWARE #{request_id}")
+            print(f"{'='*70}")
+            print(f"Exception: {type(e).__name__}: {str(e)}")
+            print(f"Process Time: {process_time:.3f}s")
+            print(f"{'='*70}")
+            traceback.print_exc()
+            print(f"{'='*70}\n")
+            raise
+
+app.add_middleware(DebugMiddleware)
+print("✅ [MAIN] Debug middleware added")
+
 # Global exception handler
 @app.exception_handler(Exception)
 async def global_exception_handler(request: Request, exc: Exception):
-    print(f"❌ Exception on {request.method} {request.url.path}: {exc}")
+    error_id = id(exc)
+    print(f"\n{'='*70}")
+    print(f"❌ EXCEPTION #{error_id}")
+    print(f"{'='*70}")
+    print(f"Method: {request.method}")
+    print(f"Path: {request.url.path}")
+    print(f"Query: {request.url.query}")
+    print(f"Exception Type: {type(exc).__name__}")
+    print(f"Exception Message: {str(exc)}")
+    print(f"{'='*70}")
     traceback.print_exc()
+    print(f"{'='*70}\n")
+    
     return JSONResponse(
         status_code=500,
-        content={"error": str(exc), "path": str(request.url.path)}
+        content={
+            "error": str(exc),
+            "error_id": error_id,
+            "path": str(request.url.path),
+            "type": type(exc).__name__
+        }
     )
 
 # Health check

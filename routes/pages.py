@@ -21,15 +21,43 @@ templates = Jinja2Templates(directory="templates")
 
 @router.get("/", response_class=HTMLResponse)
 async def home(request: Request):
+    route_id = id(request)
     try:
+        print(f"\n🔵 [HOME ROUTE #{route_id}] Starting...")
+        
+        print(f"🔵 [HOME ROUTE #{route_id}] Calling get_price_context...")
         ctx = await get_price_context(request)
-        return templates.TemplateResponse("home.html", {"request": request, **ctx})
+        print(f"🔵 [HOME ROUTE #{route_id}] Price context: {ctx}")
+        
+        print(f"🔵 [HOME ROUTE #{route_id}] Rendering template...")
+        response = templates.TemplateResponse("home.html", {"request": request, **ctx})
+        print(f"✅ [HOME ROUTE #{route_id}] Successfully rendered")
+        
+        return response
     except Exception as e:
-        print(f"Error in home route: {e}")
+        print(f"❌ [HOME ROUTE #{route_id}] Error: {type(e).__name__}: {str(e)}")
         import traceback
         traceback.print_exc()
-        # Return basic page without pricing context
-        return templates.TemplateResponse("home.html", {"request": request, "currency": "INR", "price": 4999, "adv_price": 14999, "symbol": "₹"})
+        
+        # Return basic fallback
+        print(f"🔵 [HOME ROUTE #{route_id}] Using fallback template...")
+        try:
+            return templates.TemplateResponse(
+                "home.html", 
+                {
+                    "request": request, 
+                    "currency": "INR", 
+                    "price": 4999, 
+                    "adv_price": 14999, 
+                    "symbol": "₹"
+                }
+            )
+        except Exception as e2:
+            print(f"❌ [HOME ROUTE #{route_id}] Fallback also failed: {e2}")
+            return HTMLResponse(
+                f"<html><body><h1>Error</h1><p>{str(e)}</p><p>{str(e2)}</p></body></html>",
+                status_code=500
+            )
 
 
 @router.get("/products", response_class=HTMLResponse)
