@@ -13,7 +13,7 @@ from auth import SECRET_KEY, ALGORITHM
 
 
 # pricing utilities
-from utils.currency import get_price_context
+# from utils.currency import get_price_context
 
 router = APIRouter()
 templates = Jinja2Templates(directory="templates")
@@ -21,7 +21,8 @@ templates = Jinja2Templates(directory="templates")
 
 @router.get("/", response_class=HTMLResponse)
 async def home(request: Request):
-    ctx = await get_price_context(request)
+    # ctx = await get_price_context(request)
+    ctx = {}
     return templates.TemplateResponse("home.html", {"request": request, **ctx})
 
 
