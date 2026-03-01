@@ -210,6 +210,10 @@ async def contact(request: Request):
     print("Form received:", dict(form_data))
 
 
+@router.get("/health")
+def health():
+    return {"status": "ok"}
+
 
 # @router.get("/download-guide")
 # async def download_guide():
