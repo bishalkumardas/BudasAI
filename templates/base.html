@@ -61,7 +61,7 @@
             </a>
 
             <!-- Mobile Toggle -->
-            <button class="navbar-toggler text-white border-0" type="button" data-bs-toggle="collapse"
+            <button class="navbar-toggler text-white border-1" type="button" data-bs-toggle="collapse"
                 data-bs-target="#navbarContent">
                 <span class="navbar-toggler-icon"></span>
             </button>
@@ -71,7 +71,7 @@
                 <!-- Menu Items -->
                 <div class="navbar-nav text-center nav-center mx-auto">
                     <a class="nav-item nav-link invisible d-none d-lg-block">Home</a>
-                    <a class="nav-item nav-link invisible d-none d-lg-block">Home</a> <!-- hidden but takes up space -->
+                    <a class="nav-item nav-link invisible d-none d-lg-block">Hom</a> <!-- hidden but takes up space -->
                     <a class="nav-item nav-link {% if request.url.path == '/' %}active{% endif %}" href="/">Home</a>
                     <a class="nav-item nav-link {% if request.url.path == '/story' %}active{% endif %}"
                         href="/story">Story</a>
@@ -179,14 +179,14 @@
                 <div class="modal-body">
 
                     <!-- Email -->
-                    <input type="text" class="form-control mb-3" placeholder="Login ID / Email">
+                    <!-- <input type="text" class="form-control mb-3" placeholder="Login ID / Email"> -->
 
                     <!-- Password -->
-                    <input type="password" class="form-control mb-3" placeholder="Password">
+                    <!-- <input type="password" class="form-control mb-3" placeholder="Password"> -->
 
                     <!-- Login Button -->
                     <div id="auth-section">
-                        <button id="login-btn">Login</button>
+                        <!-- <button id="login-btn">Login</button> -->
 
                         <div id="user-menu" style="display:none;">
                             <span id="user-name"></span>
@@ -197,9 +197,9 @@
                     </div>
 
                     <!-- Divider -->
-                    <div class="text-center mb-3">
+                    <!-- <div class="text-center mb-3">
                         <small class="text-muted">OR</small>
-                    </div>
+                    </div> -->
 
                     <!-- Google Login -->
                     <button class="btn btn-outline-danger w-100 mb-3">
@@ -211,12 +211,12 @@
                     </button>
 
                     <!-- Signup -->
-                    <div class="text-center">
+                    <!-- <div class="text-center">
                         <small>
                             Don't have an account?
                             <a href="/signup">Sign Up</a>
                         </small>
-                    </div>
+                    </div> -->
 
                 </div>
             </div>

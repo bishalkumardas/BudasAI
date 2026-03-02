@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta
 import json
+import re
 import traceback
 import httpx
 from fastapi import APIRouter, HTTPException, Request, Form
@@ -173,11 +174,15 @@ async def blog(request: Request):
                     continue
                 is_pub = b.get("is_published") or b.get("is_publish")
                 if is_pub:
-                    b.setdefault("image_url", "")
-                    b.setdefault("excerpt", "")
-                    b.setdefault("date", "")
-                    b.setdefault("slug", "")
-                    published.append(b)
+                        b.setdefault("image_url", "")
+                        b.setdefault("excerpt", "")
+                        b.setdefault("date", "")
+                        b.setdefault("slug", "")
+
+                        # ADD THIS LINE
+                        b["clean_title"] = clean_title_for_url(b.get("title", ""))
+
+                        published.append(b)
             except:
                 pass
 
@@ -190,28 +195,81 @@ async def blog(request: Request):
         return templates.TemplateResponse("blog.html", {"request": request, "blogs": [], "currency": "INR", "price": 4999, "adv_price": 14999, "symbol": "₹"})
 
 
+
+def clean_title_for_url(title: str) -> str:
+    title = title.lower()
+    title = re.sub(r'[^a-z0-9\s-]', '', title)   # remove special characters
+    title = re.sub(r'\s+', '-', title)           # spaces -> hyphen
+    title = re.sub(r'-+', '-', title)            # remove double hyphens
+    return title.strip('-')
+
+
 @router.get("/blog/{id}", response_class=HTMLResponse)
-async def full_blog(request: Request, id: int):
+async def full_blog_redirect(request: Request, id: int):
     try:
-        response = supabase.table("blogs").select("*").eq("id", id).single().execute()
+        response = (
+            supabase.table("blogs")
+            .select("title")
+            .eq("id", id)
+            .single()
+            .execute()
+        )
+
         if not response.data:
             raise HTTPException(status_code=404)
-        
-        blog_data = response.data
-        is_pub = blog_data.get("is_published") or blog_data.get("is_publish")
-        if not is_pub:
+
+        correct_title = clean_title_for_url(response.data["title"])
+
+        return RedirectResponse(
+            url=f"/blog/{id}/{correct_title}",
+            status_code=301
+        )
+
+    except Exception as e:
+        print("Redirect error:", e)
+        raise HTTPException(status_code=404)
+    
+
+@router.get("/blog/{id}/{title}", response_class=HTMLResponse)
+async def full_blog(request: Request, id: int, title: str):
+    try:
+        response = (
+            supabase.table("blogs")
+            .select("*")
+            .eq("id", id)
+            .single()
+            .execute()
+        )
+
+        if not response.data:
             raise HTTPException(status_code=404)
-        
+
+        blog_data = response.data
+
+        if not blog_data.get("is_publish"):
+            raise HTTPException(status_code=404)
+
+        # --- SEO redirect (important) ---
+        correct_title = clean_title_for_url(blog_data["title"])
+        if title != correct_title:
+            return RedirectResponse(
+                url=f"/blog/{id}/{correct_title}",
+                status_code=301
+            )
+
         blog_data.setdefault("html_content", "")
         ctx = await get_price_context(request)
-        return templates.TemplateResponse("full_blog.html", {"request": request, "blog": blog_data, **ctx})
+
+        return templates.TemplateResponse(
+            "full_blog.html",
+            {"request": request, "blog": blog_data, **ctx}
+        )
+
     except HTTPException:
         raise
     except Exception as e:
-        print(f"Error in full_blog route: {e}")
-        import traceback
-        traceback.print_exc()
-        raise HTTPException(status_code=500, detail="Internal server error")
+        print("Blog error:", e)
+        raise HTTPException(status_code=500)
 
 
 @router.get("/auth/callback")
