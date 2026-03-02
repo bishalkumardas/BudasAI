@@ -172,17 +172,24 @@ async def blog(request: Request):
             try:
                 if not isinstance(b, dict):
                     continue
+
                 is_pub = b.get("is_published") or b.get("is_publish")
                 if is_pub:
-                        b.setdefault("image_url", "")
-                        b.setdefault("excerpt", "")
-                        b.setdefault("date", "")
-                        b.setdefault("slug", "")
+                    b.setdefault("image_url", "")
+                    b.setdefault("excerpt", "")
+                    b.setdefault("date", "")
+                    b.setdefault("slug", "")
 
-                        # ADD THIS LINE
-                        b["clean_title"] = clean_title_for_url(b.get("title", ""))
+                    # FORMAT DATE
+                    if b.get("date"):
+                        try:
+                            dt = datetime.fromisoformat(str(b["date"]))
+                            b["date"] = dt.strftime("%B %d, %Y")   # March 02, 2026
+                        except:
+                            pass
 
-                        published.append(b)
+                    b["clean_title"] = clean_title_for_url(b.get("title", ""))
+                    published.append(b)
             except:
                 pass
 
@@ -258,6 +265,15 @@ async def full_blog(request: Request, id: int, title: str):
             )
 
         blog_data.setdefault("html_content", "")
+
+        # FORMAT DATE (ADD THIS BLOCK)
+        if blog_data.get("date"):
+            try:
+                dt = datetime.fromisoformat(str(blog_data["date"]))
+                blog_data["date"] = dt.strftime("%B %d, %Y").replace(" 0", " ")
+            except:
+                pass
+
         ctx = await get_price_context(request)
 
         return templates.TemplateResponse(
