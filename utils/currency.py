@@ -168,7 +168,8 @@ async def get_price_context(request: Request):
             "original_price": original_base_price,
             "adv_price": discounted_adv_price,
             "original_adv_price": original_adv_price,
-            "discount_percent": DISCOUNT_PERCENT
+            "discount_percent": DISCOUNT_PERCENT,
+            "base_url": os.getenv("BASE_URL", "http://localhost:8000")
         }
     except Exception as e:
         return {
@@ -178,5 +179,6 @@ async def get_price_context(request: Request):
             "original_price": 4999,
             "adv_price": 14999,
             "original_adv_price": 14999,
-            "discount_percent": DISCOUNT_PERCENT
+            "discount_percent": 0,
+            "base_url": os.getenv("BASE_URL", "http://localhost:8000")
         }

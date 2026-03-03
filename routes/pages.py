@@ -20,6 +20,9 @@ router = APIRouter()
 templates = Jinja2Templates(directory="templates")
 
 
+# Add this near the top of pages.py
+BASE_URL = os.getenv("BASE_URL", "http://localhost:8000")
+
 @router.get("/", response_class=HTMLResponse)
 async def home(request: Request):
     route_id = id(request)

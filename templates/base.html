@@ -223,9 +223,12 @@
 
                     <!-- Google Login -->
                     <button class="btn btn-outline-danger w-100 mb-3">
-                        <a href="https://aznlbmkbuwasvaqrnnfo.supabase.co/auth/v1/authorize?provider=google&flow_type=pkce&redirect_to=http://localhost:8000/auth/callback"
+                        <!-- <a href="https://aznlbmkbuwasvaqrnnfo.supabase.co/auth/v1/authorize?provider=google&flow_type=pkce&redirect_to=http://localhost:8000/auth/callback"
                             style="text-decoration: none; color: inherit;">
                             <img src="/static/images/google.png" alt="Google Icon" width="20" height="20" class="me-2">
+                            Login with Google
+                        </a> -->
+                        <a href="https://aznlbmkbuwasvaqrnnfo.supabase.co/auth/v1/authorize?provider=google&flow_type=pkce&redirect_to={{ base_url }}/auth/callback">
                             Login with Google
                         </a>
                     </button>
