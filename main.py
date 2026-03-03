@@ -8,7 +8,7 @@ from fastapi import FastAPI, Request, Response
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.trustedhost import TrustedHostMiddleware
-from fastapi.responses import JSONResponse
+from fastapi.responses import FileResponse, JSONResponse
 
 print(f"🔵 [MAIN] Starting application initialization...")
 print(f"🔵 [MAIN] Python: {sys.version}")
@@ -125,6 +125,10 @@ async def global_exception_handler(request: Request, exc: Exception):
             "type": type(exc).__name__
         }
     )
+
+@app.get("/ads.txt")
+async def ads():
+    return FileResponse("ads.txt", media_type="text/plain")
 
 # Health check
 @app.get("/health")

@@ -4,7 +4,7 @@ import re
 # import traceback
 # import httpx
 from fastapi import APIRouter, HTTPException, Request
-from fastapi.responses import  HTMLResponse, JSONResponse, RedirectResponse, Response
+from fastapi.responses import  FileResponse, HTMLResponse, JSONResponse, RedirectResponse, Response
 from fastapi.templating import Jinja2Templates
 from database import supabase
 import os
@@ -376,6 +376,10 @@ async def term_condition(request: Request):
         }
     )
 
+
+@app.get("/ads.txt")
+async def ads():
+    return FileResponse("ads.txt", media_type="text/plain")
 
 # @router.get("/download-guide")
 # async def download_guide():
