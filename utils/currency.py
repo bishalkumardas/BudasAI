@@ -130,6 +130,7 @@ async def calculate_price(currency: str, amount_in_inr: int | None = None):
     return round(converted)
 
 
+#never remove this function from any route
 async def get_price_context(request: Request):
     """
     Template context helper for prices, including discount.
