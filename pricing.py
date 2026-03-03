@@ -16,3 +16,5 @@ CURRENCY_SYMBOL = {
     "USD": "$",
     "AED": "AED"
 }
+
+

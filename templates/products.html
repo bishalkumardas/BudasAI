@@ -48,7 +48,15 @@
         </div>
 
         <!-- Price -->
-        <h3 class="audit-price reveal reveal-delay-5">Starting at just {{ symbol }}{{ price }}</h3>
+        <h3 class="audit-price reveal reveal-delay-5">Starting at just <div class="price">
+                {% if discount_percent > 0 %}
+                <span class="original-price">{{ symbol }}{{ original_price }}</span>
+                <span class="discounted-price">{{ symbol }}{{ price }}</span>
+                {% else %}
+                {{ symbol }}{{ price }}
+                {% endif %}
+            </div>
+        </h3>
         <div class="d-flex justify-content-center my-3 reveal reveal-delay-5">
             <select id="currency-select" class="form-select form-select-sm w-auto">
                 <option value="INR" {% if currency=='INR' %}selected{% endif %}>INR</option>
@@ -296,7 +304,14 @@
                 <h3 class="plan-title">Budasai Blueprint</h3>
                 <p class="plan-subtitle">Department-Wise AI Strategy</p>
 
-                <div class="price">{{ symbol }}{{ price }}</div>
+                <div class="price">
+                    {% if discount_percent > 0 %}
+                    <span class="original-price">{{ symbol }}{{ original_price }}</span>
+                    <span class="discounted-price">{{ symbol }}{{ price }}</span>
+                    {% else %}
+                    {{ symbol }}{{ price }}
+                    {% endif %}
+                </div>
 
                 <div class="feature-group">
                     <h6>Department Systems</h6>
@@ -332,7 +347,14 @@
                 <h3 class="plan-title">Budasai Growth Engine</h3>
                 <p class="plan-subtitle">Revenue + Automation Audit</p>
 
-                <div class="price">{{ symbol }}{{ adv_price }}</div>
+                <div class="price">
+                    {% if discount_percent > 0 %}
+                    <span class="original-price">{{ symbol }}{{ original_adv_price }}</span>
+                    <span class="discounted-price">{{ symbol }}{{ adv_price }}</span>
+                    {% else %}
+                    {{ symbol }}{{ adv_price }}
+                    {% endif %}
+                </div>
 
                 <div class="feature-group">
                     <h6>Business Analysis</h6>

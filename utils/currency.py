@@ -132,46 +132,51 @@ async def calculate_price(currency: str, amount_in_inr: int | None = None):
 
 async def get_price_context(request: Request):
     """
-    Template context helper
+    Template context helper for prices, including discount.
     """
     try:
-        print(f"🔵 [GET_PRICE_CONTEXT] Starting...")
-        
         currency = request.query_params.get("currency", "INR").upper()
-        print(f"🔵 [GET_PRICE_CONTEXT] Currency: {currency}")
-        
         if currency not in CURRENCY_SYMBOL:
             currency = "INR"
-            print(f"🔵 [GET_PRICE_CONTEXT] Currency not in symbols, using INR")
 
-        print(f"🔵 [GET_PRICE_CONTEXT] Calculating prices...")
-        price = await calculate_price(currency, BASE_PRICE_INR)
-        print(f"🔵 [GET_PRICE_CONTEXT] Base price: {price}")
-        
-        adv_price = await calculate_price(currency, ADVANCE_PLAN_PRICE)
-        print(f"🔵 [GET_PRICE_CONTEXT] Advanced price: {adv_price}")
-        
-        symbol = CURRENCY_SYMBOL.get(currency, "")
-        print(f"🔵 [GET_PRICE_CONTEXT] Symbol: {symbol}")
+        # Base prices
+        original_base_price = BASE_PRICE_INR
+        original_adv_price = ADVANCE_PLAN_PRICE
 
-        result = {
+        # Discounted prices
+        discounted_base_price = original_base_price * (1 - DISCOUNT_PERCENT / 100)
+        discounted_adv_price = original_adv_price * (1 - DISCOUNT_PERCENT / 100)
+
+        # Convert to currency
+        if currency != "INR":
+            rates = await load_currency_rates()
+            rate = rates.get(currency, 1)
+            discounted_base_price = round(discounted_base_price * rate * (1 + INTERNATIONAL_MARKUP / 100))
+            discounted_adv_price = round(discounted_adv_price * rate * (1 + INTERNATIONAL_MARKUP / 100))
+            original_base_price = round(original_base_price * rate * (1 + INTERNATIONAL_MARKUP / 100))
+            original_adv_price = round(original_adv_price * rate * (1 + INTERNATIONAL_MARKUP / 100))
+        else:
+            discounted_base_price = round(discounted_base_price)
+            discounted_adv_price = round(discounted_adv_price)
+            original_base_price = round(original_base_price)
+            original_adv_price = round(original_adv_price)
+
+        return {
             "currency": currency,
-            "price": price,
-            "adv_price": adv_price,
-            "symbol": symbol,
+            "symbol": CURRENCY_SYMBOL.get(currency, ""),
+            "price": discounted_base_price,
+            "original_price": original_base_price,
+            "adv_price": discounted_adv_price,
+            "original_adv_price": original_adv_price,
+            "discount_percent": DISCOUNT_PERCENT
         }
-        print(f"✅ [GET_PRICE_CONTEXT] Returning: {result}")
-        return result
     except Exception as e:
-        print(f"❌ [GET_PRICE_CONTEXT] Error: {type(e).__name__}: {str(e)}")
-        import traceback
-        traceback.print_exc()
-        
-        # Return defaults
-        print(f"🔵 [GET_PRICE_CONTEXT] Using defaults...")
         return {
             "currency": "INR",
+            "symbol": "₹",
             "price": 4999,
+            "original_price": 4999,
             "adv_price": 14999,
-            "symbol": "₹"
+            "original_adv_price": 14999,
+            "discount_percent": DISCOUNT_PERCENT
         }
