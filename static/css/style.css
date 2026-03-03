@@ -1937,3 +1937,9 @@ html {
 .reveal-delay-10 {
     transition-delay: 1.0s;
 }
+
+
+.term{
+    color: #606872;
+    font-size: 10px;
+}

@@ -1,9 +1,10 @@
+import time
 import os
 import sys
 import uvicorn
 import traceback
 from contextlib import asynccontextmanager
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, Response
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.trustedhost import TrustedHostMiddleware
@@ -71,51 +72,33 @@ async def lifespan(app: FastAPI):
 print("✅ [MAIN] Creating app with lifespan...")
 app = FastAPI(lifespan=lifespan)
 
-# Request/Response logging middleware
-from starlette.middleware.base import BaseHTTPMiddleware
-from time import time
 
-class DebugMiddleware(BaseHTTPMiddleware):
-    async def dispatch(self, request: Request, call_next):
-        request_id = id(request)
-        start_time = time()
-        
-        print(f"\n{'='*70}")
-        print(f"📨 REQUEST #{request_id}")
-        print(f"{'='*70}")
-        print(f"Method: {request.method}")
-        print(f"Path: {request.url.path}")
-        print(f"Query: {request.url.query}")
-        print(f"Headers: {dict(request.headers)}")
-        print(f"{'='*70}")
-        
-        try:
-            response = await call_next(request)
-            process_time = time() - start_time
-            
-            print(f"\n{'='*70}")
-            print(f"📤 RESPONSE #{request_id}")
-            print(f"{'='*70}")
-            print(f"Status: {response.status_code}")
-            print(f"Process Time: {process_time:.3f}s")
-            print(f"Method: {request.method} {request.url.path}")
-            print(f"{'='*70}\n")
-            
-            return response
-        except Exception as e:
-            process_time = time() - start_time
-            print(f"\n{'='*70}")
-            print(f"❌ ERROR IN MIDDLEWARE #{request_id}")
-            print(f"{'='*70}")
-            print(f"Exception: {type(e).__name__}: {str(e)}")
-            print(f"Process Time: {process_time:.3f}s")
-            print(f"{'='*70}")
-            traceback.print_exc()
-            print(f"{'='*70}\n")
-            raise
+@app.middleware("http")
+async def debug_middleware(request: Request, call_next):
+    request_id = id(request)
+    start_time = time.time()
 
-app.add_middleware(DebugMiddleware)
-print("✅ [MAIN] Debug middleware added")
+    print(f"\n{'='*70}")
+    print(f"📨 REQUEST #{request_id}")
+    print(f"Method: {request.method}")
+    print(f"Path: {request.url.path}")
+    print(f"{'='*70}")
+
+    try:
+        response = await call_next(request)
+        process_time = time.time() - start_time
+
+        print(f"\n📤 RESPONSE #{request_id}")
+        print(f"Status: {response.status_code}")
+        print(f"Time: {process_time:.3f}s")
+        print(f"{'='*70}\n")
+
+        return response
+
+    except Exception as e:
+        print(f"❌ ERROR #{request_id}: {e}")
+        raise
+
 
 # Global exception handler
 @app.exception_handler(Exception)
@@ -148,10 +131,9 @@ async def global_exception_handler(request: Request, exc: Exception):
 async def health_check():
     return {"status": "ok", "service": "budasai"}
 
-# Favicon
 @app.get("/favicon.ico", include_in_schema=False)
 async def favicon():
-    return JSONResponse(content=None, status_code=204)
+    return Response(status_code=204)
 
 # CORS middleware
 print("🔵 [MAIN] Adding CORS middleware...")

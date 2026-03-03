@@ -1,16 +1,16 @@
-from datetime import datetime, timedelta
+from datetime import datetime
 import json
 import re
-import traceback
-import httpx
-from fastapi import APIRouter, HTTPException, Request, Form
-from fastapi.responses import FileResponse, HTMLResponse, JSONResponse, RedirectResponse, Response
+# import traceback
+# import httpx
+from fastapi import APIRouter, HTTPException, Request
+from fastapi.responses import  HTMLResponse, JSONResponse, RedirectResponse, Response
 from fastapi.templating import Jinja2Templates
 from database import supabase
 import os
 import html
-from jose import JWTError, jwt
-from auth import SECRET_KEY, ALGORITHM
+# from jose import JWTError, jwt
+# from auth import SECRET_KEY, ALGORITHM
 
 
 # pricing utilities
@@ -24,15 +24,15 @@ templates = Jinja2Templates(directory="templates")
 async def home(request: Request):
     route_id = id(request)
     try:
-        print(f"\n🔵 [HOME ROUTE #{route_id}] Starting...")
+        # print(f"\n🔵 [HOME ROUTE #{route_id}] Starting...")
         
-        print(f"🔵 [HOME ROUTE #{route_id}] Calling get_price_context...")
+        # print(f"🔵 [HOME ROUTE #{route_id}] Calling get_price_context...")
         ctx = await get_price_context(request)
-        print(f"🔵 [HOME ROUTE #{route_id}] Price context: {ctx}")
+        # print(f"🔵 [HOME ROUTE #{route_id}] Price context: {ctx}")
         
-        print(f"🔵 [HOME ROUTE #{route_id}] Rendering template...")
+        # print(f"🔵 [HOME ROUTE #{route_id}] Rendering template...")
         response = templates.TemplateResponse("home.html", {"request": request, **ctx})
-        print(f"✅ [HOME ROUTE #{route_id}] Successfully rendered")
+        # print(f"✅ [HOME ROUTE #{route_id}] Successfully rendered")
         
         return response
     except Exception as e:
@@ -364,6 +364,17 @@ async def contact(request: Request):
         return JSONResponse({"success": False, "message": "Error processing form"}, status_code=500)
 
 
+
+@router.get("/term-condition", response_class=HTMLResponse)
+async def term_condition(request: Request):
+    # print(datetime.now().strftime("%B %d, %Y"))
+    return templates.TemplateResponse(
+        "payment_terms.html",
+        {
+            "request": request,
+            "now": datetime.now().strftime("%B %d, %Y")
+        }
+    )
 
 
 # @router.get("/download-guide")
