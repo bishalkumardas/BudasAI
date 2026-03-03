@@ -130,10 +130,6 @@ async def global_exception_handler(request: Request, exc: Exception):
 async def ads():
     return FileResponse("ads.txt", media_type="text/plain")
 
-# Health check
-@app.get("/health")
-async def health_check():
-    return {"status": "ok", "service": "budasai"}
 
 @app.get("/favicon.ico", include_in_schema=False)
 async def favicon():

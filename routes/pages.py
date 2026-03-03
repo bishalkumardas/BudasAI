@@ -375,9 +375,7 @@ async def term_condition(request: Request):
             "now": datetime.now().strftime("%B %d, %Y")
         }
     )
-
-
-@app.get("/ads.txt")
+@router.get("/ads.txt")
 async def ads():
     return FileResponse("ads.txt", media_type="text/plain")
 
