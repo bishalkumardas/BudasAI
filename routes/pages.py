@@ -8,7 +8,7 @@ from fastapi.responses import  FileResponse, HTMLResponse, JSONResponse, Redirec
 from fastapi.templating import Jinja2Templates
 from database import supabase
 import os
-import html
+import math
 # from jose import JWTError, jwt
 # from auth import SECRET_KEY, ALGORITHM
 
@@ -165,44 +165,121 @@ async def story(request: Request):
 
 
 @router.get("/blog", response_class=HTMLResponse)
-async def blog(request: Request):
+async def blog(request: Request, page: int = 1, category: str = "all"):
     try:
-        response = supabase.table("blogs").select("*").order("date", desc=True).execute()
-        blogs_list = response.data or []
+        PER_PAGE = 4
+
+        # ===== DATABASE QUERY =====
+        # Build base query with ordering
+        query = supabase.table("blogs").select("*").order("date", desc=True)
+
+        # Execute database query
+        response = query.execute()
+        blogs_data = response.data or []
         
-        published = []
-        for b in blogs_list:
-            try:
-                if not isinstance(b, dict):
-                    continue
+        print(f"[DEBUG] Total blogs fetched: {len(blogs_data)}")
+        if blogs_data:
+            print(f"[DEBUG] First blog keys: {blogs_data[0].keys()}")
+            print(f"[DEBUG] First blog is_published: {blogs_data[0].get('is_published')}")
 
-                is_pub = b.get("is_published") or b.get("is_publish")
-                if is_pub:
-                    b.setdefault("image_url", "")
-                    b.setdefault("excerpt", "")
-                    b.setdefault("date", "")
-                    b.setdefault("slug", "")
+        # ===== DATA PROCESSING & FILTERING =====
+        # Process blog data and filter by published status and category
+        processed_blogs = []
+        category_lower = category.lower() if category != "all" else "all"
+        
+        for blog in blogs_data:
+            if not isinstance(blog, dict):
+                print(f"[DEBUG] Skipping non-dict: {type(blog)}")
+                continue
 
-                    # FORMAT DATE
-                    if b.get("date"):
-                        try:
-                            dt = datetime.fromisoformat(str(b["date"]))
-                            b["date"] = dt.strftime("%B %d, %Y")   # March 02, 2026
-                        except:
-                            pass
+            # Check if blog is published (handles both field name variations)
+            is_pub = blog.get("is_published") or blog.get("is_publish")
+            
+            if not is_pub:
+                print(f"[DEBUG] Skipping unpublished blog: {blog.get('title')} (is_published={blog.get('is_published')}, is_publish={blog.get('is_publish')})")
+                continue
 
-                    b["clean_title"] = clean_title_for_url(b.get("title", ""))
-                    published.append(b)
-            except:
-                pass
+            # Filter by category if specified (case-insensitive)
+            blog_category = str(blog.get("category", "")).lower()
+            if category_lower != "all" and blog_category != category_lower:
+                print(f"[DEBUG] Skipping category mismatch: {blog.get('title')} ({blog_category} != {category_lower})")
+                continue
 
+            print(f"[DEBUG] Including blog: {blog.get('title')}")
+
+            # Ensure all required fields exist
+            blog.setdefault("image_url", "")
+            blog.setdefault("excerpt", "")
+            blog.setdefault("date", "")
+            blog.setdefault("slug", "")
+
+            # Format date to human-readable format
+            if blog.get("date"):
+                try:
+                    dt = datetime.fromisoformat(str(blog["date"]))
+                    blog["date"] = dt.strftime("%B %d, %Y")
+                except Exception:
+                    pass
+
+            # Generate URL-friendly title
+            blog["clean_title"] = clean_title_for_url(blog.get("title", ""))
+
+            processed_blogs.append(blog)
+
+        print(f"[DEBUG] Processed blogs after filtering: {len(processed_blogs)}")
+
+        # ===== PAGINATION =====
+        # Calculate pagination parameters
+        total_blogs = len(processed_blogs)
+        total_pages = math.ceil(total_blogs / PER_PAGE) if total_blogs > 0 else 1
+
+        # Validate and constrain page number
+        if page < 1:
+            page = 1
+        elif page > total_pages:
+            page = total_pages
+
+        # Slice blogs for current page
+        start_idx = (page - 1) * PER_PAGE
+        end_idx = start_idx + PER_PAGE
+        paginated_blogs = processed_blogs[start_idx:end_idx]
+
+        print(f"[DEBUG] Final paginated blogs: {len(paginated_blogs)}")
+
+        # ===== TEMPLATE RENDERING =====
+        # Get price context for display
         ctx = await get_price_context(request)
-        return templates.TemplateResponse("blog.html", {"request": request, "blogs": published, **ctx})
+
+        return templates.TemplateResponse(
+            "blog.html",
+            {
+                "request": request,
+                "blogs": paginated_blogs,
+                "page": page,
+                "total_pages": total_pages,
+                "category": category,
+                **ctx
+            }
+        )
+
     except Exception as e:
-        print(f"Error in blog route: {e}")
+        print(f"[ERROR] in blog route: {e}")  
         import traceback
         traceback.print_exc()
-        return templates.TemplateResponse("blog.html", {"request": request, "blogs": [], "currency": "INR", "price": 4999, "adv_price": 14999, "symbol": "₹"})
+
+        ctx = await get_price_context(request)
+        
+        return templates.TemplateResponse(
+            "blog.html",
+            {
+                "request": request,
+                "blogs": [],
+                "page": 1,
+                "total_pages": 1,
+                "category": "all",
+                **ctx
+            }
+        )
 
 
 

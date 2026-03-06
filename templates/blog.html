@@ -16,12 +16,27 @@
 <div class="container text-center mt-4 reveal reveal-delay-2">
     <div class="filters d-flex justify-content-center flex-wrap gap-3 reveal">
 
-        <button class="filter-btn active" data-filter="all">All</button>
-        <button class="filter-btn" data-filter="ai tools">AI Tools</button>
-        <button class="filter-btn" data-filter="productivity">Productivity</button>
-        <button class="filter-btn" data-filter="case study">Case Study</button>
-        <button class="filter-btn" data-filter="reviews">Reviews</button>
-        <button class="filter-btn" data-filter="ai news">AI News</button>
+        <a href="/blog?category=all" class="btn btn-dark">All</a>
+
+        <a href="/blog?category=ai tools" class="btn btn-outline-dark">
+            AI Tools
+        </a>
+
+        <a href="/blog?category=productivity" class="btn btn-outline-dark">
+            Productivity
+        </a>
+
+        <a href="/blog?category=case study" class="btn btn-outline-dark">
+            Case Study
+        </a>
+
+        <a href="/blog?category=reviews" class="btn btn-outline-dark">
+            Reviews
+        </a>
+
+        <a href="/blog?category=ai news" class="btn btn-outline-dark">
+            AI News
+        </a>
 
     </div>
 </div>
@@ -84,6 +99,39 @@
         {% endfor %}
 
     </div>
+</div>
+
+<div class="container mt-5 d-flex justify-content-center">
+
+    <nav aria-label="Blog pagination">
+        <ul class="pagination">
+
+            <!-- Previous Button -->
+            <li class="page-item {% if page <= 1 %}disabled{% endif %}">
+                <a class="page-link" href="/blog?page={{ p }}&category={{ category }}">
+                    <span aria-hidden="true">&laquo;</span>
+                </a>
+            </li>
+
+            <!-- Page Numbers -->
+            {% for p in range(1, total_pages + 1) %}
+            <li class="page-item {% if p == page %}active{% endif %}">
+                <a class="page-link" href="/blog?page={{ p }}&category={{ category }}">
+                    {{ p }}
+                </a>
+            </li>
+            {% endfor %}
+
+            <!-- Next Button -->
+            <a class="page-link" href="/blog?page={{ page+1 }}&category={{ category }}">
+                <a class="page-link" href="/blog?page={{ page+1 }}" aria-label="Next">
+                    <span aria-hidden="true">&raquo;</span>
+                </a>
+            </li>
+
+        </ul>
+    </nav>
+
 </div>
 
 
