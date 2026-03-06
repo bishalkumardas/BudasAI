@@ -1,0 +1,281 @@
+{% extends "base.html" %}
+
+{% block title %}AI Tools Comparison - BUDASAI{% endblock %}
+
+{% block content %}
+<div class="ai-tools-page">
+  <header class="ai-tools-hero">
+    <div class="ai-tools-badge">AI Tools Intelligence</div>
+    <h1>Compare AI Tools For Your <em>YouTube Channel</em></h1>
+    <p>We benchmarked major AI tools across 10 practical criteria so you can choose confidently and build a faster content workflow.</p>
+    <div class="ai-tools-stats" id="statsBox"></div>
+  </header>
+
+  <main class="ai-tools-main">
+    <section>
+      <div class="ai-tools-section-head">
+        <h2>AI Tools Comparison Table</h2>
+        <div class="ai-tools-actions">
+          <div class="ai-tools-sort-row">
+            <label for="sortBy">Sort by</label>
+            <select id="sortBy">
+              <option value="name" selected>AI Tool</option>
+              <option value="quality">Quality</option>
+              <option value="ease">Ease</option>
+              <option value="accuracy">Accuracy</option>
+              <option value="speed">Speed</option>
+              <option value="value">Value</option>
+              <option value="creativity">Creativity</option>
+              <option value="overall">Overall</option>
+              <option value="stars">Stars</option>
+            </select>
+            <select id="sortOrder">
+              <option value="asc" selected>Low to High</option>
+              <option value="desc">High to Low</option>
+            </select>
+          </div>
+          <button class="ai-tools-btn" type="button" onclick="exportCSV()">Export CSV</button>
+        </div>
+      </div>
+      <div class="ai-tools-table-wrap">
+        <div class="ai-tools-table-scroll">
+          <table id="comparisonTable"></table>
+        </div>
+      </div>
+    </section>
+
+    <div class="ai-tools-divider">
+      <span class="ai-tools-line"></span>
+      <span class="ai-tools-text">How We Rate Each Tool</span>
+      <span class="ai-tools-line"></span>
+    </div>
+
+    <section>
+      <div class="ai-tools-section-head">
+        <h2>10 Criteria + How to Test</h2>
+      </div>
+      <div class="ai-tools-criteria-grid">
+        <article class="ai-tools-criteria-card ai-tools-stagger-1">
+          <div class="ai-tools-criteria-top"><div class="ai-tools-criteria-icon">1</div><div><div class="ai-tools-criteria-id">Criteria 01</div><h3 class="ai-tools-criteria-name">Output Quality</h3></div></div>
+          <p class="ai-tools-criteria-desc">Does it produce results good enough to use without heavy rewriting?</p>
+          <div class="ai-tools-how-test">Generate a 60-second YouTube intro and evaluate if it is publish-ready.</div>
+        </article>
+        <article class="ai-tools-criteria-card ai-tools-stagger-2">
+          <div class="ai-tools-criteria-top"><div class="ai-tools-criteria-icon">2</div><div><div class="ai-tools-criteria-id">Criteria 02</div><h3 class="ai-tools-criteria-name">Ease of Use</h3></div></div>
+          <p class="ai-tools-criteria-desc">Can a beginner get a useful output quickly without tutorials?</p>
+          <div class="ai-tools-how-test">Start from scratch and measure time to first useful output.</div>
+        </article>
+        <article class="ai-tools-criteria-card ai-tools-stagger-3">
+          <div class="ai-tools-criteria-top"><div class="ai-tools-criteria-icon">3</div><div><div class="ai-tools-criteria-id">Criteria 03</div><h3 class="ai-tools-criteria-name">Accuracy</h3></div></div>
+          <p class="ai-tools-criteria-desc">How often are outputs factually correct and reliable?</p>
+          <div class="ai-tools-how-test">Ask 5 factual questions in your niche and score correctness.</div>
+        </article>
+        <article class="ai-tools-criteria-card ai-tools-stagger-4">
+          <div class="ai-tools-criteria-top"><div class="ai-tools-criteria-icon">4</div><div><div class="ai-tools-criteria-id">Criteria 04</div><h3 class="ai-tools-criteria-name">Speed</h3></div></div>
+          <p class="ai-tools-criteria-desc">How quickly can it complete repeated tasks?</p>
+          <div class="ai-tools-how-test">Run 3 times and compare average completion time.</div>
+        </article>
+        <article class="ai-tools-criteria-card ai-tools-stagger-1">
+          <div class="ai-tools-criteria-top"><div class="ai-tools-criteria-icon">5</div><div><div class="ai-tools-criteria-id">Criteria 05</div><h3 class="ai-tools-criteria-name">Value for Money</h3></div></div>
+          <p class="ai-tools-criteria-desc">Does pricing match practical value delivered?</p>
+          <div class="ai-tools-how-test">Compare free and paid features against outcomes.</div>
+        </article>
+        <article class="ai-tools-criteria-card ai-tools-stagger-2">
+          <div class="ai-tools-criteria-top"><div class="ai-tools-criteria-icon">6</div><div><div class="ai-tools-criteria-id">Criteria 06</div><h3 class="ai-tools-criteria-name">Creativity</h3></div></div>
+          <p class="ai-tools-criteria-desc">Are ideas fresh or mostly repetitive?</p>
+          <div class="ai-tools-how-test">Request 10 ideas and score originality.</div>
+        </article>
+        <article class="ai-tools-criteria-card ai-tools-stagger-3">
+          <div class="ai-tools-criteria-top"><div class="ai-tools-criteria-icon">7</div><div><div class="ai-tools-criteria-id">Criteria 07</div><h3 class="ai-tools-criteria-name">Integration</h3></div></div>
+          <p class="ai-tools-criteria-desc">How easily does it fit into your existing workflow?</p>
+          <div class="ai-tools-how-test">Check docs, APIs, and no-code integration options.</div>
+        </article>
+        <article class="ai-tools-criteria-card ai-tools-stagger-4">
+          <div class="ai-tools-criteria-top"><div class="ai-tools-criteria-icon">8</div><div><div class="ai-tools-criteria-id">Criteria 08</div><h3 class="ai-tools-criteria-name">Consistency</h3></div></div>
+          <p class="ai-tools-criteria-desc">Does it deliver stable quality over repeated use?</p>
+          <div class="ai-tools-how-test">Use same prompt 3 times and compare output variance.</div>
+        </article>
+        <article class="ai-tools-criteria-card ai-tools-stagger-1">
+          <div class="ai-tools-criteria-top"><div class="ai-tools-criteria-icon">9</div><div><div class="ai-tools-criteria-id">Criteria 09</div><h3 class="ai-tools-criteria-name">Support and Updates</h3></div></div>
+          <p class="ai-tools-criteria-desc">Is the product actively maintained and supported?</p>
+          <div class="ai-tools-how-test">Review update frequency, docs quality, and support channels.</div>
+        </article>
+        <article class="ai-tools-criteria-card ai-tools-stagger-2">
+          <div class="ai-tools-criteria-top"><div class="ai-tools-criteria-icon">10</div><div><div class="ai-tools-criteria-id">Criteria 10</div><h3 class="ai-tools-criteria-name">Time Saved</h3></div></div>
+          <p class="ai-tools-criteria-desc">How much real weekly time does it save?</p>
+          <div class="ai-tools-how-test">Compare manual task time versus AI-assisted completion.</div>
+        </article>
+      </div>
+    </section>
+  </main>
+
+  <script id="tools-data" type="application/json">{{ ai_tools | tojson }}</script>
+
+  <script>
+    const AI_TOOLS = JSON.parse(document.getElementById('tools-data').textContent || '[]');
+    const SCORE_KEYS = [
+      'quality', 'ease', 'accuracy', 'speed', 'value',
+      'creativity', 'integration', 'consistency', 'support', 'time_saved'
+    ];
+    const TABLE_COLUMNS = ['quality', 'ease', 'accuracy', 'speed', 'value', 'creativity'];
+
+    function average(scores) {
+      if (!scores || !scores.length) return 0;
+      const sum = scores.reduce((a, b) => a + Number(b || 0), 0);
+      return Number((sum / scores.length).toFixed(1));
+    }
+
+    function scoreStyle(score) {
+      if (score >= 8) return { bg: '#dcfce7', color: '#14532d' };
+      if (score >= 6) return { bg: '#fef3c7', color: '#92400e' };
+      return { bg: '#fee2e2', color: '#991b1b' };
+    }
+
+    function stars(avg) {
+      const full = Math.round(avg / 2);
+      return '\u2605'.repeat(full) + '\u2606'.repeat(5 - full);
+    }
+
+    function toolOverall(tool) {
+      const total = SCORE_KEYS.reduce((acc, key) => acc + Number(tool[key] || 0), 0);
+      return Number((total / SCORE_KEYS.length).toFixed(1));
+    }
+
+    function buildStats() {
+      const totalTools = AI_TOOLS.length;
+      const totalCriteria = SCORE_KEYS.length;
+      const points = totalTools * totalCriteria;
+      const stats = [
+        { value: totalTools, label: 'Tools Rated' },
+        { value: totalCriteria, label: 'Criteria Checked' },
+        { value: points + '+', label: 'Data Points' }
+      ];
+
+      document.getElementById('statsBox').innerHTML = stats.map(s => `
+        <div class="ai-tools-stat">
+          <strong>${s.value}</strong>
+          <span>${s.label}</span>
+        </div>
+      `).join('');
+    }
+
+    function buildTable() {
+      const sortByEl = document.getElementById('sortBy');
+      const sortOrderEl = document.getElementById('sortOrder');
+      const sortBy = sortByEl ? sortByEl.value : 'name';
+      const sortOrder = sortOrderEl ? sortOrderEl.value : 'asc';
+
+      const rows = [...AI_TOOLS].map(t => ({
+        ...t,
+        overall: toolOverall(t),
+      }));
+
+      rows.sort((a, b) => {
+        if (sortBy === 'name') {
+          const aName = String(a.name || '').toLowerCase();
+          const bName = String(b.name || '').toLowerCase();
+          return sortOrder === 'asc' ? aName.localeCompare(bName) : bName.localeCompare(aName);
+        }
+
+        const aVal = sortBy === 'stars' ? a.overall : Number(a[sortBy] ?? a.overall ?? 0);
+        const bVal = sortBy === 'stars' ? b.overall : Number(b[sortBy] ?? b.overall ?? 0);
+        return sortOrder === 'asc' ? aVal - bVal : bVal - aVal;
+      });
+
+      const table = document.getElementById('comparisonTable');
+
+      table.innerHTML = `
+        <thead>
+          <tr>
+            <th>AI Tool</th>
+            <th>Quality</th>
+            <th>Ease</th>
+            <th>Accuracy</th>
+            <th>Speed</th>
+            <th>Value</th>
+            <th>Creativity</th>
+            <th>Overall</th>
+            <th>Stars</th>
+            <th>Best For</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${rows.length === 0 ? `
+            <tr>
+              <td colspan="10" class="ai-tools-empty">No AI tools added yet. Add rows in Supabase table 'ai_tools' to display them here.</td>
+            </tr>
+          ` : ''}
+          ${rows.map((tool, idx) => {
+            const score = tool.overall;
+            const scoreColors = scoreStyle(score);
+            return `
+              <tr>
+                <td>
+                  <div class="ai-tools-tool">
+                    <div class="ai-tools-tool-icon">
+                      ${tool.image_url ? `<img class="ai-tools-tool-img" src="${tool.image_url}" alt="${tool.name || 'AI Tool'}" loading="lazy">` : '<span>AI</span>'}
+                    </div>
+                    <div>
+                      <div class="ai-tools-tool-name">${tool.name || 'Untitled Tool'}</div>
+                    </div>
+                  </div>
+                </td>
+                ${TABLE_COLUMNS.map(key => {
+                  const val = Number(tool[key] || 0);
+                  const colors = scoreStyle(val);
+                  return `<td><span class="ai-tools-score-pill" style="background:${colors.bg};color:${colors.color}">${val}/10</span></td>`;
+                }).join('')}
+                <td><span class="ai-tools-overall" style="color:${scoreColors.color}">${score}</span></td>
+                <td><span class="ai-tools-stars">${stars(score)}</span></td>
+                <td><span class="ai-tools-best-for">${tool.best || 'General Use'}</span></td>
+              </tr>
+            `;
+          }).join('')}
+        </tbody>
+      `;
+    }
+
+    function exportCSV() {
+      const sorted = [...AI_TOOLS]
+        .map(t => ({ ...t, overall: toolOverall(t) }))
+        .sort((a, b) => b.overall - a.overall);
+
+      const headers = [
+        'Rank', 'AI Tool', 'Quality', 'Ease', 'Accuracy', 'Speed', 'Value', 'Creativity',
+        'Integration', 'Consistency', 'Support', 'Time Saved', 'Overall', 'Best For'
+      ];
+      const rows = sorted.map((tool, i) => [
+        i + 1,
+        tool.name || '',
+        Number(tool.quality || 0),
+        Number(tool.ease || 0),
+        Number(tool.accuracy || 0),
+        Number(tool.speed || 0),
+        Number(tool.value || 0),
+        Number(tool.creativity || 0),
+        Number(tool.integration || 0),
+        Number(tool.consistency || 0),
+        Number(tool.support || 0),
+        Number(tool.time_saved || 0),
+        tool.overall,
+        tool.best || ''
+      ]);
+
+      const csv = [headers, ...rows]
+        .map(row => row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(','))
+        .join('\n');
+
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8;' }));
+      link.download = 'budasai-ai-tools-rating.csv';
+      link.click();
+    }
+
+    document.getElementById('sortBy').addEventListener('change', buildTable);
+    document.getElementById('sortOrder').addEventListener('change', buildTable);
+
+    buildStats();
+    buildTable();
+  </script>
+</div>
+{% endblock %}

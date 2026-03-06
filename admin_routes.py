@@ -8,6 +8,7 @@ import os
 import json
 import traceback
 from datetime import datetime
+from urllib.parse import urlencode
 from dotenv import load_dotenv
 
 # pricing helpers
@@ -98,12 +99,200 @@ async def admin_dashboard(
         stories = stories_data.data if stories_data.data else []
     except Exception as e:
         stories = []
+
+    try:
+        ai_tools_data = (
+            supabase
+            .table("ai_tools")
+            .select("*")
+            .order("display_order", desc=False)
+            .execute()
+        )
+        ai_tools = ai_tools_data.data if ai_tools_data.data else []
+    except Exception:
+        ai_tools = []
     
     ctx = await get_price_context(request)
+    status = request.query_params.get("status")
+    message = request.query_params.get("message")
     return templates.TemplateResponse(
         "admin_dashboard.html",
-        {"request": request, "blogs": blogs, "stories": stories, **ctx}
+        {
+            "request": request,
+            "blogs": blogs,
+            "stories": stories,
+            "ai_tools": ai_tools,
+            "admin_status": status,
+            "admin_message": message,
+            **ctx
+        }
     )
+
+
+def admin_redirect(status: str, message: str) -> RedirectResponse:
+    query = urlencode({"status": status, "message": message})
+    return RedirectResponse(f"/admin/dashboard?{query}", status_code=302)
+
+
+def parse_checkbox_flag(value: str | bool | None, default: bool = False) -> bool:
+    if isinstance(value, bool):
+        return value
+    if value is None:
+        return default
+    if isinstance(value, str):
+        return value.strip().lower() in {"on", "true", "1", "yes", "y", "t"}
+    return default
+
+
+def parse_score(value: str | float | int | None, default: float = 0.0) -> float:
+    try:
+        return float(value)
+    except (TypeError, ValueError):
+        return float(default)
+
+
+def parse_optional_int(value: str | int | None) -> int | None:
+    if value is None:
+        return None
+    if isinstance(value, int):
+        return value if value > 0 else None
+    if isinstance(value, str):
+        raw = value.strip()
+        if not raw:
+            return None
+        try:
+            parsed = int(raw)
+            return parsed if parsed > 0 else None
+        except ValueError:
+            return None
+    return None
+
+
+def get_next_display_order() -> int:
+    try:
+        res = (
+            supabase
+            .table("ai_tools")
+            .select("display_order")
+            .order("display_order", desc=True)
+            .limit(1)
+            .execute()
+        )
+        rows = res.data or []
+        if not rows:
+            return 1
+        current_max = int(rows[0].get("display_order") or 0)
+        return current_max + 1
+    except Exception:
+        return 1
+
+
+@router.post("/admin/aitool/create")
+async def create_ai_tool(
+    request: Request,
+    name: str = Form(...),
+    best_for: str = Form(default=""),
+    image_url: str = Form(default=""),
+    quality_score: float = Form(default=0),
+    ease_score: float = Form(default=0),
+    accuracy_score: float = Form(default=0),
+    speed_score: float = Form(default=0),
+    value_score: float = Form(default=0),
+    creativity_score: float = Form(default=0),
+    integration_score: float = Form(default=0),
+    consistency_score: float = Form(default=0),
+    support_score: float = Form(default=0),
+    time_saved_score: float = Form(default=0),
+    display_order: str = Form(default=""),
+    is_active: str = Form(default=""),
+    auth=Depends(check_auth)
+):
+    try:
+        print(f"🔵 Creating AI tool: {name}")
+        resolved_display_order = parse_optional_int(display_order)
+        if resolved_display_order is None:
+            resolved_display_order = get_next_display_order()
+
+        payload = {
+            "name": name,
+            "best_for": best_for,
+            "image_url": image_url,
+            "quality_score": parse_score(quality_score),
+            "ease_score": parse_score(ease_score),
+            "accuracy_score": parse_score(accuracy_score),
+            "speed_score": parse_score(speed_score),
+            "value_score": parse_score(value_score),
+            "creativity_score": parse_score(creativity_score),
+            "integration_score": parse_score(integration_score),
+            "consistency_score": parse_score(consistency_score),
+            "support_score": parse_score(support_score),
+            "time_saved_score": parse_score(time_saved_score),
+            "display_order": resolved_display_order,
+            "is_active": parse_checkbox_flag(is_active, default=False),
+            "updated_at": datetime.now().isoformat(),
+        }
+        response = supabase.table("ai_tools").insert(payload).execute()
+        print(f"✅ AI tool created successfully: {response}")
+    except Exception as e:
+        print(f"❌ Error creating AI tool: {str(e)}")
+        traceback.print_exc()
+        return admin_redirect("error", "Failed to create AI tool. Check logs and values.")
+
+    return admin_redirect("success", f"AI tool '{name}' created successfully.")
+
+
+@router.post("/admin/aitool/update")
+async def update_ai_tool(
+    request: Request,
+    id: int = Form(...),
+    name: str = Form(...),
+    best_for: str = Form(default=""),
+    image_url: str = Form(default=""),
+    quality_score: float = Form(default=0),
+    ease_score: float = Form(default=0),
+    accuracy_score: float = Form(default=0),
+    speed_score: float = Form(default=0),
+    value_score: float = Form(default=0),
+    creativity_score: float = Form(default=0),
+    integration_score: float = Form(default=0),
+    consistency_score: float = Form(default=0),
+    support_score: float = Form(default=0),
+    time_saved_score: float = Form(default=0),
+    display_order: str = Form(default=""),
+    is_active: str = Form(default=""),
+    auth=Depends(check_auth)
+):
+    try:
+        print(f"🔵 Updating AI tool ID {id}: {name}")
+        payload = {
+            "name": name,
+            "best_for": best_for,
+            "image_url": image_url,
+            "quality_score": parse_score(quality_score),
+            "ease_score": parse_score(ease_score),
+            "accuracy_score": parse_score(accuracy_score),
+            "speed_score": parse_score(speed_score),
+            "value_score": parse_score(value_score),
+            "creativity_score": parse_score(creativity_score),
+            "integration_score": parse_score(integration_score),
+            "consistency_score": parse_score(consistency_score),
+            "support_score": parse_score(support_score),
+            "time_saved_score": parse_score(time_saved_score),
+            "is_active": parse_checkbox_flag(is_active, default=False),
+            "updated_at": datetime.now().isoformat(),
+        }
+        resolved_display_order = parse_optional_int(display_order)
+        if resolved_display_order is not None:
+            payload["display_order"] = resolved_display_order
+
+        response = supabase.table("ai_tools").update(payload).eq("id", id).execute()
+        print(f"✅ AI tool updated successfully: {response}")
+    except Exception as e:
+        print(f"❌ Error updating AI tool: {str(e)}")
+        traceback.print_exc()
+        return admin_redirect("error", "Failed to update AI tool. Check logs and values.")
+
+    return admin_redirect("success", f"AI tool '{name}' updated successfully.")
 
 
 @router.post("/admin/blog/create")
@@ -151,11 +340,9 @@ async def create_blog(
     except Exception as e:
         print(f"❌ Error creating blog: {str(e)}")
         traceback.print_exc()
-    
-    return RedirectResponse(
-        "/admin/dashboard",
-        status_code=302
-    )
+        return admin_redirect("error", "Failed to create blog. Check logs and values.")
+
+    return admin_redirect("success", f"Blog '{title}' created successfully.")
 
 
 @router.post("/admin/blog/update")
@@ -202,11 +389,9 @@ async def update_blog(
     except Exception as e:
         print(f"❌ Error updating blog: {str(e)}")
         traceback.print_exc()
-    
-    return RedirectResponse(
-        "/admin/dashboard",
-        status_code=302
-    )
+        return admin_redirect("error", "Failed to update blog. Check logs and values.")
+
+    return admin_redirect("success", f"Blog '{title}' updated successfully.")
 
 
 @router.post("/admin/story/create")
@@ -275,11 +460,9 @@ async def create_story(
     except Exception as e:
         print(f"❌ Error creating story: {str(e)}")
         traceback.print_exc()
-    
-    return RedirectResponse(
-        "/admin/dashboard",
-        status_code=302
-    )
+        return admin_redirect("error", "Failed to create story. Check logs and values.")
+
+    return admin_redirect("success", f"Story '{title}' created successfully.")
 
 
 @router.post("/admin/story/update")
@@ -348,11 +531,9 @@ async def update_story(
     except Exception as e:
         print(f"❌ Error updating story: {str(e)}")
         traceback.print_exc()
-    
-    return RedirectResponse(
-        "/admin/dashboard",
-        status_code=302
-    )
+        return admin_redirect("error", "Failed to update story. Check logs and values.")
+
+    return admin_redirect("success", f"Story '{title}' updated successfully.")
 
 
 @router.get("/admin/logout")

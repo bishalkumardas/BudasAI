@@ -164,6 +164,61 @@ async def story(request: Request):
         return templates.TemplateResponse("story.html", {"request": request, "stories": [], "currency": "INR", "price": 4999, "adv_price": 14999, "symbol": "₹"})
 
 
+@router.get("/ai-tools", response_class=HTMLResponse)
+async def ai_tools_rating(request: Request):
+    ai_tools = []
+
+    try:
+        tools_res = (
+            supabase.table("ai_tools")
+            .select(
+                "name,image_url,best_for,"
+                "quality_score,ease_score,accuracy_score,speed_score,value_score,creativity_score,"
+                "integration_score,consistency_score,support_score,time_saved_score,display_order"
+            )
+            .eq("is_active", True)
+            .order("display_order", desc=False)
+            .execute()
+        )
+
+        def to_score(value):
+            try:
+                return int(float(value))
+            except Exception:
+                return 0
+
+        tool_rows = tools_res.data or []
+        for t in tool_rows:
+            ai_tools.append(
+                {
+                    "name": t.get("name", "Untitled Tool"),
+                    "image_url": t.get("image_url", ""),
+                    "quality": to_score(t.get("quality_score")),
+                    "ease": to_score(t.get("ease_score")),
+                    "accuracy": to_score(t.get("accuracy_score")),
+                    "speed": to_score(t.get("speed_score")),
+                    "value": to_score(t.get("value_score")),
+                    "creativity": to_score(t.get("creativity_score")),
+                    "integration": to_score(t.get("integration_score")),
+                    "consistency": to_score(t.get("consistency_score")),
+                    "support": to_score(t.get("support_score")),
+                    "time_saved": to_score(t.get("time_saved_score")),
+                    "best": t.get("best_for", "General Use"),
+                }
+            )
+
+    except Exception as e:
+        print(f"Error loading AI tools data: {e}")
+
+    return templates.TemplateResponse(
+        "ai_tools_rating.html",
+        {
+            "request": request,
+            "ai_tools": ai_tools,
+        }
+    )
+
+
 @router.get("/blog", response_class=HTMLResponse)
 async def blog(request: Request, page: int = 1, category: str = "all"):
     try:
