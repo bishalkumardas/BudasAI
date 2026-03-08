@@ -1,0 +1,774 @@
+{% extends "base.html" %}
+
+{% block title %}{{ tool.name }} - AI Tool Review | BUDASAI{% endblock %}
+
+{% block content %}
+<style>
+    .toold-page {
+        --blue: #3C83F6;
+        --blue-dark: #2563eb;
+        --blue-light: #eff6ff;
+        --blue-border: #bfdbfe;
+        --text: #0f172a;
+        --muted: #64748b;
+        --muted2: #94a3b8;
+        --border: #e2e8f0;
+        --bg: #F8FAFC;
+        --card: #ffffff;
+        --green: #10b981;
+        --green-light: #f0fdf4;
+        --green-border: #bbf7d0;
+        --red: #ef4444;
+        --red-light: #fef2f2;
+        --yellow: #f59e0b;
+        --shadow: 0 1px 3px rgba(0, 0, 0, .05), 0 4px 16px rgba(0, 0, 0, .04);
+        background: var(--bg);
+    }
+
+    .toold-hero {
+        background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 100%);
+        padding: 56px 0 0;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .toold-hero::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background-image:
+            linear-gradient(rgba(60, 131, 246, 0.07) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(60, 131, 246, 0.07) 1px, transparent 1px);
+        background-size: 40px 40px;
+        pointer-events: none;
+    }
+
+    .toold-inner {
+        position: relative;
+        z-index: 2;
+    }
+
+    .toold-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background: rgba(60, 131, 246, 0.18);
+        border: 1px solid rgba(60, 131, 246, 0.35);
+        color: #93c5fd;
+        font-size: 12px;
+        font-weight: 600;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        padding: 4px 14px;
+        border-radius: 20px;
+        margin-bottom: 20px;
+    }
+
+    .toold-hero-layout {
+        display: flex;
+        align-items: flex-start;
+        gap: 28px;
+        flex-wrap: wrap;
+        margin-bottom: 36px;
+    }
+
+    .toold-icon {
+        width: 88px;
+        height: 88px;
+        border-radius: 22px;
+        background: rgba(60, 131, 246, 0.2);
+        border: 1px solid rgba(60, 131, 246, 0.4);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 40px;
+        overflow: hidden;
+    }
+
+    .toold-icon img {
+        width: 52px;
+        height: 52px;
+        object-fit: contain;
+    }
+
+    .toold-name {
+        font-size: clamp(2rem, 4vw, 3rem);
+        font-weight: 800;
+        color: #fff;
+        letter-spacing: -1px;
+        line-height: 1.1;
+        margin-bottom: 8px;
+    }
+
+    .toold-tagline {
+        font-size: 16px;
+        color: rgba(255, 255, 255, 0.65);
+        margin-bottom: 20px;
+        line-height: 1.6;
+    }
+
+    .toold-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .toold-meta span {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        background: rgba(255, 255, 255, 0.07);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        color: rgba(255, 255, 255, 0.75);
+        font-size: 12px;
+        padding: 5px 12px;
+        border-radius: 7px;
+    }
+
+    .toold-verdict {
+        background: #fff;
+        border-top: 1px solid var(--border);
+    }
+
+    .toold-verdict-inner {
+        display: grid;
+        grid-template-columns: 180px 1fr auto;
+        align-items: center;
+        gap: 0;
+    }
+
+    .toold-score {
+        padding: 18px 24px;
+        border-right: 1px solid var(--border);
+        text-align: center;
+    }
+
+    .toold-score-num {
+        font-size: 46px;
+        line-height: 1;
+        font-weight: 800;
+        color: var(--blue);
+    }
+
+    .toold-score-stars {
+        color: var(--yellow);
+        margin-top: 4px;
+        font-size: 28px;
+        letter-spacing: -1px;
+    }
+
+    .toold-score-sub {
+        font-size: 11px;
+        color: var(--muted2);
+    }
+
+    .toold-verdict-copy {
+        padding: 16px 22px;
+    }
+
+    .toold-verdict-note-card {
+        background: var(--green-light);
+        border: 1px solid var(--green-border);
+        border-radius: 12px;
+        padding: 12px 14px;
+    }
+
+    .toold-verdict-main {
+        font-size: 18px;
+        font-weight: 800;
+        color: #059669;
+        margin-bottom: 4px;
+    }
+
+    .toold-verdict-sub {
+        font-size: 13px;
+        color: #047857;
+        font-weight: 600;
+    }
+
+    .toold-back {
+        padding: 16px 22px;
+        border-left: 1px solid var(--border);
+    }
+
+    .toold-back a {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 16px;
+        border-radius: 8px;
+        text-decoration: none;
+        color: #fff;
+        background: var(--blue);
+        font-weight: 700;
+    }
+
+    .toold-body {
+        padding: 38px 0 60px;
+    }
+
+    .toold-card {
+        background: #fff;
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        box-shadow: var(--shadow);
+        margin-bottom: 18px;
+        overflow: hidden;
+    }
+
+    .toold-card h3 {
+        font-size: 15px;
+        font-weight: 700;
+        margin: 0;
+        padding: 14px 18px;
+        border-bottom: 1px solid var(--border);
+        background: #fafbfe;
+    }
+
+    .toold-card-body {
+        padding: 18px;
+    }
+
+    .toold-about {
+        color: var(--muted);
+        line-height: 1.8;
+        font-size: 15px;
+    }
+
+    .toold-info-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+    }
+
+    .toold-info-item {
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 10px 12px;
+        background: #fcfdff;
+    }
+
+    .toold-info-item small {
+        display: block;
+        text-transform: uppercase;
+        color: var(--muted2);
+        font-size: 10px;
+        letter-spacing: .6px;
+        margin-bottom: 4px;
+    }
+
+    .toold-info-item div {
+        color: var(--text);
+        font-weight: 600;
+        font-size: 13px;
+    }
+
+    .toold-score-list {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .toold-score-row {
+        display: grid;
+        grid-template-columns: 170px 1fr 42px;
+        gap: 10px;
+        align-items: center;
+    }
+
+    .toold-score-name {
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--text);
+    }
+
+    .toold-track {
+        height: 8px;
+        background: var(--border);
+        border-radius: 5px;
+        overflow: hidden;
+    }
+
+    .toold-fill {
+        height: 100%;
+        width: 0;
+        background: linear-gradient(90deg, var(--blue), #6366f1);
+        border-radius: 5px;
+        transition: width 0.8s ease;
+    }
+
+    .toold-score-val {
+        font-size: 13px;
+        font-weight: 800;
+        text-align: right;
+        color: var(--blue);
+    }
+
+    .toold-columns {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 14px;
+    }
+
+    .toold-list {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .toold-list li {
+        padding: 10px 12px;
+        border-radius: 10px;
+        font-size: 13px;
+        line-height: 1.6;
+    }
+
+    .toold-pros li {
+        background: var(--green-light);
+        border: 1px solid var(--green-border);
+        color: #065f46;
+    }
+
+    .toold-cons li {
+        background: var(--red-light);
+        border: 1px solid #fecaca;
+        color: #991b1b;
+    }
+
+    .toold-grid3 {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 12px;
+    }
+
+    .toold-box {
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        background: #fcfdff;
+        padding: 12px;
+    }
+
+    .toold-box h4 {
+        font-size: 13px;
+        margin-bottom: 6px;
+    }
+
+    .toold-box p {
+        font-size: 12px;
+        color: var(--muted);
+        margin: 0;
+        line-height: 1.65;
+    }
+
+    .toold-faq-item {
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        overflow: hidden;
+        margin-bottom: 8px;
+    }
+
+    .toold-faq-q {
+        padding: 12px 14px;
+        font-weight: 700;
+        font-size: 13px;
+        cursor: pointer;
+        background: #fafbfe;
+    }
+
+    .toold-faq-a {
+        display: none;
+        padding: 12px 14px;
+        border-top: 1px solid var(--border);
+        color: var(--muted);
+        font-size: 13px;
+        line-height: 1.7;
+    }
+
+    .toold-faq-item.open .toold-faq-a {
+        display: block;
+    }
+
+    .benchmark-grid {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 10px;
+        margin-bottom: 14px;
+    }
+
+    .bm-card {
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 12px;
+        text-align: center;
+        background: #fff;
+    }
+
+    .bm-score-ring {
+        width: 56px;
+        height: 56px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 8px;
+        font-size: 18px;
+        font-weight: 800;
+    }
+
+    .bm-name {
+        font-size: 12px;
+        font-weight: 700;
+        color: var(--text);
+    }
+
+    .bm-desc {
+        font-size: 10px;
+        color: var(--muted2);
+    }
+
+    .bm-ex {
+        background: #f0fdf4;
+        border-color: #bbf7d0;
+    }
+
+    .bm-ex .bm-score-ring {
+        background: #dcfce7;
+        color: #059669;
+    }
+
+    .bm-good {
+        background: #f0f9ff;
+        border-color: #bae6fd;
+    }
+
+    .bm-good .bm-score-ring {
+        background: #e0f2fe;
+        color: #0284c7;
+    }
+
+    .bm-avg {
+        background: #fffbeb;
+        border-color: #fde68a;
+    }
+
+    .bm-avg .bm-score-ring {
+        background: #fef3c7;
+        color: #d97706;
+    }
+
+    .bm-below {
+        background: #fff7ed;
+        border-color: #fed7aa;
+    }
+
+    .bm-below .bm-score-ring {
+        background: #ffedd5;
+        color: #ea580c;
+    }
+
+    .bm-poor {
+        background: #fef2f2;
+        border-color: #fecaca;
+    }
+
+    .bm-poor .bm-score-ring {
+        background: #fee2e2;
+        color: #dc2626;
+    }
+
+    .bm-aggregate {
+        background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 100%);
+        border-radius: 12px;
+        padding: 14px 16px;
+        color: #fff;
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        flex-wrap: wrap;
+    }
+
+    .bm-agg-num {
+        font-size: 40px;
+        font-weight: 800;
+        line-height: 1;
+    }
+
+    .bm-agg-stars {
+        color: #f59e0b;
+        font-size: 22px;
+        letter-spacing: -1px;
+    }
+
+    .bm-agg-sub {
+        font-size: 12px;
+        color: rgba(255, 255, 255, .6);
+    }
+
+    @media (max-width: 900px) {
+        .toold-verdict-inner {
+            grid-template-columns: 1fr;
+        }
+
+        .toold-score,
+        .toold-back {
+            border: none;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .toold-info-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .toold-grid3 {
+            grid-template-columns: 1fr 1fr;
+        }
+
+        .toold-score-row {
+            grid-template-columns: 130px 1fr 38px;
+        }
+
+        .benchmark-grid {
+            grid-template-columns: repeat(3, 1fr);
+        }
+    }
+
+    @media (max-width: 600px) {
+        .toold-grid3 {
+            grid-template-columns: 1fr;
+        }
+
+        .toold-columns {
+            grid-template-columns: 1fr;
+        }
+
+        .toold-score-row {
+            grid-template-columns: 110px 1fr 36px;
+        }
+
+        .benchmark-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+</style>
+
+<div class="toold-page">
+    <section class="toold-hero">
+        <div class="container toold-inner">
+            <div class="toold-pill"><i class="bi bi-tag"></i> {{ tool.best_for or 'General Use' }}</div>
+            <div class="toold-hero-layout">
+                <div class="toold-icon">
+                    {% if tool.image_url %}
+                    <img src="{{ tool.image_url }}" alt="{{ tool.name }}">
+                    {% else %}
+                    <i class="bi bi-robot"></i>
+                    {% endif %}
+                </div>
+                <div>
+                    <h1 class="toold-name">{{ tool.name }}</h1>
+                    <p class="toold-tagline">{{ detail.tagline }}</p>
+                    <div class="toold-meta">
+                        <span><i class="bi bi-building"></i> {{ detail.company }}</span>
+                        <span><i class="bi bi-geo-alt"></i> {{ detail.headquarters }}</span>
+                        <span><i class="bi bi-calendar3"></i> {{ detail.founded }}</span>
+                        {% if detail.website %}
+                        <span><i class="bi bi-globe"></i> <a href="{{ detail.website }}" target="_blank"
+                                rel="noopener noreferrer" style="color:inherit;text-decoration:underline">{{
+                                detail.website }}</a></span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="toold-verdict">
+            <div class="container">
+                <div class="toold-verdict-inner">
+                    <div class="toold-score">
+                        <div class="toold-score-num">{{ overall }}</div>
+                        <div class="toold-score-stars">{{ stars_text }}</div>
+                        <div class="toold-score-sub">BUDASAI Score / 10</div>
+                    </div>
+                    <div class="toold-verdict-copy">
+                        <div class="toold-verdict-note-card">
+                            <div class="toold-verdict-main">{{ verdict_text }}</div>
+                            <div class="toold-verdict-sub">Best for: {{ tool.best_for or 'General Use' }}</div>
+                        </div>
+                    </div>
+                    <div class="toold-back">
+                        <a href="/ai-tools"><i class="bi bi-arrow-left"></i> Back To All Tools</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="toold-body">
+        <div class="container">
+            <div class="toold-card">
+                <h3><i class="bi bi-journal-text"></i> About {{ tool.name }}</h3>
+                <div class="toold-card-body">
+                    <p class="toold-about">{{ detail.about }}</p>
+                </div>
+            </div>
+
+            <div class="toold-card">
+                <h3><i class="bi bi-building"></i> Company and Product Info</h3>
+                <div class="toold-card-body">
+                    <div class="toold-info-grid">
+                        <div class="toold-info-item"><small>Company</small>
+                            <div>{{ detail.company }}</div>
+                        </div>
+                        <div class="toold-info-item"><small>Founded</small>
+                            <div>{{ detail.founded }}</div>
+                        </div>
+                        <div class="toold-info-item">
+                            <small>
+                                Accuracy Rate (MMLU Benchmark)
+                                <span
+                                    title="MMLU measures how well an AI handles broad reasoning and knowledge across 57 subjects (like math, law, medicine, physics, computer science, and economics), similar to exam-style evaluation."
+                                    style="display:inline-flex;align-items:center;justify-content:center;width:14px;height:14px;border:1px solid #94a3b8;border-radius:50%;font-size:10px;font-weight:700;color:#64748b;cursor:help;vertical-align:text-top;margin-left:4px;">?</span>
+                            </small>
+                            <div>{{ detail.accuracy_rate_mmlu }}</div>
+                        </div>
+                        <div class="toold-info-item"><small>Website</small>
+                            <div>{% if detail.website %}<a href="{{ detail.website }}" target="_blank"
+                                    rel="noopener noreferrer">{{ detail.website }}</a>{% else %}Not added yet{% endif %}
+                            </div>
+                        </div>
+                        <div class="toold-info-item"><small>Headquarters</small>
+                            <div>{{ detail.headquarters }}</div>
+                        </div>
+                        <div class="toold-info-item"><small>Founders</small>
+                            <div>{{ detail.founders }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="toold-card">
+                <h3><i class="bi bi-bar-chart"></i> Detailed Score Breakdown</h3>
+                <div class="toold-card-body">
+                    <div class="toold-score-list">
+                        {% for label, value in scores.items() %}
+                        <div class="toold-score-row">
+                            <div class="toold-score-name">{{ label }}</div>
+                            <div class="toold-track">
+                                <div class="toold-fill" data-width="{{ value * 10 }}"></div>
+                            </div>
+                            <div class="toold-score-val">{{ value }}</div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    <p style="margin-top:14px;font-size:12px;color:var(--muted);line-height:1.6">
+                        ℹ️ Scores are based on our own hands-on research and public user experiences for a neutral
+                        review. None of the apps or tools listed here are sponsored - any sponsored listing will be
+                        clearly marked. Our recommendations are solely based on personal testing and publicly available
+                        feedback. Our research includes testing each tool on the parameters shown in the AI Tools Rating
+                        table.
+                    </p>
+                </div>
+            </div>
+
+            <div class="toold-card">
+                <h3><i class="bi bi-beaker"></i> Benchmark Performance</h3>
+                <div class="toold-card-body">
+                    <div class="benchmark-grid">
+                        {% for b in detail.benchmarks %}
+                        <div class="bm-card {{ b.class }}">
+                            <div class="bm-score-ring">{{ '%.1f'|format(b.score) }}</div>
+                            <div class="bm-name">{{ b.name }}</div>
+                            <div class="bm-desc">{{ b.desc }}</div>
+                        </div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="bm-aggregate">
+                        <div>
+                            <div class="bm-agg-num">{{ detail.benchmark_avg }}</div>
+                            <div style="font-size:10px;color:rgba(255,255,255,.45)">Avg / 10</div>
+                        </div>
+                        <div>
+                            <div class="bm-agg-stars">{{ detail.benchmark_stars }}</div>
+                            <div style="font-weight:700">{{ detail.benchmark_verdict }}</div>
+                            <div class="bm-agg-sub">Top-tier performance on intelligence, reasoning and honesty</div>
+                        </div>
+                    </div>
+                    <p style="margin-top:14px;font-size:12px;color:var(--muted);line-height:1.6">
+                        ℹ️ Scores are normalised to a 0–10 scale from publicly available benchmark results. MMLU tests
+                        broad knowledge across 57 subjects. HumanEval measures code generation. GSM8K tests grade-school
+                        math reasoning. HellaSwag evaluates commonsense sentence completion. TruthfulQA measures
+                        resistance to generating false or misleading answers. These are not sponsored assessments —
+                        scores reflect publicly reported model performance at time of writing.
+                    </p>
+                </div>
+            </div>
+
+            <div class="toold-card">
+                <h3><i class="bi bi-check2-square"></i> Pros and Cons</h3>
+                <div class="toold-card-body toold-columns">
+                    <ul class="toold-list toold-pros">
+                        {% for item in detail.pros %}
+                        <li>{{ item }}</li>
+                        {% endfor %}
+                    </ul>
+                    <ul class="toold-list toold-cons">
+                        {% for item in detail.cons %}
+                        <li>{{ item }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+
+            <div class="toold-card">
+                <h3><i class="bi bi-briefcase"></i> Best Use Cases</h3>
+                <div class="toold-card-body toold-grid3">
+                    {% for uc in detail.use_cases %}
+                    <div class="toold-box">
+                        <h4>{% if uc.icon %}<span style="margin-right:6px">{{ uc.icon }}</span>{% endif %}{{ uc.title }}
+                        </h4>
+                        <p>{{ uc.desc }}</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="toold-card">
+                <h3><i class="bi bi-cash"></i> Pricing</h3>
+                <div class="toold-card-body toold-grid3">
+                    {% for p in detail.pricing %}
+                    <div class="toold-box">
+                        <h4>{{ p.tier }}</h4>
+                        <p>{{ p.value }}</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="toold-card">
+                <h3><i class="bi bi-question-circle"></i> Frequently Asked Questions</h3>
+                <div class="toold-card-body">
+                    {% for faq in detail.faqs %}
+                    <div class="toold-faq-item" onclick="this.classList.toggle('open')">
+                        <div class="toold-faq-q">{{ faq.q }}</div>
+                        <div class="toold-faq-a">{{ faq.a }}</div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        var fills = document.querySelectorAll('.toold-fill');
+        fills.forEach(function (el) {
+            var width = Number(el.getAttribute('data-width') || 0);
+            el.style.width = Math.max(0, Math.min(100, width)) + '%';
+        });
+    });
+</script>
+{% endblock %}

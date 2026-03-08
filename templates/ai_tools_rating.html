@@ -3,10 +3,44 @@
 {% block title %}AI Tools Comparison - BUDASAI{% endblock %}
 
 {% block content %}
+<style>
+  .ai-tools-btn-wrap {
+    position: relative;
+    display: inline-block;
+  }
+
+  .ai-tools-premium-badge {
+    position: absolute;
+    top: -10px;
+    right: -10px;
+    background: linear-gradient(135deg, #f59e0b, #f97316);
+    color: #fff;
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    padding: 3px 7px 3px 5px;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    white-space: nowrap;
+    box-shadow: 0 2px 8px rgba(249, 115, 22, 0.4);
+    pointer-events: none;
+    z-index: 2;
+  }
+
+  .ai-tools-premium-badge svg {
+    width: 9px;
+    height: 9px;
+    fill: #fff;
+    flex-shrink: 0;
+  }
+</style>
 <div class="ai-tools-page">
   <header class="ai-tools-hero">
     <div class="ai-tools-badge">AI Tools Intelligence</div>
-    <h1>Compare AI Tools For Your <em>YouTube Channel</em></h1>
+    <h1>Compare AI Tools <em>For Your Project</em></h1>
     <p>We benchmarked major AI tools across 10 practical criteria so you can choose confidently and build a faster content workflow.</p>
     <div class="ai-tools-stats" id="statsBox"></div>
   </header>
@@ -34,9 +68,18 @@
               <option value="desc">High to Low</option>
             </select>
           </div>
-          <button class="ai-tools-btn" type="button" onclick="exportCSV()">Export CSV</button>
+          <div class="ai-tools-btn-wrap">
+            <button class="ai-tools-btn" type="button" onclick="exportCSV()" disabled aria-disabled="true" title="Available for paid users">Export CSV</button>
+            <span class="ai-tools-premium-badge">
+              <svg viewBox="0 0 24 24"><path d="M2 8l4 8h12l4-8-5 3-5-7-5 7-5-3z"/></svg>
+              Premium
+            </span>
+          </div>
         </div>
       </div>
+      <p style="margin: -6px 0 14px; font-size: 12px; color: #64748b; line-height: 1.6;">
+        Scores are based on our own hands-on research and public user experiences for a neutral review. None of the apps or tools listed here are sponsored - any sponsored listing will be clearly marked. Our recommendations are solely based on personal testing and publicly available feedback. Our research includes testing each tool on the parameters shown in the AI Tools Rating table.
+      </p>
       <div class="ai-tools-table-wrap">
         <div class="ai-tools-table-scroll">
           <table id="comparisonTable"></table>
@@ -141,6 +184,14 @@
       return Number((total / SCORE_KEYS.length).toFixed(1));
     }
 
+    function slugifyToolName(name) {
+      return String(name || '')
+        .toLowerCase()
+        .trim()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-+|-+$/g, '');
+    }
+
     function buildStats() {
       const totalTools = AI_TOOLS.length;
       const totalCriteria = SCORE_KEYS.length;
@@ -211,14 +262,18 @@
             return `
               <tr>
                 <td>
-                  <div class="ai-tools-tool">
-                    <div class="ai-tools-tool-icon">
-                      ${tool.image_url ? `<img class="ai-tools-tool-img" src="${tool.image_url}" alt="${tool.name || 'AI Tool'}" loading="lazy">` : '<span>AI</span>'}
+                  <a class="ai-tools-tool-cell-link" href="/ai-tool-${slugifyToolName(tool.name || 'untitled-tool')}">
+                    <div class="ai-tools-tool">
+                      <div class="ai-tools-tool-icon">
+                        ${tool.image_url ? `<img class="ai-tools-tool-img" src="${tool.image_url}" alt="${tool.name || 'AI Tool'}" loading="lazy">` : '<span>AI</span>'}
+                      </div>
+                      <div>
+                        <div class="ai-tools-tool-name">
+                          <span class="ai-tools-tool-link">${tool.name || 'Untitled Tool'}</span>
+                        </div>
+                      </div>
                     </div>
-                    <div>
-                      <div class="ai-tools-tool-name">${tool.name || 'Untitled Tool'}</div>
-                    </div>
-                  </div>
+                  </a>
                 </td>
                 ${TABLE_COLUMNS.map(key => {
                   const val = Number(tool[key] || 0);

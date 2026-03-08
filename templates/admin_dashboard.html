@@ -766,6 +766,9 @@
         <button class="nav-item" onclick="goPage('aitools')">
             <i class="bi bi-stars"></i> AI Tools Rating
         </button>
+        <button class="nav-item" onclick="goPage('aitoolsinfo')">
+            <i class="bi bi-info-circle"></i> AI Tools Info
+        </button>
     </nav>
     <div class="sidebar-footer">
         <a href="/admin/logout" class="logout-link">
@@ -790,11 +793,13 @@
 
     <!-- CONTENT -->
     <div class="content-area">
-        {% if admin_message %}
-        <div class="admin-flash {% if admin_status == 'error' %}error{% else %}success{% endif %}">
-            {{ admin_message }}
+        <!-- Bootstrap Alert for messages -->
+        <div id="alert-container" style="position:fixed;top:80px;right:20px;z-index:999;max-width:400px">
+            <div id="admin-alert" class="alert alert-light alert-dismissible fade d-none" role="alert" style="box-shadow:0 4px 12px rgba(0,0,0,.15);border-radius:10px">
+                <span id="admin-alert-message"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
         </div>
-        {% endif %}
 
         <!-- ══════════ BLOGS PAGE ══════════ -->
         <div id="page-blogs" class="page active">
@@ -817,7 +822,7 @@
                 <div class="card">
                     <div class="card-header"><h3>Create New Blog</h3></div>
                     <div class="card-body">
-                        <form method="post" action="/admin/blog/create">
+                        <form method="post" action="/admin/blog/create" id="blog-create-form" onsubmit="return submitFormAjax(event, 'blog-create-form')">
                             <div class="form-grid-2">
                                 <div class="form-group">
                                     <label>Title <span class="req">*</span></label>
@@ -913,7 +918,7 @@
                     <div class="card-header"><h3>Edit Blog</h3></div>
                     <div class="card-body">
                         {% if blogs %}
-                        <form method="post" action="/admin/blog/update">
+                        <form method="post" action="/admin/blog/update" id="blog-edit-form" onsubmit="return submitFormAjax(event, 'blog-edit-form')">
                             <div class="form-group">
                                 <label>Select Blog <span class="req">*</span></label>
                                 <select id="blog-select" name="id" onchange="populateBlogForm()" class="form-select" required>
@@ -1050,7 +1055,7 @@
                 <div class="card">
                     <div class="card-header"><h3>Create New Story</h3></div>
                     <div class="card-body">
-                        <form method="post" action="/admin/story/create">
+                        <form method="post" action="/admin/story/create" id="story-create-form" onsubmit="return submitFormAjax(event, 'story-create-form')">
                             <div class="form-grid-2">
                                 <div class="form-group">
                                     <label>Title <span class="req">*</span></label>
@@ -1135,7 +1140,7 @@
                     <div class="card-header"><h3>Edit Story</h3></div>
                     <div class="card-body">
                         {% if stories %}
-                        <form method="post" action="/admin/story/update">
+                        <form method="post" action="/admin/story/update" id="story-edit-form" onsubmit="return submitFormAjax(event, 'story-edit-form')">
                             <div class="form-group">
                                 <label>Select Story</label>
                                 <select id="story-select" name="id" onchange="populateStoryForm()" class="form-select" required>
@@ -1235,7 +1240,7 @@
                         <span style="font-size:12px;color:var(--muted)">Scores are 0–10</span>
                     </div>
                     <div class="card-body">
-                        <form method="post" action="/admin/aitool/create" id="aitool-create-form">
+                        <form method="post" action="/admin/aitool/create" id="aitool-create-form" onsubmit="return submitFormAjax(event, 'aitool-create-form')">
 
                             <!-- Basic Info -->
                             <div class="form-grid-2">
@@ -1470,7 +1475,7 @@
                     <div class="card-header"><h3>Edit AI Tool</h3></div>
                     <div class="card-body">
                         {% if ai_tools %}
-                        <form method="post" action="/admin/aitool/update">
+                        <form method="post" action="/admin/aitool/update" id="aitool-edit-form" onsubmit="return submitFormAjax(event, 'aitool-edit-form')">
                             <div class="form-group">
                                 <label>Select Tool</label>
                                 <select id="aitool-select" name="id" class="form-select" onchange="populateAiToolForm()" required>
@@ -1586,6 +1591,587 @@
             </div>
         </div>
 
+
+        <!-- ══════════ AI TOOLS INFO PAGE ══════════ -->
+        <div id="page-aitoolsinfo" class="page">
+            <div class="page-header">
+                <div>
+                    <h2>📋 AI Tools Info</h2>
+                    <p>Manage detailed info, use cases and FAQs for each AI tool</p>
+                </div>
+            </div>
+
+            <div class="subtab-bar">
+                <button class="stab active" onclick="goSub('aitoolsinfo','details')">Details</button>
+                <button class="stab" onclick="goSub('aitoolsinfo','usecases')">Use Cases</button>
+                <button class="stab" onclick="goSub('aitoolsinfo','faqs')">FAQs</button>
+            </div>
+
+            <!-- ── DETAILS subtab ── -->
+            <div id="aitoolsinfo-details" class="subpage active">
+                <div class="subtab-bar">
+                    <button class="stab active" onclick="goSub('aitoolsinfo','details-create')">Create/Save</button>
+                    <button class="stab" onclick="goSub('aitoolsinfo','details-edit')">Edit</button>
+                </div>
+
+                <!-- Create/Save Details -->
+                <div id="aitoolsinfo-details-create" class="subpage active">
+                    <div class="card" style="margin-bottom:20px">
+                    <div class="card-header">
+                        <h3>Tool Detail Info</h3>
+                        <span style="font-size:12px;color:var(--muted)">Maps to <code style="background:var(--bg);padding:2px 6px;border-radius:4px;font-size:11px">ai_tool_details</code> table</span>
+                    </div>
+                    <div class="card-body">
+                        <form method="post" action="/admin/aitool/details/save" id="aitool-details-form" onsubmit="return submitFormAjax(event, 'aitool-details-form')">
+
+                            <!-- Select tool -->
+                            <div class="form-group">
+                                <label>Select Tool <span class="req">*</span></label>
+                                <select class="form-select" name="ai_tool_id" id="info-tool-select" required
+                                    onchange="loadInfoDetails(this)">
+                                    <option value="">— Select a tool —</option>
+                                    {% if ai_tools %}
+                                    {% for tool in ai_tools %}
+                                    <option value="{{ tool.id }}"
+                                        {% if tool.details %}
+                                        data-tagline="{{ tool.details.tagline or '' }}"
+                                        data-company="{{ tool.details.company or '' }}"
+                                        data-founded="{{ tool.details.founded or '' }}"
+                                        data-headquarters="{{ tool.details.headquarters or '' }}"
+                                        data-website="{{ tool.details.website or '' }}"
+                                        data-founders="{{ tool.details.founders or '' }}"
+                                        data-about="{{ tool.details.about or '' }}"
+                                        data-mmlu-score="{{ tool.details.mmlu_score or '' }}"
+                                        data-humaneval-score="{{ tool.details.humaneval_score or '' }}"
+                                        data-gsm8k-score="{{ tool.details.gsm8k_score or '' }}"
+                                        data-hellaswag-score="{{ tool.details.hellaswag_score or '' }}"
+                                        data-truthfulqa-score="{{ tool.details.truthfulqa_score or '' }}"
+                                        data-pros='{{ tool.details.pros | tojson | safe }}'
+                                        data-cons='{{ tool.details.cons | tojson | safe }}'
+                                        data-pricing='{{ tool.details.pricing | tojson | safe }}'
+                                        {% endif %}>
+                                        [{{ tool.id }}] {{ tool.name }}
+                                    </option>
+                                    {% endfor %}
+                                    {% endif %}
+                                </select>
+                            </div>
+
+                            <!-- Basic info grid -->
+                            <div class="form-grid-2">
+                                <div class="form-group form-full">
+                                    <label>Tagline</label>
+                                    <input type="text" class="form-control" name="tagline" id="info-tagline"
+                                        placeholder="e.g. The AI built for thoughtful, nuanced work">
+                                </div>
+                                <div class="form-group">
+                                    <label>Company</label>
+                                    <input type="text" class="form-control" name="company" id="info-company"
+                                        placeholder="e.g. Anthropic">
+                                </div>
+                                <div class="form-group">
+                                    <label>Founded</label>
+                                    <input type="text" class="form-control" name="founded" id="info-founded"
+                                        placeholder="e.g. 2021">
+                                </div>
+                                <div class="form-group">
+                                    <label>Headquarters</label>
+                                    <input type="text" class="form-control" name="headquarters" id="info-hq"
+                                        placeholder="e.g. San Francisco, CA">
+                                </div>
+                                <div class="form-group">
+                                    <label>Website</label>
+                                    <input type="url" class="form-control" name="website" id="info-website"
+                                        placeholder="https://claude.ai">
+                                </div>
+                                <div class="form-group form-full">
+                                    <label>Founders / Owners</label>
+                                    <input type="text" class="form-control" name="founders" id="info-founders"
+                                        placeholder="e.g. Dario Amodei, Daniela Amodei">
+                                </div>
+                                <div class="form-group form-full">
+                                    <label>About / Description</label>
+                                    <textarea class="form-control" name="about" id="info-about" rows="4"
+                                        placeholder="Full description of the tool..."></textarea>
+                                </div>
+                            </div>
+
+                            <!-- Pros -->
+                            <div style="margin:8px 0 14px;font-size:13px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--primary);border-bottom:1.5px solid var(--primary-light);padding-bottom:8px;display:flex;align-items:center;gap:8px">
+                                <i class="bi bi-check-circle"></i> Pros <span style="font-size:11px;font-weight:500;text-transform:none;color:var(--muted);letter-spacing:0">(one per line)</span>
+                            </div>
+                            <div class="form-group">
+                                <textarea class="form-control" name="pros_raw" id="info-pros" rows="5"
+                                    placeholder="Exceptional long-form writing&#10;Very low hallucination rate&#10;200K token context window"></textarea>
+                                <div style="font-size:11px;color:var(--muted2);margin-top:5px">Each line = one pro item. Stored as JSON array.</div>
+                            </div>
+
+                            <!-- Cons -->
+                            <div style="margin:8px 0 14px;font-size:13px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:#ef4444;border-bottom:1.5px solid #fee2e2;padding-bottom:8px;display:flex;align-items:center;gap:8px">
+                                <i class="bi bi-x-circle"></i> Cons <span style="font-size:11px;font-weight:500;text-transform:none;color:var(--muted);letter-spacing:0">(one per line)</span>
+                            </div>
+                            <div class="form-group">
+                                <textarea class="form-control" name="cons_raw" id="info-cons" rows="4"
+                                    placeholder="No real-time internet access&#10;API costs add up at scale"></textarea>
+                                <div style="font-size:11px;color:var(--muted2);margin-top:5px">Each line = one con item. Stored as JSON array.</div>
+                            </div>
+
+                            <!-- Pricing -->
+                            <div style="margin:8px 0 14px;font-size:13px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:#0d9488;border-bottom:1.5px solid #ccfbf1;padding-bottom:8px;display:flex;align-items:center;gap:8px">
+                                <i class="bi bi-currency-dollar"></i> Pricing Tiers
+                            </div>
+                            <div id="pricing-rows"></div>
+                            <button type="button" class="btn-secondary" style="margin-bottom:20px" onclick="addPricingRow()">
+                                <i class="bi bi-plus"></i> Add Pricing Tier
+                            </button>
+
+                            <div style="margin:8px 0 14px;font-size:13px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:#0ea5e9;border-bottom:1.5px solid #e0f2fe;padding-bottom:8px;display:flex;align-items:center;gap:8px">
+                                <i class="bi bi-beaker"></i> Benchmark Performance (0-10)
+                            </div>
+                            <div class="form-grid-2">
+                                <div class="form-group"><label>MMLU</label><input type="number" step="0.1" min="0" max="10" class="form-control" name="mmlu_score" id="info-mmlu-score" placeholder="e.g. 9.2"></div>
+                                <div class="form-group"><label>HumanEval</label><input type="number" step="0.1" min="0" max="10" class="form-control" name="humaneval_score" id="info-humaneval-score" placeholder="e.g. 7.8"></div>
+                                <div class="form-group"><label>GSM8K</label><input type="number" step="0.1" min="0" max="10" class="form-control" name="gsm8k_score" id="info-gsm8k-score" placeholder="e.g. 8.9"></div>
+                                <div class="form-group"><label>HellaSwag</label><input type="number" step="0.1" min="0" max="10" class="form-control" name="hellaswag_score" id="info-hellaswag-score" placeholder="e.g. 9.0"></div>
+                                <div class="form-group"><label>TruthfulQA</label><input type="number" step="0.1" min="0" max="10" class="form-control" name="truthfulqa_score" id="info-truthfulqa-score" placeholder="e.g. 8.8"></div>
+                            </div>
+
+                            <div class="btn-row">
+                                <button type="submit" class="btn-primary btn-full">
+                                    <i class="bi bi-floppy"></i> Save Details
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                    </div>
+                </div><!-- /aitoolsinfo-details-create -->
+
+                <!-- Edit Details -->
+                <div id="aitoolsinfo-details-edit" class="subpage">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>Edit Tool Detail Info</h3>
+                        </div>
+                        <div class="card-body">
+                            <form method="post" action="/admin/aitool/details/update" id="aitool-details-edit-form" onsubmit="return submitFormAjax(event, 'aitool-details-edit-form')">
+                                
+                                <!-- Select tool to edit -->
+                                <div class="form-group">
+                                    <label>Select Tool <span class="req">*</span></label>
+                                    <select class="form-select" name="details_id" id="edit-details-select" required onchange="loadEditDetails(this)">
+                                        <option value="">— Select a tool —</option>
+                                        {% if ai_tools %}
+                                        {% for tool in ai_tools %}
+                                        {% if tool.details %}
+                                        <option value="{{ tool.details.id }}"
+                                            data-ai-tool-id="{{ tool.id }}"
+                                            data-tagline="{{ tool.details.tagline or '' }}"
+                                            data-company="{{ tool.details.company or '' }}"
+                                            data-founded="{{ tool.details.founded or '' }}"
+                                            data-headquarters="{{ tool.details.headquarters or '' }}"
+                                            data-website="{{ tool.details.website or '' }}"
+                                            data-founders="{{ tool.details.founders or '' }}"
+                                            data-about="{{ tool.details.about or '' }}"
+                                            data-mmlu-score="{{ tool.details.mmlu_score or '' }}"
+                                            data-humaneval-score="{{ tool.details.humaneval_score or '' }}"
+                                            data-gsm8k-score="{{ tool.details.gsm8k_score or '' }}"
+                                            data-hellaswag-score="{{ tool.details.hellaswag_score or '' }}"
+                                            data-truthfulqa-score="{{ tool.details.truthfulqa_score or '' }}"
+                                            data-pros='{{ tool.details.pros | tojson | safe }}'
+                                            data-cons='{{ tool.details.cons | tojson | safe }}'
+                                            data-pricing='{{ tool.details.pricing | tojson | safe }}'>
+                                            [{{ tool.id }}] {{ tool.name }}
+                                        </option>
+                                        {% endif %}
+                                        {% endfor %}
+                                        {% endif %}
+                                    </select>
+                                </div>
+
+                                <input type="hidden" name="ai_tool_id" id="edit-details-ai-tool-id">
+
+                                <!-- Basic info grid -->
+                                <div class="form-grid-2">
+                                    <div class="form-group form-full">
+                                        <label>Tagline</label>
+                                        <input type="text" class="form-control" name="tagline" id="edit-details-tagline">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Company</label>
+                                        <input type="text" class="form-control" name="company" id="edit-details-company">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Founded</label>
+                                        <input type="text" class="form-control" name="founded" id="edit-details-founded">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Headquarters</label>
+                                        <input type="text" class="form-control" name="headquarters" id="edit-details-hq">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Website</label>
+                                        <input type="url" class="form-control" name="website" id="edit-details-website">
+                                    </div>
+                                    <div class="form-group form-full">
+                                        <label>Founders / Owners</label>
+                                        <input type="text" class="form-control" name="founders" id="edit-details-founders">
+                                    </div>
+                                    <div class="form-group form-full">
+                                        <label>About / Description</label>
+                                        <textarea class="form-control" name="about" id="edit-details-about" rows="4"></textarea>
+                                    </div>
+                                </div>
+
+                                <!-- Pros -->
+                                <div style="margin:8px 0 14px;font-size:13px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--primary);border-bottom:1.5px solid var(--primary-light);padding-bottom:8px;display:flex;align-items:center;gap:8px">
+                                    <i class="bi bi-check-circle"></i> Pros
+                                </div>
+                                <div class="form-group">
+                                    <textarea class="form-control" name="pros_raw" id="edit-details-pros" rows="5"></textarea>
+                                    <div style="font-size:11px;color:var(--muted2);margin-top:5px">Each line = one pro item.</div>
+                                </div>
+
+                                <!-- Cons -->
+                                <div style="margin:8px 0 14px;font-size:13px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:#ef4444;border-bottom:1.5px solid #fee2e2;padding-bottom:8px;display:flex;align-items:center;gap:8px">
+                                    <i class="bi bi-x-circle"></i> Cons
+                                </div>
+                                <div class="form-group">
+                                    <textarea class="form-control" name="cons_raw" id="edit-details-cons" rows="4"></textarea>
+                                    <div style="font-size:11px;color:var(--muted2);margin-top:5px">Each line = one con item.</div>
+                                </div>
+
+                                <!-- Pricing -->
+                                <div style="margin:8px 0 14px;font-size:13px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:#0d9488;border-bottom:1.5px solid #ccfbf1;padding-bottom:8px;display:flex;align-items:center;gap:8px">
+                                    <i class="bi bi-currency-dollar"></i> Pricing Tiers
+                                </div>
+                                <div id="edit-pricing-rows"></div>
+                                <button type="button" class="btn-secondary" style="margin-bottom:20px" onclick="addEditPricingRow()">
+                                    <i class="bi bi-plus"></i> Add Pricing Tier
+                                </button>
+
+                                <div style="margin:8px 0 14px;font-size:13px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:#0ea5e9;border-bottom:1.5px solid #e0f2fe;padding-bottom:8px;display:flex;align-items:center;gap:8px">
+                                    <i class="bi bi-beaker"></i> Benchmark Performance (0-10)
+                                </div>
+                                <div class="form-grid-2">
+                                    <div class="form-group"><label>MMLU</label><input type="number" step="0.1" min="0" max="10" class="form-control" name="mmlu_score" id="edit-details-mmlu-score"></div>
+                                    <div class="form-group"><label>HumanEval</label><input type="number" step="0.1" min="0" max="10" class="form-control" name="humaneval_score" id="edit-details-humaneval-score"></div>
+                                    <div class="form-group"><label>GSM8K</label><input type="number" step="0.1" min="0" max="10" class="form-control" name="gsm8k_score" id="edit-details-gsm8k-score"></div>
+                                    <div class="form-group"><label>HellaSwag</label><input type="number" step="0.1" min="0" max="10" class="form-control" name="hellaswag_score" id="edit-details-hellaswag-score"></div>
+                                    <div class="form-group"><label>TruthfulQA</label><input type="number" step="0.1" min="0" max="10" class="form-control" name="truthfulqa_score" id="edit-details-truthfulqa-score"></div>
+                                </div>
+
+                                <div class="btn-row">
+                                    <button type="submit" class="btn-primary btn-full">
+                                        <i class="bi bi-pencil-square"></i> Update Details
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div><!-- /aitoolsinfo-details-edit -->
+            </div><!-- /aitoolsinfo-details subpage -->
+
+            <!-- ── USE CASES subtab ── -->
+            <div id="aitoolsinfo-usecases" class="subpage">
+                <div class="subtab-bar">
+                    <button class="stab active" onclick="goSub('aitoolsinfo','usecases-add')">Add</button>
+                    <button class="stab" onclick="goSub('aitoolsinfo','usecases-list')">List</button>
+                    <button class="stab" onclick="goSub('aitoolsinfo','usecases-edit')">Edit</button>
+                </div>
+
+                <!-- Add Use Case -->
+                <div id="aitoolsinfo-usecases-add" class="subpage active">
+                <div class="card" style="margin-bottom:20px">
+                    <div class="card-header">
+                        <h3>Add Use Case</h3>
+                        <span style="font-size:12px;color:var(--muted)">Maps to <code style="background:var(--bg);padding:2px 6px;border-radius:4px;font-size:11px">ai_tool_use_cases</code> table</span>
+                    </div>
+                    <div class="card-body">
+                        <form method="post" action="/admin/aitool/usecase/create" id="usecase-create-form" onsubmit="return submitFormAjax(event, 'usecase-create-form')">
+                            <div class="form-group form-full">
+                                <label>Select Tool <span class="req">*</span></label>
+                                <select class="form-select" name="ai_tool_id" required>
+                                    <option value="">— Select a tool —</option>
+                                    {% if ai_tools %}
+                                    {% for tool in ai_tools %}
+                                    <option value="{{ tool.id }}">[{{ tool.id }}] {{ tool.name }}</option>
+                                    {% endfor %}
+                                    {% endif %}
+                                </select>
+                            </div>
+
+                            <div id="usecase-rows"></div>
+                            <button type="button" class="btn-secondary" style="margin-bottom:14px" onclick="addUseCaseRow()">
+                                <i class="bi bi-plus"></i> Add Another Use Case Row
+                            </button>
+
+                            <div class="checkbox-row">
+                                <input type="checkbox" id="uc-active" name="is_active" value="on" checked>
+                                <label for="uc-active">Active (show on site)</label>
+                            </div>
+                            <div class="btn-row">
+                                <button type="submit" class="btn-primary btn-full">
+                                    <i class="bi bi-plus-circle"></i> Save Use Cases
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                </div><!-- /aitoolsinfo-usecases-add -->
+
+                <!-- List Use Cases -->
+                <div id="aitoolsinfo-usecases-list" class="subpage">
+                <div style="display:flex;gap:12px;margin-bottom:16px;flex-wrap:wrap">
+                    <div style="flex:1;min-width:200px">
+                        <input type="text" id="usecase-search-field" placeholder="Search by title..." class="form-control" style="font-size:13px"
+                            onkeyup="filterUseCasesList()">
+                    </div>
+                    <select id="usecase-search-type" class="form-select" style="width:auto;min-width:150px;font-size:13px" onchange="filterUseCasesList()">
+                        <option value="">All Types</option>
+                        <option value="tool">By Tool</option>
+                        <option value="active">Active Only</option>
+                        <option value="inactive">Hidden Only</option>
+                    </select>
+                    <select id="usecase-tool-filter" class="form-select" style="width:auto;min-width:150px;font-size:13px;display:none" onchange="filterUseCasesList()">
+                        <option value="">Select Tool...</option>
+                        <option value="all">All Tools</option>
+                    </select>
+                    <button type="button" class="btn-secondary" onclick="reloadUseCasesList()" style="white-space:nowrap">
+                        <i class="bi bi-arrow-clockwise"></i> Reload List
+                    </button>
+                </div>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>#</th><th>Tool</th><th>Title</th><th>Description</th><th>Status</th><th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="usecase-list-tbody">
+                            {% if use_cases %}
+                            {% for uc in use_cases %}
+                            <tr class="usecase-row" data-id="{{ uc.id }}" data-tool="{{ uc.tool_name }}" data-title="{{ uc.title }}" data-status="{% if uc.is_active %}active{% else %}inactive{% endif %}">
+                                <td style="color:var(--muted2);font-size:12px">{{ uc.id }}</td>
+                                <td><strong>{{ uc.tool_name }}</strong></td>
+                                <td>
+                                    {% if uc.icon %}<span style="margin-right:5px">{{ uc.icon }}</span>{% endif %}
+                                    <strong>{{ uc.title }}</strong>
+                                </td>
+                                <td style="max-width:280px;color:var(--muted);font-size:12px">{{ uc.description[:100] }}{% if uc.description|length > 100 %}...{% endif %}</td>
+                                <td><span class="badge {% if uc.is_active %}badge-green{% else %}badge-red{% endif %}">{% if uc.is_active %}Active{% else %}Hidden{% endif %}</span></td>
+                                <td>
+                                    <form method="post" action="/admin/aitool/usecase/delete" style="display:inline">
+                                        <input type="hidden" name="id" value="{{ uc.id }}">
+                                        <button type="submit" class="btn-secondary" style="padding:5px 10px;font-size:12px"
+                                            onclick="return confirm('Delete this use case?')">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                            {% else %}
+                            <tr><td colspan="6">
+                                <div class="empty-state">
+                                    <i class="bi bi-grid"></i>
+                                    <p>No use cases yet. Add one above!</p>
+                                </div>
+                            </td></tr>
+                            {% endif %}
+                        </tbody>
+                    </table>
+                </div>
+                <div id="usecase-pagination" style="margin-top:16px;display:flex;gap:8px;justify-content:center;flex-wrap:wrap"></div>
+                </div><!-- /aitoolsinfo-usecases-list -->
+
+                <!-- Edit Use Case -->
+                <div id="aitoolsinfo-usecases-edit" class="subpage">
+                <div class="card">
+                    <div class="card-header"><h3>Edit Use Cases by Tool</h3></div>
+                    <div class="card-body">
+                        <form method="post" action="/admin/aitool/usecase/update" id="usecase-edit-form" onsubmit="return submitFormAjax(event, 'usecase-edit-form')">
+                            <div class="form-group form-full">
+                                <label>Select Tool <span class="req">*</span></label>
+                                <select class="form-select" id="usecase-edit-tool-select" required onchange="loadUseCasesForTool(this)">
+                                    <option value="">— Select a tool —</option>
+                                    {% if ai_tools %}
+                                    {% for tool in ai_tools %}
+                                    <option value="{{ tool.id }}">[{{ tool.id }}] {{ tool.name }}</option>
+                                    {% endfor %}
+                                    {% endif %}
+                                </select>
+                            </div>
+
+                            <!-- Container for use case rows -->
+                            <div id="usecase-edit-rows"></div>
+
+                            <button type="button" class="btn-secondary" style="margin-bottom:14px" onclick="addEditUseCaseRow()">
+                                <i class="bi bi-plus"></i> Add Another Use Case Row
+                            </button>
+
+                            <div class="btn-row">
+                                <button type="submit" class="btn-primary btn-full">
+                                    <i class="bi bi-floppy"></i> Save All Use Cases
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                </div><!-- /aitoolsinfo-usecases-edit -->
+            </div><!-- /aitoolsinfo-usecases subpage -->
+
+            <!-- ── FAQs subtab ── -->
+            <div id="aitoolsinfo-faqs" class="subpage">
+                <div class="subtab-bar">
+                    <button class="stab active" onclick="goSub('aitoolsinfo','faqs-add')">Add</button>
+                    <button class="stab" onclick="goSub('aitoolsinfo','faqs-list')">List</button>
+                    <button class="stab" onclick="goSub('aitoolsinfo','faqs-edit')">Edit</button>
+                </div>
+
+                <!-- Add FAQ -->
+                <div id="aitoolsinfo-faqs-add" class="subpage active">
+                    <div class="card" style="margin-bottom:20px">
+                        <div class="card-header">
+                            <h3>Add FAQ</h3>
+                            <span style="font-size:12px;color:var(--muted)">Maps to <code style="background:var(--bg);padding:2px 6px;border-radius:4px;font-size:11px">ai_tool_faqs</code> table</span>
+                        </div>
+                        <div class="card-body">
+                            <form method="post" action="/admin/aitool/faq/create" id="faq-create-form" onsubmit="return submitFormAjax(event, 'faq-create-form')">
+                                <div class="form-group">
+                                    <label>Select Tool <span class="req">*</span></label>
+                                    <select class="form-select" name="ai_tool_id" required>
+                                        <option value="">— Select a tool —</option>
+                                        {% if ai_tools %}
+                                        {% for tool in ai_tools %}
+                                        <option value="{{ tool.id }}">[{{ tool.id }}] {{ tool.name }}</option>
+                                        {% endfor %}
+                                        {% endif %}
+                                    </select>
+                                </div>
+
+                                <div id="faq-rows"></div>
+                                <button type="button" class="btn-secondary" style="margin-bottom:14px" onclick="addFaqRow()">
+                                    <i class="bi bi-plus"></i> Add Another FAQ Row
+                                </button>
+
+                                <div class="checkbox-row">
+                                    <input type="checkbox" id="faq-active" name="is_active" value="on" checked>
+                                    <label for="faq-active">Active (show on site)</label>
+                                </div>
+                                <div class="btn-row">
+                                    <button type="submit" class="btn-primary btn-full">
+                                        <i class="bi bi-plus-circle"></i> Save FAQs
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- FAQs list -->
+                <div id="aitoolsinfo-faqs-list" class="subpage">
+                <div style="display:flex;gap:12px;margin-bottom:16px;flex-wrap:wrap">
+                    <div style="flex:1;min-width:200px">
+                        <input type="text" id="faq-search-field" placeholder="Search by question..." class="form-control" style="font-size:13px"
+                            onkeyup="filterFaqsList()">
+                    </div>
+                    <select id="faq-search-type" class="form-select" style="width:auto;min-width:150px;font-size:13px" onchange="filterFaqsList()">
+                        <option value="">All Types</option>
+                        <option value="tool">By Tool</option>
+                        <option value="active">Active Only</option>
+                        <option value="inactive">Hidden Only</option>
+                    </select>
+                    <select id="faq-tool-filter" class="form-select" style="width:auto;min-width:150px;font-size:13px;display:none" onchange="filterFaqsList()">
+                        <option value="">Select Tool...</option>
+                        <option value="all">All Tools</option>
+                    </select>
+                    <button type="button" class="btn-secondary" onclick="reloadFaqsList()" style="white-space:nowrap">
+                        <i class="bi bi-arrow-clockwise"></i> Reload List
+                    </button>
+                </div>
+                    <div class="table-wrap">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>#</th><th>Tool</th><th>Question</th><th>Answer</th><th>Status</th><th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="faq-list-tbody">
+                                {% if faqs %}
+                                {% for faq in faqs %}
+                                <tr class="faq-row" data-id="{{ faq.id }}" data-tool="{{ faq.tool_name }}" data-question="{{ faq.question }}" data-status="{% if faq.is_active %}active{% else %}inactive{% endif %}">
+                                    <td style="color:var(--muted2);font-size:12px">{{ faq.id }}</td>
+                                    <td><strong>{{ faq.tool_name }}</strong></td>
+                                    <td style="max-width:220px;font-weight:600;font-size:13px">{{ faq.question }}</td>
+                                    <td style="max-width:280px;color:var(--muted);font-size:12px">{{ faq.answer[:100] }}{% if faq.answer|length > 100 %}...{% endif %}</td>
+                                    <td><span class="badge {% if faq.is_active %}badge-green{% else %}badge-red{% endif %}">{% if faq.is_active %}Active{% else %}Hidden{% endif %}</span></td>
+                                    <td>
+                                        <form method="post" action="/admin/aitool/faq/delete" style="display:inline">
+                                            <input type="hidden" name="id" value="{{ faq.id }}">
+                                            <button type="submit" class="btn-secondary" style="padding:5px 10px;font-size:12px"
+                                                onclick="return confirm('Delete this FAQ?')">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                                {% else %}
+                                <tr><td colspan="6">
+                                    <div class="empty-state">
+                                        <i class="bi bi-question-circle"></i>
+                                        <p>No FAQs yet. Add one above!</p>
+                                    </div>
+                                </td></tr>
+                                {% endif %}
+                            </tbody>
+                        </table>
+                    </div>
+                <div id="faq-pagination" style="margin-top:16px;display:flex;gap:8px;justify-content:center;flex-wrap:wrap"></div>
+                </div>
+
+                <!-- Edit FAQ -->
+                <div id="aitoolsinfo-faqs-edit" class="subpage">
+                    <div class="card" style="margin-bottom:20px">
+                        <div class="card-header">
+                            <h3>Edit FAQs by Tool</h3>
+                            <span style="font-size:12px;color:var(--muted)">Select a tool to edit all its FAQs</span>
+                        </div>
+                        <div class="card-body">
+                            <form method="post" action="/admin/aitool/faq/update" id="faq-edit-form" onsubmit="return submitFormAjax(event, 'faq-edit-form')">
+                                <div class="form-group form-full">
+                                    <label>Select Tool <span class="req">*</span></label>
+                                    <select class="form-select" id="faq-edit-tool-select" required onchange="loadFaqsForTool(this)">
+                                        <option value="">— Select a tool —</option>
+                                        {% if ai_tools %}
+                                        {% for tool in ai_tools %}
+                                        <option value="{{ tool.id }}">[{{ tool.id }}] {{ tool.name }}</option>
+                                        {% endfor %}
+                                        {% endif %}
+                                    </select>
+                                </div>
+
+                                <!-- Container for FAQ rows -->
+                                <div id="faq-edit-rows"></div>
+
+                                <button type="button" class="btn-secondary" style="margin-bottom:14px" onclick="addEditFaqRow()">
+                                    <i class="bi bi-plus"></i> Add Another FAQ Row
+                                </button>
+
+                                <div class="btn-row">
+                                    <button type="submit" class="btn-primary btn-full">
+                                        <i class="bi bi-floppy"></i> Save All FAQs
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        <!-- ══════════ END AI TOOLS INFO PAGE ══════════ -->
+
     </div><!-- /content-area -->
 </div><!-- /main-wrap -->
 
@@ -1634,11 +2220,99 @@ const editEditor = CodeMirror.fromTextArea(document.getElementById("edit-blog-ht
     indentUnit: 4, indentWithTabs: false, lineWrapping: true
 });
 
+// ══════════════════════════════════════════════════════════════════
+// ── AJAX FORM SUBMISSION & ALERT SYSTEM ──
+// ══════════════════════════════════════════════════════════════════
+
+function showAlert(message, type = 'success', duration = 4000) {
+    const alertEl = document.getElementById('admin-alert');
+    const alertMsg = document.getElementById('admin-alert-message');
+    
+    // Set styling based on type
+    alertEl.className = 'alert alert-dismissible fade show';
+    if (type === 'success') {
+        alertEl.style.backgroundColor = '#d1fae5';
+        alertEl.style.color = '#065f46';
+        alertEl.style.borderColor = '#a7f3d0';
+        alertEl.innerHTML = `<i class="bi bi-check-circle" style="margin-right:8px"></i><span id="admin-alert-message">${message}</span><button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>`;
+    } else if (type === 'error') {
+        alertEl.style.backgroundColor = '#fee2e2';
+        alertEl.style.color = '#991b1b';
+        alertEl.style.borderColor = '#fecaca';
+        alertEl.innerHTML = `<i class="bi bi-exclamation-circle" style="margin-right:8px"></i><span id="admin-alert-message">${message}</span><button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>`;
+    }
+    
+    alertEl.classList.remove('d-none');
+    
+    // Auto hide after duration
+    if (duration > 0) {
+        setTimeout(() => {
+            alertEl.classList.add('d-none');
+        }, duration);
+    }
+}
+
+function submitFormAjax(event, formId) {
+    event.preventDefault();
+    const form = document.getElementById(formId);
+    if (!form) return;
+    
+    const formData = new FormData(form);
+    const actionUrl = form.getAttribute('action');
+    
+    // Show loading state
+    const submitBtn = form.querySelector('button[type="submit"]');
+    const originalText = submitBtn.innerHTML;
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<i class="bi bi-hourglass-split"></i> Submitting...';
+    
+    fetch(actionUrl, {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => {
+        if (response.ok) {
+            return response.json().catch(() => ({success: true, message: 'Operation completed successfully'}));
+        } else {
+            throw new Error(`HTTP ${response.status}`);
+        }
+    })
+    .then(data => {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = originalText;
+        
+        if (data.success) {
+            showAlert(data.message || 'Submitted successfully!', 'success');
+            // Optionally reset form
+            if (data.reset_form) {
+                form.reset();
+            }
+
+            // Reset dynamic multi-row create forms back to one row without leaving current tab
+            if (formId === 'usecase-create-form') {
+                resetUseCaseRows();
+            }
+            if (formId === 'faq-create-form') {
+                resetFaqRows();
+            }
+        } else {
+            showAlert(data.message || 'An error occurred', 'error', 0);
+        }
+    })
+    .catch(error => {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = originalText;
+        showAlert(`Error: ${error.message}`, 'error', 0);
+        console.error('Form submission error:', error);
+    });
+}
+
 // ── Page Navigation ──
 const PAGE_META = {
     blogs:    { title: 'Blogs',          crumb: 'budasai / admin / blogs' },
     stories:  { title: 'Stories',        crumb: 'budasai / admin / stories' },
     aitools:  { title: 'AI Tools Rating',crumb: 'budasai / admin / ai-tools' },
+    aitoolsinfo: { title: 'AI Tools Info', crumb: 'budasai / admin / ai-tools-info' },
 };
 
 function goPage(name) {
@@ -1653,11 +2327,23 @@ function goPage(name) {
 
 // ── Subtab Navigation ──
 function goSub(page, sub) {
-    const parent = document.getElementById('page-' + page);
-    parent.querySelectorAll('.subpage').forEach(p => p.classList.remove('active'));
-    parent.querySelectorAll('.stab').forEach(b => b.classList.remove('active'));
-    document.getElementById(page + '-' + sub).classList.add('active');
-    event.currentTarget.classList.add('active');
+    const target = document.getElementById(page + '-' + sub);
+    if (!target) return;
+
+    // Toggle only sibling subpages in the same container.
+    const container = target.parentElement;
+    Array.from(container.children)
+        .filter(el => el.classList && el.classList.contains('subpage'))
+        .forEach(el => el.classList.remove('active'));
+    target.classList.add('active');
+
+    // Toggle active button only within the current tab bar.
+    const currentBar = event?.currentTarget?.closest('.subtab-bar');
+    if (currentBar && event?.currentTarget) {
+        currentBar.querySelectorAll('.stab').forEach(btn => btn.classList.remove('active'));
+        event.currentTarget.classList.add('active');
+    }
+
     if (sub === 'edit' && page === 'blogs') setTimeout(() => editEditor.refresh(), 100);
 }
 
@@ -1799,6 +2485,157 @@ function populateAiToolForm() {
     refreshOverall('e', 'edit-overall', 'edit-stars', 'edit-verdict');
 }
 
+// ── Load Edit Details Form ──
+function loadEditDetails(sel) {
+    const opt = sel.options[sel.selectedIndex];
+    if (!opt.value) return;
+    
+    // Set the hidden ai_tool_id field
+    document.getElementById('edit-details-ai-tool-id').value = opt.dataset.aiToolId || '';
+    
+    document.getElementById('edit-details-tagline').value = opt.dataset.tagline || '';
+    document.getElementById('edit-details-company').value = opt.dataset.company || '';
+    document.getElementById('edit-details-founded').value = opt.dataset.founded || '';
+    document.getElementById('edit-details-mmlu-score').value = opt.dataset.mmluScore || '';
+    document.getElementById('edit-details-humaneval-score').value = opt.dataset.humanevalScore || '';
+    document.getElementById('edit-details-gsm8k-score').value = opt.dataset.gsm8kScore || '';
+    document.getElementById('edit-details-hellaswag-score').value = opt.dataset.hellaswagScore || '';
+    document.getElementById('edit-details-truthfulqa-score').value = opt.dataset.truthfulqaScore || '';
+    document.getElementById('edit-details-hq').value = opt.dataset.headquarters || '';
+    document.getElementById('edit-details-website').value = opt.dataset.website || '';
+    document.getElementById('edit-details-founders').value = opt.dataset.founders || '';
+    document.getElementById('edit-details-about').value = opt.dataset.about || '';
+    
+    // Parse pros/cons from JSON string
+    try {
+        const pros = JSON.parse(opt.dataset.pros || '[]');
+        document.getElementById('edit-details-pros').value = pros.join('\n');
+    } catch(e) {
+        document.getElementById('edit-details-pros').value = opt.dataset.pros || '';
+    }
+    
+    try {
+        const cons = JSON.parse(opt.dataset.cons || '[]');
+        document.getElementById('edit-details-cons').value = cons.join('\n');
+    } catch(e) {
+        document.getElementById('edit-details-cons').value = opt.dataset.cons || '';
+    }
+    
+    // Parse pricing from JSON string
+    const pricingContainer = document.getElementById('edit-pricing-rows');
+    if (pricingContainer) {
+        pricingContainer.innerHTML = '';
+        try {
+            const pricing = JSON.parse(opt.dataset.pricing || '[]');
+            pricing.forEach(p => {
+                addEditPricingRow(p.tier || '', p.value || '');
+            });
+        } catch(e) {
+            // If parsing fails, just clear and let user add new rows
+        }
+    }
+}
+
+function addEditPricingRow(tier = '', value = '') {
+    const container = document.getElementById('edit-pricing-rows');
+    if (!container) return;
+    
+    const row = document.createElement('div');
+    row.className = 'pricing-row';
+    row.innerHTML = `
+        <input type="text" class="form-control" name="pricing_tier" placeholder="Tier (e.g. Free, Pro)" value="${tier}">
+        <input type="text" class="form-control" name="pricing_value" placeholder="Value (e.g. $20/mo)" value="${value}">
+        <button type="button" class="btn-secondary" onclick="this.parentElement.remove()" style="padding:8px 12px">
+            <i class="bi bi-trash"></i>
+        </button>
+    `;
+    container.appendChild(row);
+}
+
+// ── Bulk Create Rows: Use Cases / FAQs ──
+let useCaseRowCount = 0;
+let faqRowCount = 0;
+let editUseCaseRowCount = 0;
+let editFaqRowCount = 0;
+
+function addUseCaseRow(title = '', icon = '', description = '') {
+    useCaseRowCount += 1;
+    const wrap = document.getElementById('usecase-rows');
+    if (!wrap) return;
+
+    const row = document.createElement('div');
+    row.className = 'card';
+    row.style.marginBottom = '12px';
+    row.innerHTML = `
+        <div class="card-body">
+            <div class="form-grid-2">
+                <div class="form-group">
+                    <label>Title <span class="req">*</span></label>
+                    <input type="text" class="form-control" name="title" required placeholder="e.g. YouTube Content Creation" value="${title}">
+                </div>
+                <div class="form-group">
+                    <label>Icon / Emoji</label>
+                    <input type="text" class="form-control" name="icon" maxlength="4" placeholder="e.g. 🎬" value="${icon}">
+                </div>
+                <div class="form-group form-full">
+                    <label>Description <span class="req">*</span></label>
+                    <textarea class="form-control" name="description" rows="3" required placeholder="Write full video scripts, hooks, titles and descriptions in minutes...">${description}</textarea>
+                </div>
+            </div>
+            <div style="display:flex;justify-content:flex-end">
+                <button type="button" class="btn-secondary" onclick="this.closest('.card').remove()">
+                    <i class="bi bi-trash"></i> Remove Row
+                </button>
+            </div>
+        </div>
+    `;
+    wrap.appendChild(row);
+}
+
+function resetUseCaseRows() {
+    const wrap = document.getElementById('usecase-rows');
+    if (!wrap) return;
+    wrap.innerHTML = '';
+    useCaseRowCount = 0;
+    addUseCaseRow();
+}
+
+function addFaqRow(question = '', answer = '') {
+    faqRowCount += 1;
+    const wrap = document.getElementById('faq-rows');
+    if (!wrap) return;
+
+    const row = document.createElement('div');
+    row.className = 'card';
+    row.style.marginBottom = '12px';
+    row.innerHTML = `
+        <div class="card-body">
+            <div class="form-group">
+                <label>Question <span class="req">*</span></label>
+                <input type="text" class="form-control" name="question" required placeholder="e.g. Is Claude better than ChatGPT for writing?" value="${question}">
+            </div>
+            <div class="form-group">
+                <label>Answer <span class="req">*</span></label>
+                <textarea class="form-control" name="answer" rows="4" required placeholder="Write a clear, helpful answer...">${answer}</textarea>
+            </div>
+            <div style="display:flex;justify-content:flex-end">
+                <button type="button" class="btn-secondary" onclick="this.closest('.card').remove()">
+                    <i class="bi bi-trash"></i> Remove Row
+                </button>
+            </div>
+        </div>
+    `;
+    wrap.appendChild(row);
+}
+
+function resetFaqRows() {
+    const wrap = document.getElementById('faq-rows');
+    if (!wrap) return;
+    wrap.innerHTML = '';
+    faqRowCount = 0;
+    addFaqRow();
+}
+
 // ── Sync CodeMirror on submit ──
 document.querySelectorAll('form').forEach(f => {
     f.addEventListener('submit', () => {
@@ -1897,6 +2734,494 @@ window.addEventListener('click', e => {
 
 // Init slider tracks on load
 document.querySelectorAll('.form-range').forEach(r => updateSliderTrack(r, r.value));
+
+// ── AI Tools Info: load details form ──
+function loadInfoDetails(sel) {
+    const opt = sel.options[sel.selectedIndex];
+    if (!opt.value) return;
+    document.getElementById('info-tagline').value     = opt.dataset.tagline     || '';
+    document.getElementById('info-company').value     = opt.dataset.company     || '';
+    document.getElementById('info-founded').value     = opt.dataset.founded     || '';
+    document.getElementById('info-mmlu-score').value = opt.dataset.mmluScore || '';
+    document.getElementById('info-humaneval-score').value = opt.dataset.humanevalScore || '';
+    document.getElementById('info-gsm8k-score').value = opt.dataset.gsm8kScore || '';
+    document.getElementById('info-hellaswag-score').value = opt.dataset.hellaswagScore || '';
+    document.getElementById('info-truthfulqa-score').value = opt.dataset.truthfulqaScore || '';
+    document.getElementById('info-hq').value          = opt.dataset.headquarters|| '';
+    document.getElementById('info-website').value     = opt.dataset.website     || '';
+    document.getElementById('info-founders').value    = opt.dataset.founders    || '';
+    document.getElementById('info-about').value       = opt.dataset.about       || '';
+
+    // pros/cons as line-separated text
+    try {
+        const pros = JSON.parse(opt.dataset.pros || '[]');
+        document.getElementById('info-pros').value = pros.join('\n');
+    } catch(e) { document.getElementById('info-pros').value = ''; }
+
+    try {
+        const cons = JSON.parse(opt.dataset.cons || '[]');
+        document.getElementById('info-cons').value = cons.join('\n');
+    } catch(e) { document.getElementById('info-cons').value = ''; }
+
+    // pricing rows
+    try {
+        const pricing = JSON.parse(opt.dataset.pricing || '[]');
+        rebuildPricingRows(pricing);
+    } catch(e) { rebuildPricingRows([]); }
+}
+
+let pricingCount = 0;
+
+function addPricingRow(tier='', value='') {
+    pricingCount++;
+    const idx = pricingCount;
+    const wrap = document.getElementById('pricing-rows');
+    const row = document.createElement('div');
+    row.id = `pricing-row-${idx}`;
+    row.style.cssText = 'display:grid;grid-template-columns:1fr 2fr 36px;gap:10px;margin-bottom:10px;align-items:center';
+    row.innerHTML = `
+        <input type="text" class="form-control pricing-tier-input" name="pricing_tier[]"
+            placeholder="e.g. Free Plan" value="${tier}">
+        <input type="text" class="form-control pricing-val-input" name="pricing_value[]"
+            placeholder="e.g. Limited messages per day" value="${value}">
+        <button type="button" onclick="removePricingRow(${idx})"
+            style="width:36px;height:40px;border-radius:8px;border:1.5px solid var(--border);background:var(--bg);color:var(--red);cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center">
+            <i class="bi bi-x"></i>
+        </button>`;
+    wrap.appendChild(row);
+}
+
+function removePricingRow(idx) {
+    const el = document.getElementById(`pricing-row-${idx}`);
+    if (el) el.remove();
+}
+
+function rebuildPricingRows(arr) {
+    document.getElementById('pricing-rows').innerHTML = '';
+    pricingCount = 0;
+    arr.forEach(item => addPricingRow(item.tier || '', item.value || ''));
+}
+
+// Init with one empty pricing row on page load
+if (document.getElementById('pricing-rows')) {
+    addPricingRow();
+}
+
+if (document.getElementById('usecase-rows')) {
+    resetUseCaseRows();
+}
+
+if (document.getElementById('faq-rows')) {
+    resetFaqRows();
+}
+
+// ── USE CASES & FAQs LIST, SEARCH & PAGINATION ──
+
+// Store all data in memory for pagination & filtering
+let allUseCases = [];
+let allFaqs = [];
+let currentUcPage = 1;
+let currentFaqPage = 1;
+const ITEMS_PER_PAGE = 10;
+
+// Initialize tool filters from AI Tools select
+function initializeToolFilters() {
+    // Extract tool names from the first available ai_tool_id select dropdown
+    const toolsSet = new Set();
+    const aiToolSelects = document.querySelectorAll('select[name="ai_tool_id"]');
+    
+    if (aiToolSelects.length > 0) {
+        // Get all options from the first select (all should have same tools)
+        const firstSelect = aiToolSelects[0];
+        Array.from(firstSelect.options).forEach(opt => {
+            if (opt.value) {
+                // Extract tool name from option text (format: [id] ToolName)
+                const text = opt.textContent.trim();
+                const match = text.match(/\]\s*(.+)$/);
+                if (match) {
+                    toolsSet.add(match[1]);
+                }
+            }
+        });
+    }
+    
+    // Store tools for UI
+    window.toolsArray = Array.from(toolsSet);
+}
+
+function updateToolFilterOptions() {
+    // Update use case tool filter
+    const ucToolFilter = document.getElementById('usecase-tool-filter');
+    const faqToolFilter = document.getElementById('faq-tool-filter');
+    
+    // Get unique tools from rows
+    const toolsSet = new Set();
+    document.querySelectorAll('.usecase-row').forEach(row => {
+        const toolName = row.dataset.tool;
+        if (toolName) toolsSet.add(toolName);
+    });
+    
+    const selectedUc = ucToolFilter.value;
+    ucToolFilter.innerHTML = '<option value="">Select Tool...</option><option value="all">All Tools</option>';
+    toolsSet.forEach(tool => {
+        const opt = document.createElement('option');
+        opt.value = tool;
+        opt.textContent = tool;
+        ucToolFilter.appendChild(opt);
+    });
+    ucToolFilter.value = selectedUc;
+    
+    // Same for FAQs
+    const toolsFaqSet = new Set();
+    document.querySelectorAll('.faq-row').forEach(row => {
+        const toolName = row.dataset.tool;
+        if (toolName) toolsFaqSet.add(toolName);
+    });
+    
+    const selectedFaq = faqToolFilter.value;
+    faqToolFilter.innerHTML = '<option value="">Select Tool...</option><option value="all">All Tools</option>';
+    toolsFaqSet.forEach(tool => {
+        const opt = document.createElement('option');
+        opt.value = tool;
+        opt.textContent = tool;
+        faqToolFilter.appendChild(opt);
+    });
+    faqToolFilter.value = selectedFaq;
+}
+
+// Reload use cases list
+function reloadUseCasesList() {
+    const tbody = document.getElementById('usecase-list-tbody');
+    if (!tbody) return;
+    
+    // Reload from template data (all rows already in DOM)
+    // Re-filter and paginate
+    currentUcPage = 1;
+    filterUseCasesList();
+}
+
+// Filter and display use cases with pagination
+function filterUseCasesList() {
+    const searchField = document.getElementById('usecase-search-field');
+    const typeFilter = document.getElementById('usecase-search-type');
+    const toolFilter = document.getElementById('usecase-tool-filter');
+    
+    const searchTerm = (searchField?.value || '').toLowerCase();
+    const filterType = typeFilter?.value || '';
+    const selectedTool = toolFilter?.value || '';
+    
+    // Get all rows
+    const allRows = Array.from(document.querySelectorAll('.usecase-row'));
+    
+    // Filter
+    const filtered = allRows.filter(row => {
+        const title = row.dataset.title?.toLowerCase() || '';
+        const tool = row.dataset.tool || '';
+        const status = row.dataset.status || '';
+        
+        let matches = true;
+        
+        // Text search
+        if (searchTerm && !title.includes(searchTerm)) {
+            matches = false;
+        }
+        
+        // Type filter
+        if (filterType === 'active' && status !== 'active') matches = false;
+        if (filterType === 'inactive' && status !== 'inactive') matches = false;
+        if (filterType === 'tool' && !selectedTool) {
+            matches = false; // Show all when "by tool" but no tool selected
+        }
+        
+        // Tool filter
+        if (selectedTool && selectedTool !== 'all' && tool !== selectedTool) {
+            matches = false;
+        }
+        
+        return matches;
+    });
+    
+    // Pagination
+    const totalPages = Math.ceil(filtered.length / ITEMS_PER_PAGE) || 1;
+    if (currentUcPage > totalPages) currentUcPage = 1;
+    
+    const start = (currentUcPage - 1) * ITEMS_PER_PAGE;
+    const paginated = filtered.slice(start, start + ITEMS_PER_PAGE);
+    
+    // Hide all, show paginated
+    allRows.forEach(row => row.style.display = 'none');
+    paginated.forEach(row => row.style.display = '');
+    
+    // Build pagination buttons
+    const paginationDiv = document.getElementById('usecase-pagination');
+    paginationDiv.innerHTML = '';
+    
+    if (totalPages > 1) {
+        for (let i = 1; i <= totalPages; i++) {
+            const btn = document.createElement('button');
+            btn.className = `btn-secondary ${i === currentUcPage ? 'active' : ''}`;
+            btn.textContent = i;
+            btn.style.cssText = i === currentUcPage ? 'background:var(--primary);color:white;border-color:var(--primary)' : '';
+            btn.onclick = () => {
+                currentUcPage = i;
+                filterUseCasesList();
+            };
+            paginationDiv.appendChild(btn);
+        }
+    }
+    
+    // Show/hide tool filter based on type
+    if (typeFilter?.value === 'tool') {
+        toolFilter.style.display = '';
+    } else {
+        toolFilter.style.display = 'none';
+        toolFilter.value = '';
+    }
+}
+
+// Reload FAQs list
+function reloadFaqsList() {
+    const tbody = document.getElementById('faq-list-tbody');
+    if (!tbody) return;
+    
+    currentFaqPage = 1;
+    filterFaqsList();
+}
+
+// Filter and display FAQs with pagination
+function filterFaqsList() {
+    const searchField = document.getElementById('faq-search-field');
+    const typeFilter = document.getElementById('faq-search-type');
+    const toolFilter = document.getElementById('faq-tool-filter');
+    
+    const searchTerm = (searchField?.value || '').toLowerCase();
+    const filterType = typeFilter?.value || '';
+    const selectedTool = toolFilter?.value || '';
+    
+    // Get all rows
+    const allRows = Array.from(document.querySelectorAll('.faq-row'));
+    
+    // Filter
+    const filtered = allRows.filter(row => {
+        const question = row.dataset.question?.toLowerCase() || '';
+        const tool = row.dataset.tool || '';
+        const status = row.dataset.status || '';
+        
+        let matches = true;
+        
+        // Text search
+        if (searchTerm && !question.includes(searchTerm)) {
+            matches = false;
+        }
+        
+        // Type filter
+        if (filterType === 'active' && status !== 'active') matches = false;
+        if (filterType === 'inactive' && status !== 'inactive') matches = false;
+        if (filterType === 'tool' && !selectedTool) {
+            matches = false;
+        }
+        
+        // Tool filter
+        if (selectedTool && selectedTool !== 'all' && tool !== selectedTool) {
+            matches = false;
+        }
+        
+        return matches;
+    });
+    
+    // Pagination
+    const totalPages = Math.ceil(filtered.length / ITEMS_PER_PAGE) || 1;
+    if (currentFaqPage > totalPages) currentFaqPage = 1;
+    
+    const start = (currentFaqPage - 1) * ITEMS_PER_PAGE;
+    const paginated = filtered.slice(start, start + ITEMS_PER_PAGE);
+    
+    // Hide all, show paginated
+    allRows.forEach(row => row.style.display = 'none');
+    paginated.forEach(row => row.style.display = '');
+    
+    // Build pagination buttons
+    const paginationDiv = document.getElementById('faq-pagination');
+    paginationDiv.innerHTML = '';
+    
+    if (totalPages > 1) {
+        for (let i = 1; i <= totalPages; i++) {
+            const btn = document.createElement('button');
+            btn.className = `btn-secondary ${i === currentFaqPage ? 'active' : ''}`;
+            btn.textContent = i;
+            btn.style.cssText = i === currentFaqPage ? 'background:var(--primary);color:white;border-color:var(--primary)' : '';
+            btn.onclick = () => {
+                currentFaqPage = i;
+                filterFaqsList();
+            };
+            paginationDiv.appendChild(btn);
+        }
+    }
+    
+    // Show/hide tool filter based on type
+    if (typeFilter?.value === 'tool') {
+        toolFilter.style.display = '';
+    } else {
+        toolFilter.style.display = 'none';
+        toolFilter.value = '';
+    }
+}
+
+// Initialize on load
+initializeToolFilters();
+updateToolFilterOptions();
+
+function addEditUseCaseRow(id = '', title = '', icon = '', description = '', isActive = true) {
+    const container = document.getElementById('usecase-edit-rows');
+    if (!container) return;
+
+    editUseCaseRowCount += 1;
+    const idx = editUseCaseRowCount;
+
+    const row = document.createElement('div');
+    row.className = 'card';
+    row.style.marginBottom = '12px';
+    row.id = `edit-uc-row-${idx}`;
+    row.innerHTML = `
+        <div class="card-body">
+            <input type="hidden" name="id" value="${id}">
+            <div class="form-grid-2">
+                <div class="form-group">
+                    <label>Title <span class="req">*</span></label>
+                    <input type="text" class="form-control" name="title" value="${title}" required>
+                </div>
+                <div class="form-group">
+                    <label>Icon / Emoji</label>
+                    <input type="text" class="form-control" name="icon" maxlength="4" value="${icon}">
+                </div>
+                <div class="form-group form-full">
+                    <label>Description <span class="req">*</span></label>
+                    <textarea class="form-control" name="description" rows="3" required>${description}</textarea>
+                </div>
+            </div>
+            <div class="checkbox-row">
+                <input type="checkbox" id="uc-edit-active-${idx}" name="is_active" value="on" ${isActive ? 'checked' : ''}>
+                <label for="uc-edit-active-${idx}">Active (show on site)</label>
+            </div>
+            <div style="display:flex;justify-content:flex-end">
+                <button type="button" class="btn-secondary" onclick="document.getElementById('edit-uc-row-${idx}').remove()">
+                    <i class="bi bi-trash"></i> Remove Row
+                </button>
+            </div>
+        </div>
+    `;
+    container.appendChild(row);
+}
+
+function addEditFaqRow(id = '', question = '', answer = '', isActive = true) {
+    const container = document.getElementById('faq-edit-rows');
+    if (!container) return;
+
+    editFaqRowCount += 1;
+    const idx = editFaqRowCount;
+
+    const row = document.createElement('div');
+    row.className = 'card';
+    row.style.marginBottom = '12px';
+    row.id = `edit-faq-row-${idx}`;
+    row.innerHTML = `
+        <div class="card-body">
+            <input type="hidden" name="id" value="${id}">
+            <div class="form-group form-full">
+                <label>Question <span class="req">*</span></label>
+                <input type="text" class="form-control" name="question" value="${question}" required>
+            </div>
+            <div class="form-group form-full">
+                <label>Answer <span class="req">*</span></label>
+                <textarea class="form-control" name="answer" rows="4" required>${answer}</textarea>
+            </div>
+            <div class="checkbox-row">
+                <input type="checkbox" id="faq-edit-active-${idx}" name="is_active" value="on" ${isActive ? 'checked' : ''}>
+                <label for="faq-edit-active-${idx}">Active (show on site)</label>
+            </div>
+            <div style="display:flex;justify-content:flex-end">
+                <button type="button" class="btn-secondary" onclick="document.getElementById('edit-faq-row-${idx}').remove()">
+                    <i class="bi bi-trash"></i> Remove Row
+                </button>
+            </div>
+        </div>
+    `;
+    container.appendChild(row);
+}
+
+// ── LOAD USE CASES FOR TOOL ──
+function loadUseCasesForTool(select) {
+    const toolId = select.value;
+    const container = document.getElementById('usecase-edit-rows');
+    if (!container || !toolId) {
+        return;
+    }
+    
+    // Get tool name from select option
+    const toolOption = select.options[select.selectedIndex];
+    const toolName = toolOption.textContent.split('] ')[1];
+    
+    // Find all use cases for this tool
+    const useCasesForTool = Array.from(document.querySelectorAll('.usecase-row'))
+        .filter(row => row.dataset.tool === toolName)
+        .map(row => ({
+            id: row.dataset.id,
+            title: row.dataset.title || '',
+            icon: row.querySelector('td:nth-child(3)')?.textContent?.trim().split('\n')[0] || '',
+            description: row.querySelector('td:nth-child(4)')?.textContent?.trim() || '',
+            status: row.dataset.status
+        }));
+    
+    // Build container with use cases
+    container.innerHTML = '';
+    if (useCasesForTool.length === 0) {
+        const div = document.createElement('div');
+        div.style.cssText = 'padding:20px;text-align:center;color:var(--muted)';
+        div.innerHTML = '<p>No use cases for this tool yet. Add one below!</p>';
+        container.appendChild(div);
+    } else {
+        useCasesForTool.forEach(uc => {
+            addEditUseCaseRow(uc.id, uc.title, uc.icon, uc.description, uc.status === 'active');
+        });
+    }
+}
+
+// ── LOAD FAQs FOR TOOL ──
+function loadFaqsForTool(select) {
+    const toolId = select.value;
+    const container = document.getElementById('faq-edit-rows');
+    if (!container || !toolId) {
+        return;
+    }
+    
+    // Get tool name from select option
+    const toolOption = select.options[select.selectedIndex];
+    const toolName = toolOption.textContent.split('] ')[1];
+    
+    // Find all FAQs for this tool
+    const faqsForTool = Array.from(document.querySelectorAll('.faq-row'))
+        .filter(row => row.dataset.tool === toolName)
+        .map(row => ({
+            id: row.dataset.id,
+            question: row.dataset.question || '',
+            answer: row.querySelector('td:nth-child(4)')?.textContent?.trim() || '',
+            status: row.dataset.status
+        }));
+    
+    // Build container with FAQs
+    container.innerHTML = '';
+    if (faqsForTool.length === 0) {
+        const div = document.createElement('div');
+        div.style.cssText = 'padding:20px;text-align:center;color:var(--muted)';
+        div.innerHTML = '<p>No FAQs for this tool yet. Add one below!</p>';
+        container.appendChild(div);
+    } else {
+        faqsForTool.forEach(faq => {
+            addEditFaqRow(faq.id, faq.question, faq.answer, faq.status === 'active');
+        });
+    }
+}
+
 </script>
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>

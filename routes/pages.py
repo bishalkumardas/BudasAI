@@ -23,6 +23,12 @@ templates = Jinja2Templates(directory="templates")
 # Add this near the top of pages.py
 BASE_URL = os.getenv("BASE_URL", "http://localhost:8000")
 
+
+def slugify_tool_name(name: str) -> str:
+    text = (name or "").strip().lower()
+    text = re.sub(r"[^a-z0-9]+", "-", text)
+    return text.strip("-")
+
 @router.get("/", response_class=HTMLResponse)
 async def home(request: Request):
     route_id = id(request)
@@ -33,8 +39,88 @@ async def home(request: Request):
         ctx = await get_price_context(request)
         # print(f"🔵 [HOME ROUTE #{route_id}] Price context: {ctx}")
         
+        featured_ai_tools = []
+        top_ai_tool = None
+
+        try:
+            tools_res = (
+                supabase.table("ai_tools")
+                .select(
+                    "name,image_url,best_for,"
+                    "quality_score,ease_score,accuracy_score,speed_score,value_score,creativity_score,"
+                    "integration_score,consistency_score,support_score,time_saved_score"
+                )
+                .eq("is_active", True)
+                .execute()
+            )
+
+            def to_float(value):
+                try:
+                    return float(value)
+                except Exception:
+                    return 0.0
+
+            def build_tool_payload(tool):
+                quality = to_float(tool.get("quality_score"))
+                creativity = to_float(tool.get("creativity_score"))
+                accuracy = to_float(tool.get("accuracy_score"))
+                consistency = to_float(tool.get("consistency_score"))
+                speed = to_float(tool.get("speed_score"))
+                ease = to_float(tool.get("ease_score"))
+                value = to_float(tool.get("value_score"))
+                integration = to_float(tool.get("integration_score"))
+                support = to_float(tool.get("support_score"))
+                time_saved = to_float(tool.get("time_saved_score"))
+
+                all_scores = [
+                    quality,
+                    ease,
+                    accuracy,
+                    speed,
+                    value,
+                    creativity,
+                    integration,
+                    consistency,
+                    support,
+                    time_saved,
+                ]
+
+                overall = sum(all_scores) / len(all_scores) if all_scores else 0.0
+
+                return {
+                    "name": tool.get("name") or "Untitled Tool",
+                    "image_url": tool.get("image_url") or "",
+                    "best_for": tool.get("best_for") or "General Use",
+                    "quality": int(round(quality)),
+                    "creativity": int(round(creativity)),
+                    "accuracy": int(round(accuracy)),
+                    "consistency": int(round(consistency)),
+                    "overall": round(overall, 1),
+                    "overall_width": max(0, min(100, int(round(overall * 10)))),
+                }
+
+            raw_tools = tools_res.data or []
+            for tool in raw_tools:
+                if isinstance(tool, dict):
+                    featured_ai_tools.append(build_tool_payload(tool))
+
+            featured_ai_tools.sort(key=lambda x: x.get("overall", 0), reverse=True)
+            if featured_ai_tools:
+                top_ai_tool = featured_ai_tools[0]
+
+        except Exception as tools_error:
+            print(f"Error loading home AI tools: {tools_error}")
+
         # print(f"🔵 [HOME ROUTE #{route_id}] Rendering template...")
-        response = templates.TemplateResponse("home.html", {"request": request, **ctx})
+        response = templates.TemplateResponse(
+            "home.html",
+            {
+                "request": request,
+                "featured_ai_tools": featured_ai_tools,
+                "top_ai_tool": top_ai_tool,
+                **ctx,
+            },
+        )
         # print(f"✅ [HOME ROUTE #{route_id}] Successfully rendered")
         
         return response
@@ -50,6 +136,8 @@ async def home(request: Request):
                 "home.html", 
                 {
                     "request": request, 
+                    "featured_ai_tools": [],
+                    "top_ai_tool": None,
                     "currency": "INR", 
                     "price": 4999, 
                     "adv_price": 14999, 
@@ -216,6 +304,259 @@ async def ai_tools_rating(request: Request):
             "request": request,
             "ai_tools": ai_tools,
         }
+    )
+
+
+@router.get("/ai-tool-{tool_slug}", response_class=HTMLResponse)
+async def ai_tool_detail(request: Request, tool_slug: str):
+    try:
+        tools_res = (
+            supabase.table("ai_tools")
+            .select(
+                "id,name,image_url,best_for,"
+                "quality_score,ease_score,accuracy_score,speed_score,value_score,creativity_score,"
+                "integration_score,consistency_score,support_score,time_saved_score"
+            )
+            .eq("is_active", True)
+            .execute()
+        )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Unable to load AI tools: {e}")
+
+    rows = tools_res.data or []
+    tool = None
+    for row in rows:
+        if slugify_tool_name(row.get("name", "")) == tool_slug:
+            tool = row
+            break
+
+    if not tool:
+        raise HTTPException(status_code=404, detail="AI tool not found")
+
+    def to_float(value):
+        try:
+            return float(value)
+        except Exception:
+            return 0.0
+
+    scores = {
+        "Output Quality": to_float(tool.get("quality_score")),
+        "Ease of Use": to_float(tool.get("ease_score")),
+        "Accuracy": to_float(tool.get("accuracy_score")),
+        "Speed": to_float(tool.get("speed_score")),
+        "Value for Money": to_float(tool.get("value_score")),
+        "Creativity": to_float(tool.get("creativity_score")),
+        "Integration": to_float(tool.get("integration_score")),
+        "Consistency": to_float(tool.get("consistency_score")),
+        "Support & Updates": to_float(tool.get("support_score")),
+        "Time Saved": to_float(tool.get("time_saved_score")),
+    }
+
+    overall = round(sum(scores.values()) / len(scores), 1) if scores else 0.0
+
+    stars_count = max(1, min(5, round(overall / 2)))
+    stars_text = "★" * stars_count + "☆" * (5 - stars_count)
+
+    if overall >= 8.5:
+        verdict_text = "Excellent - highly recommended"
+    elif overall >= 7.0:
+        verdict_text = "Very good - recommended"
+    elif overall >= 5.5:
+        verdict_text = "Average - use with clear purpose"
+    else:
+        verdict_text = "Below average - evaluate alternatives"
+
+    detail = {
+        "tagline": "A practical AI tool reviewed across 10 business-focused criteria.",
+        "company": "Not added yet",
+        "founded": "Not added yet",
+        "accuracy_rate_mmlu": "0%",
+        "mmlu_score": 0,
+        "humaneval_score": 0,
+        "gsm8k_score": 0,
+        "hellaswag_score": 0,
+        "truthfulqa_score": 0,
+        "headquarters": "Not added yet",
+        "website": "",
+        "founders": "Not added yet",
+        "about": f"{tool.get('name', 'This AI tool')} is currently listed on BUDASAI. Detailed product research notes will be added soon.",
+        "pros": [
+            "Strong overall performance in our baseline scoring model",
+            "Useful for practical day-to-day workflows",
+            "Can save team time when used with a clear process",
+        ],
+        "cons": [
+            "Detailed pros and cons are not added yet",
+            "Advanced workflow notes are pending",
+            "Pricing and integration specifics are being prepared",
+        ],
+        "pricing": [
+            {"tier": "Free Plan", "value": "Not added yet"},
+            {"tier": "Paid Plan", "value": "Not added yet"},
+        ],
+        "use_cases": [
+            {"title": "Content Drafting", "desc": "Use this tool to create first-draft content quickly."},
+            {"title": "Research Support", "desc": "Summarize inputs and gather structured ideas faster."},
+            {"title": "Workflow Automation", "desc": "Combine with no-code tools to automate repeat tasks."},
+        ],
+        "faqs": [
+            {
+                "q": "Is this tool suitable for beginners?",
+                "a": "Usually yes for core use cases. Start with simple prompts and build templates gradually.",
+            },
+            {
+                "q": "How should I evaluate this tool for my business?",
+                "a": "Run your top 3 recurring tasks for one week and compare time, quality, and consistency.",
+            },
+        ],
+    }
+
+    try:
+        detail_res = (
+            supabase.table("ai_tool_details")
+            .select("*")
+            .eq("ai_tool_id", tool.get("id"))
+            .limit(1)
+            .execute()
+        )
+        detail_row = (detail_res.data or [None])[0]
+        if isinstance(detail_row, dict):
+            detail["tagline"] = detail_row.get("tagline") or detail["tagline"]
+            detail["company"] = detail_row.get("company") or detail["company"]
+            detail["founded"] = detail_row.get("founded") or detail["founded"]
+            detail["mmlu_score"] = detail_row.get("mmlu_score") if detail_row.get("mmlu_score") is not None else detail["mmlu_score"]
+            detail["humaneval_score"] = detail_row.get("humaneval_score") if detail_row.get("humaneval_score") is not None else detail["humaneval_score"]
+            detail["gsm8k_score"] = detail_row.get("gsm8k_score") if detail_row.get("gsm8k_score") is not None else detail["gsm8k_score"]
+            detail["hellaswag_score"] = detail_row.get("hellaswag_score") if detail_row.get("hellaswag_score") is not None else detail["hellaswag_score"]
+            detail["truthfulqa_score"] = detail_row.get("truthfulqa_score") if detail_row.get("truthfulqa_score") is not None else detail["truthfulqa_score"]
+            detail["headquarters"] = detail_row.get("headquarters") or detail["headquarters"]
+            detail["website"] = detail_row.get("website") or detail["website"]
+            detail["founders"] = detail_row.get("founders") or detail["founders"]
+            detail["about"] = detail_row.get("about") or detail["about"]
+
+            if isinstance(detail_row.get("pros"), list) and detail_row.get("pros"):
+                detail["pros"] = detail_row.get("pros")
+            if isinstance(detail_row.get("cons"), list) and detail_row.get("cons"):
+                detail["cons"] = detail_row.get("cons")
+            
+            # Handle pricing - could be list or JSON string
+            pricing_data = detail_row.get("pricing")
+            if pricing_data:
+                if isinstance(pricing_data, list):
+                    detail["pricing"] = pricing_data
+                elif isinstance(pricing_data, str):
+                    try:
+                        parsed = json.loads(pricing_data)
+                        if isinstance(parsed, list):
+                            detail["pricing"] = parsed
+                    except:
+                        pass
+            
+            if isinstance(detail_row.get("use_cases"), list) and detail_row.get("use_cases"):
+                detail["use_cases"] = detail_row.get("use_cases")
+            if isinstance(detail_row.get("faqs"), list) and detail_row.get("faqs"):
+                detail["faqs"] = detail_row.get("faqs")
+    except Exception:
+        # Detail table may not exist yet; fall back to defaults.
+        pass
+
+    def benchmark_class(score: float) -> str:
+        if score >= 8.5:
+            return "bm-ex"
+        if score >= 7.5:
+            return "bm-good"
+        if score >= 6.5:
+            return "bm-avg"
+        if score >= 5.0:
+            return "bm-below"
+        return "bm-poor"
+
+    benchmarks = [
+        {"name": "MMLU", "desc": "Overall Intelligence", "score": to_float(detail.get("mmlu_score"))},
+        {"name": "HumanEval", "desc": "Coding Ability", "score": to_float(detail.get("humaneval_score"))},
+        {"name": "GSM8K", "desc": "Reasoning & Math", "score": to_float(detail.get("gsm8k_score"))},
+        {"name": "HellaSwag", "desc": "Common Sense", "score": to_float(detail.get("hellaswag_score"))},
+        {"name": "TruthfulQA", "desc": "Hallucination Control", "score": to_float(detail.get("truthfulqa_score"))},
+    ]
+    for item in benchmarks:
+        item["class"] = benchmark_class(item["score"])
+
+    benchmark_avg = round(sum(item["score"] for item in benchmarks) / len(benchmarks), 1) if benchmarks else 0.0
+    benchmark_stars_count = max(1, min(5, round(benchmark_avg / 2)))
+    benchmark_stars = "★" * benchmark_stars_count + "☆" * (5 - benchmark_stars_count)
+
+    if benchmark_avg >= 8.5:
+        benchmark_verdict = "Excellent across all benchmarks"
+    elif benchmark_avg >= 7.0:
+        benchmark_verdict = "Strong benchmark performance"
+    elif benchmark_avg >= 5.5:
+        benchmark_verdict = "Average benchmark performance"
+    else:
+        benchmark_verdict = "Below average benchmark performance"
+
+    detail["benchmarks"] = benchmarks
+    detail["accuracy_rate_mmlu"] = f"{round(to_float(detail.get('mmlu_score')) * 10, 1)}%"
+    detail["benchmark_avg"] = benchmark_avg
+    detail["benchmark_stars"] = benchmark_stars
+    detail["benchmark_verdict"] = benchmark_verdict
+
+    try:
+        use_cases_res = (
+            supabase.table("ai_tool_use_cases")
+            .select("title,icon,description")
+            .eq("ai_tool_id", tool.get("id"))
+            .order("id", desc=False)
+            .execute()
+        )
+        uc_rows = use_cases_res.data or []
+        if uc_rows:
+            detail["use_cases"] = [
+                {
+                    "title": row.get("title") or "Use Case",
+                    "icon": row.get("icon") or "",
+                    "desc": row.get("description") or "",
+                }
+                for row in uc_rows
+                if isinstance(row, dict)
+            ]
+    except Exception:
+        # Table may not exist yet; keep fallback/use JSON detail values.
+        pass
+
+    try:
+        faq_res = (
+            supabase.table("ai_tool_faqs")
+            .select("question,answer")
+            .eq("ai_tool_id", tool.get("id"))
+            .order("id", desc=False)
+            .execute()
+        )
+        faq_rows = faq_res.data or []
+        if faq_rows:
+            detail["faqs"] = [
+                {
+                    "q": row.get("question") or "FAQ",
+                    "a": row.get("answer") or "",
+                }
+                for row in faq_rows
+                if isinstance(row, dict)
+            ]
+    except Exception:
+        # Table may not exist yet; keep fallback/use JSON detail values.
+        pass
+
+    return templates.TemplateResponse(
+        "ai_tool_detail.html",
+        {
+            "request": request,
+            "tool": tool,
+            "tool_slug": tool_slug,
+            "scores": scores,
+            "overall": overall,
+            "stars_text": stars_text,
+            "verdict_text": verdict_text,
+            "detail": detail,
+        },
     )
 
 

@@ -31,6 +31,158 @@
 
 
 
+<!-- AI TOOLS RATING SECTION -->
+
+<section class="ai-rating-section container mt-5 pt-5 pb-5">
+    <div class="container" style="position: relative; z-index: 1;">
+        <div class="text-center">
+            <h2 class="ai-rating-heading reveal">We Rate AI Tools <span>So You Don't Have To</span></h2>
+            <p class="ai-rating-sub reveal reveal-delay-1">
+                We test every major AI tool across 10 real criteria - quality, speed, value, creativity and more.<br>
+                Honest ratings. No sponsorships. Just facts.
+            </p>
+        </div>
+
+        {% if top_ai_tool %}
+        <div class="top-pick-card reveal reveal-delay-2">
+            <div class="top-pick-badge">
+                <i class="bi bi-trophy-fill"></i> #1 Top Rated Tool This Month
+            </div>
+            <div class="top-pick-layout">
+                <div class="top-pick-icon">
+                    {% if top_ai_tool.image_url %}
+                    <img src="{{ top_ai_tool.image_url }}" alt="{{ top_ai_tool.name }}" style="width:46px;height:46px;object-fit:contain;">
+                    {% else %}
+                    <i class="bi bi-robot"></i>
+                    {% endif %}
+                </div>
+                <div class="top-pick-info">
+                    <div class="top-pick-name">{{ top_ai_tool.name }}</div>
+                    <div class="top-pick-cat">AI Tool Ranking</div>
+                    <div class="top-pick-best"><i class="bi bi-check-circle-fill" style="color:#10b981"></i> Best
+                        for: {{ top_ai_tool.best_for }}</div>
+
+                    <div class="top-pick-bars">
+                        <div class="mini-bar-row">
+                            <div class="mini-bar-label">Quality</div>
+                            <div class="mini-bar-track">
+                                <div class="mini-bar-fill" data-width="{{ top_ai_tool.quality * 10 }}"></div>
+                            </div>
+                            <div class="mini-bar-val">{{ top_ai_tool.quality }}</div>
+                        </div>
+                        <div class="mini-bar-row">
+                            <div class="mini-bar-label">Creativity</div>
+                            <div class="mini-bar-track">
+                                <div class="mini-bar-fill" data-width="{{ top_ai_tool.creativity * 10 }}"></div>
+                            </div>
+                            <div class="mini-bar-val">{{ top_ai_tool.creativity }}</div>
+                        </div>
+                        <div class="mini-bar-row">
+                            <div class="mini-bar-label">Accuracy</div>
+                            <div class="mini-bar-track">
+                                <div class="mini-bar-fill" data-width="{{ top_ai_tool.accuracy * 10 }}"></div>
+                            </div>
+                            <div class="mini-bar-val">{{ top_ai_tool.accuracy }}</div>
+                        </div>
+                        <div class="mini-bar-row">
+                            <div class="mini-bar-label">Consistency</div>
+                            <div class="mini-bar-track">
+                                <div class="mini-bar-fill" data-width="{{ top_ai_tool.consistency * 10 }}"></div>
+                            </div>
+                            <div class="mini-bar-val">{{ top_ai_tool.consistency }}</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="top-pick-score-block">
+                    <div class="top-pick-score">{{ top_ai_tool.overall }}</div>
+                    {% if top_ai_tool.overall >= 9 %}
+                    <div class="top-pick-stars">★★★★★</div>
+                    {% elif top_ai_tool.overall >= 8 %}
+                    <div class="top-pick-stars">★★★★☆</div>
+                    {% elif top_ai_tool.overall >= 7 %}
+                    <div class="top-pick-stars">★★★☆☆</div>
+                    {% elif top_ai_tool.overall >= 6 %}
+                    <div class="top-pick-stars">★★☆☆☆</div>
+                    {% else %}
+                    <div class="top-pick-stars">★☆☆☆☆</div>
+                    {% endif %}
+                    <div class="top-pick-score-label">out of 10</div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        {% set ranked_tools = featured_ai_tools[1:5] if featured_ai_tools|length > 1 else [] %}
+        {% if ranked_tools %}
+        <div class="tool-grid reveal reveal-delay-3">
+            {% for tool in ranked_tools %}
+            <div class="tool-mini-card">
+                <div class="tool-mini-rank">#{{ loop.index + 1 }}</div>
+                <div class="tool-mini-top">
+                    <div class="tool-mini-icon" style="background:#eff6ff;">
+                        {% if tool.image_url %}
+                        <img src="{{ tool.image_url }}" alt="{{ tool.name }}" style="width:24px;height:24px;object-fit:contain;">
+                        {% else %}
+                        <i class="bi bi-cpu"></i>
+                        {% endif %}
+                    </div>
+                    <div>
+                        <div class="tool-mini-name">{{ tool.name }}</div>
+                        <div class="tool-mini-cat">{{ tool.best_for }}</div>
+                    </div>
+                </div>
+                <div class="tool-mini-score-row">
+                    <div class="tool-mini-bar-track">
+                        <div class="tool-mini-bar-fill" data-width="{{ tool.overall_width }}"></div>
+                    </div>
+                    <div class="tool-mini-score-num">{{ tool.overall }}</div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% elif not top_ai_tool %}
+        <div class="top-pick-card reveal reveal-delay-2">
+            <div class="top-pick-layout" style="justify-content:center;">
+                <div class="top-pick-info" style="text-align:center;">
+                    <div class="top-pick-name">No AI Tools Available Yet</div>
+                    <div class="top-pick-cat">Add tools in admin to show live rankings here.</div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <div class="ai-rating-cta reveal reveal-delay-4">
+            <div>
+                <div class="criteria-count-pill">
+                    <i class="bi bi-check2-circle"></i> Rated across 10 criteria &nbsp;·&nbsp;
+                    <i class="bi bi-shield-check"></i> No sponsored rankings
+                </div>
+            </div>
+            <a href="/ai-tools" class="btn-view-all">
+                View Full Comparison Table <i class="bi bi-arrow-right"></i>
+            </a>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            var bars = document.querySelectorAll('.ai-rating-section .mini-bar-fill, .ai-rating-section .tool-mini-bar-fill');
+            bars.forEach(function (bar) {
+                var raw = Number(bar.getAttribute('data-width') || 0);
+                var width = Math.max(0, Math.min(100, raw));
+                bar.style.width = width + '%';
+            });
+        });
+    </script>
+</section>
+<!-- END AI TOOLS RATING SECTION -->
+
+
+
+
+
+
 <div class="container mt-5 pt-5">
 
     <h2 class="reveal reveal-delay-1">AI Solutions for Real Businesses</h2>
@@ -193,7 +345,7 @@
                         "BUDASAI transformed our hiring pipeline. What took days now takes hours."
                     </div>
                     <h3>Sarah Chen</h3>
-                    <p>HR Director, TechFlow</p>
+                    <p>HR Director, Phoenix Infrateh</p>
                 </div>
             </div>
 
@@ -203,7 +355,7 @@
                         "The AI audit revealed inefficiencies we didn't even know existed."
                     </div>
                     <h3>Mark Rivera</h3>
-                    <p>COO, GreenScale</p>
+                    <p>COO, Flow Experts</p>
                 </div>
             </div>
 
@@ -213,7 +365,7 @@
                         "Simple, effective, no fluff. Exactly what our team needed."
                     </div>
                     <h3>Priya Sharma</h3>
-                    <p>Founder, DataNest</p>
+                    <p>Founder, Royal Steel</p>
                 </div>
             </div>
 
@@ -221,7 +373,6 @@
     </div>
 
 </div>
-
 
 
 
