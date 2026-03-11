@@ -153,20 +153,23 @@ app.add_middleware(
 
 # Trusted hosts middleware
 print("🔵 [MAIN] Adding TrustedHost middleware...")
-railway_domain = (os.getenv("RAILWAY_PUBLIC_DOMAIN") or "").strip()
-default_trusted_hosts = "localhost,127.0.0.1"
+enforce_trusted_hosts = os.getenv("ENFORCE_TRUSTED_HOSTS", "false").strip().lower() == "true"
+if enforce_trusted_hosts:
+    railway_domain = (os.getenv("RAILWAY_PUBLIC_DOMAIN") or "").strip()
+    default_trusted_hosts = "localhost,127.0.0.1"
+    if os.getenv("RAILWAY_ENVIRONMENT"):
+        default_trusted_hosts = "localhost,127.0.0.1,.up.railway.app"
 
-# In hosted environments, include common Railway host patterns by default.
-if os.getenv("RAILWAY_ENVIRONMENT"):
-    default_trusted_hosts = "localhost,127.0.0.1,.up.railway.app"
-
-trusted_hosts = _parse_csv_env("TRUSTED_HOSTS", default_trusted_hosts)
-if railway_domain and railway_domain not in trusted_hosts:
-    trusted_hosts.append(railway_domain)
-app.add_middleware(
-    TrustedHostMiddleware,
-    allowed_hosts=trusted_hosts
-)
+    trusted_hosts = _parse_csv_env("TRUSTED_HOSTS", default_trusted_hosts)
+    if railway_domain and railway_domain not in trusted_hosts:
+        trusted_hosts.append(railway_domain)
+    print(f"🔵 [MAIN] TrustedHost enabled with: {trusted_hosts}")
+    app.add_middleware(
+        TrustedHostMiddleware,
+        allowed_hosts=trusted_hosts
+    )
+else:
+    print("🔵 [MAIN] TrustedHost disabled (set ENFORCE_TRUSTED_HOSTS=true to enable)")
 
 # Static files
 print("🔵 [MAIN] Mounting static files...")
