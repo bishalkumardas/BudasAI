@@ -1,0 +1,1012 @@
+{% extends "base.html" %}
+{% block title %}AI Workflow Guides — BUDASAI Premium{% endblock %}
+{% block content %}
+<style>
+:root {
+    --blue: #3C83F6;
+    --blue-dark: #2563eb;
+    --green: #10b981;
+    --amber: #f59e0b;
+    --purple: #8b5cf6;
+    --pink: #ec4899;
+    --text: #0f172a;
+    --muted: #64748b;
+    --muted2: #94a3b8;
+    --border: #e2e8f0;
+    --bg: #f8fafc;
+    --card: #ffffff;
+}
+
+/* ── HERO ── */
+.p-hero {
+    background: linear-gradient(135deg, #0a0f1e 0%, #0d1f3c 100%);
+    padding: 72px 0 0;
+    position: relative; overflow: hidden;
+}
+.p-hero::before {
+    content: '';
+    position: absolute; inset: 0; pointer-events: none;
+    background-image:
+        linear-gradient(rgba(60,131,246,.06) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(60,131,246,.06) 1px, transparent 1px);
+    background-size: 44px 44px;
+}
+.p-hero-orb1 { position:absolute; width:500px; height:500px; top:-200px; right:-100px; border-radius:50%; background:radial-gradient(circle,rgba(60,131,246,.12),transparent 70%); pointer-events:none; }
+.p-hero-orb2 { position:absolute; width:300px; height:300px; bottom:0; left:-80px; border-radius:50%; background:radial-gradient(circle,rgba(139,92,246,.1),transparent 70%); pointer-events:none; }
+.p-hero-inner { max-width:1100px; margin:0 auto; padding:0 32px; position:relative; z-index:2; }
+
+.p-hero-eyebrow {
+    display:inline-flex; align-items:center; gap:8px;
+    background:rgba(245,158,11,.15); border:1px solid rgba(245,158,11,.3);
+    color:#fcd34d; font-size:10px; font-weight:700; letter-spacing:2px; text-transform:uppercase;
+    padding:5px 16px; border-radius:20px; margin-bottom:24px;
+}
+.p-hero-eyebrow-dot { width:5px; height:5px; border-radius:50%; background:#f59e0b; box-shadow:0 0 8px #f59e0b; animation:pblink 2s ease-in-out infinite; }
+@keyframes pblink { 0%,100%{opacity:1} 50%{opacity:.3} }
+
+.p-hero-title { font-size:clamp(2.2rem,5vw,3.6rem); font-weight:800; color:#fff; letter-spacing:-2px; line-height:1.05; margin-bottom:18px; }
+.p-hero-title em { font-style:normal; color:#3C83F6; }
+.p-hero-sub { font-size:16px; color:rgba(255,255,255,.45); max-width:560px; line-height:1.8; margin-bottom:24px; }
+
+/* premium pill inside hero */
+.p-premium-pill {
+    display:inline-flex; align-items:center; gap:6px;
+    background:linear-gradient(135deg,#f59e0b,#f97316);
+    color:#fff; font-size:11px; font-weight:800; letter-spacing:.8px; text-transform:uppercase;
+    padding:5px 14px; border-radius:20px; margin-bottom:16px;
+}
+
+/* ── TOOL SELECTOR DROPDOWN ── */
+.tool-selector-row { display:flex; align-items:center; gap:14px; margin-bottom:32px; flex-wrap:wrap; }
+.tool-selector-label { font-size:12px; font-weight:700; color:rgba(255,255,255,.35); letter-spacing:.5px; white-space:nowrap; }
+.tool-dropdown-wrap { position:relative; }
+.tool-dropdown-btn {
+    display:inline-flex; align-items:center; gap:10px; padding:10px 18px; border-radius:12px; cursor:pointer;
+    font-size:14px; font-weight:700;
+    background:rgba(255,255,255,.08); border:1.5px solid rgba(255,255,255,.15);
+    color:#fff; transition:all .2s; user-select:none; min-width:200px; justify-content:space-between;
+}
+.tool-dropdown-btn:hover { background:rgba(255,255,255,.13); border-color:rgba(255,255,255,.25); }
+.tool-dropdown-btn .tdb-left { display:flex; align-items:center; gap:9px; }
+.tool-dropdown-btn .tdb-arrow { font-size:11px; color:rgba(255,255,255,.45); transition:transform .2s; }
+.tool-dropdown-wrap.open .tdb-arrow { transform:rotate(180deg); }
+
+.tool-dropdown-menu {
+    display:none; position:absolute; top:calc(100% + 8px); left:0;
+    background:#0f172a; border:1px solid rgba(255,255,255,.1);
+    border-radius:14px; overflow:hidden; min-width:240px;
+    box-shadow:0 16px 48px rgba(0,0,0,.5); z-index:200; padding:6px;
+}
+.tool-dropdown-wrap.open .tool-dropdown-menu { display:block; }
+
+.tool-option {
+    display:flex; align-items:center; gap:10px; padding:10px 14px; border-radius:9px;
+    cursor:pointer; font-size:13px; font-weight:700; color:rgba(255,255,255,.6); transition:all .18s;
+}
+.tool-option:hover { background:rgba(255,255,255,.07); color:#fff; }
+.tool-option.active { background:rgba(60,131,246,.15); color:#fff; border:1px solid rgba(60,131,246,.25); }
+.tool-option.soon { opacity:.4; cursor:not-allowed; }
+.tool-option.soon:hover { background:transparent; }
+.tool-option-icon { font-size:20px; flex-shrink:0; }
+.tool-option-right { flex:1; }
+.tool-option-name { font-size:13px; font-weight:700; line-height:1.2; }
+.tool-option-sub { font-size:10px; color:rgba(255,255,255,.3); margin-top:1px; }
+.soon-tag { font-size:9px; font-weight:800; letter-spacing:.8px; text-transform:uppercase; background:rgba(255,255,255,.08); color:rgba(255,255,255,.3); padding:2px 7px; border-radius:8px; }
+
+/* ── TAB STRIP ── */
+.p-tab-strip {
+    display:flex; gap:4px;
+    overflow-x:auto; -webkit-overflow-scrolling:touch;
+    scrollbar-width:none; -ms-overflow-style:none;
+}
+.p-tab-strip::-webkit-scrollbar { width:0; height:0; display:none; background:transparent; }
+
+.p-tab-btn {
+    display:flex; align-items:center; gap:8px; padding:13px 24px;
+    font-size:14px; font-weight:700;
+    border-radius:12px 12px 0 0; cursor:pointer;
+    background:rgba(255,255,255,.06); color:rgba(255,255,255,.45);
+    border:1px solid rgba(255,255,255,.06); border-bottom:none;
+    transition:all .25s; white-space:nowrap;
+}
+.p-tab-btn:hover { background:rgba(255,255,255,.1); color:rgba(255,255,255,.7); }
+.p-tab-btn.active { background:var(--bg); color:var(--text); border-color:var(--border); margin-bottom:-1px; }
+
+/* ── BODY ── */
+.p-body-wrap { border-top:1px solid var(--border); background:var(--bg); min-height:100vh; }
+.p-page-inner { max-width:1100px; margin:0 auto; padding:48px 32px 100px; }
+
+.tool-data { display:none; }
+.tool-data.active { display:block; }
+.tab-panel { display:none; }
+.tab-panel.active { display:block; }
+
+/* ── PANEL HEADER ── */
+.panel-header {
+    display:flex; align-items:flex-start; justify-content:space-between; gap:24px; flex-wrap:wrap;
+    margin-bottom:40px; padding:28px 32px;
+    background:#fff; border:1px solid var(--border); border-radius:20px;
+    box-shadow:0 1px 3px rgba(0,0,0,.04),0 8px 24px rgba(0,0,0,.03);
+}
+.ph-eyebrow { font-size:10px; font-weight:800; letter-spacing:2px; text-transform:uppercase; margin-bottom:8px; }
+.ph-title { font-size:24px; font-weight:800; color:var(--text); letter-spacing:-.8px; margin-bottom:8px; line-height:1.2; }
+.ph-desc { font-size:14px; color:var(--muted); line-height:1.75; max-width:560px; }
+.ph-stats { display:flex; gap:16px; flex-wrap:wrap; margin-top:20px; }
+.ph-stat { display:flex; align-items:center; gap:7px; font-size:12px; font-weight:600; color:var(--muted); background:var(--bg); border:1px solid var(--border); padding:6px 14px; border-radius:20px; }
+
+/* ── SECTION TITLE ── */
+.wf-section { margin-bottom:40px; }
+.wf-section-title { font-size:11px; font-weight:800; letter-spacing:2px; text-transform:uppercase; color:var(--muted2); margin-bottom:20px; display:flex; align-items:center; gap:10px; }
+.wf-section-title::after { content:''; flex:1; height:1px; background:var(--border); }
+
+/* ── STEP CARD ── */
+.step-card { background:#fff; border:1px solid var(--border); border-radius:16px; overflow:hidden; margin-bottom:12px; box-shadow:0 1px 3px rgba(0,0,0,.04); transition:box-shadow .2s,transform .2s; }
+.step-card:hover { box-shadow:0 6px 24px rgba(0,0,0,.07); transform:translateY(-2px); }
+.step-card-head { display:grid; grid-template-columns:54px 1fr auto; align-items:center; cursor:pointer; user-select:none; }
+.step-num-col { display:flex; align-items:center; justify-content:center; padding:20px 0; border-right:1px solid var(--border); background:var(--bg); }
+.step-num { width:32px; height:32px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:700; color:#fff; }
+.step-info { padding:18px 20px; }
+.step-title { font-size:15px; font-weight:700; color:var(--text); margin-bottom:5px; }
+.step-meta { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+.step-tool-badge { display:inline-flex; align-items:center; gap:5px; font-size:11px; font-weight:600; padding:3px 10px; border-radius:20px; }
+.step-time { font-size:11px; color:var(--muted2); background:var(--bg); border:1px solid var(--border); padding:3px 10px; border-radius:5px; font-family:monospace; }
+.step-toggle { padding:0 20px; font-size:18px; color:var(--muted2); transition:transform .25s; }
+.step-card.open .step-toggle { transform:rotate(180deg); }
+.step-body { display:none; padding:0 20px 22px 74px; border-top:1px solid var(--border); background:#fafbfe; }
+.step-card.open .step-body { display:block; }
+.step-desc { font-size:13.5px; color:var(--muted); line-height:1.85; padding-top:18px; margin-bottom:14px; }
+
+/* ── PROMPT BLOCK ── */
+.prompt-block { background:#0f172a; border-radius:10px; overflow:hidden; margin-top:10px; }
+.prompt-head { display:flex; align-items:center; justify-content:space-between; padding:8px 16px; background:rgba(255,255,255,.04); border-bottom:1px solid rgba(255,255,255,.07); }
+.prompt-label { font-size:10px; font-weight:600; letter-spacing:1px; color:rgba(255,255,255,.3); text-transform:uppercase; font-family:monospace; }
+.copy-btn { font-size:10px; font-weight:600; color:rgba(255,255,255,.35); background:none; border:none; cursor:pointer; padding:3px 8px; border-radius:4px; transition:all .2s; font-family:monospace; }
+.copy-btn:hover { color:#fff; background:rgba(255,255,255,.1); }
+.copy-btn.copied { color:#10b981; }
+.prompt-text { padding:16px; font-family:monospace; font-size:12px; color:rgba(255,255,255,.7); line-height:1.75; white-space:pre-wrap; }
+.prompt-text .ph { color:#f59e0b; }
+.prompt-text .kw { color:#93c5fd; }
+.output-box { margin-top:12px; background:#f0fdf4; border:1px solid #bbf7d0; border-radius:10px; padding:14px 16px; }
+.output-label { font-size:10px; font-weight:800; letter-spacing:1.5px; text-transform:uppercase; color:#065f46; margin-bottom:8px; }
+.output-text { font-size:12.5px; color:#065f46; line-height:1.75; }
+.pro-tip { display:flex; align-items:flex-start; gap:10px; margin-top:12px; background:#fffbeb; border:1px solid #fde68a; border-radius:10px; padding:12px 14px; }
+.pro-tip-icon { font-size:14px; flex-shrink:0; margin-top:1px; }
+.pro-tip-text { font-size:12px; color:#92400e; line-height:1.7; }
+.pro-tip-text strong { font-weight:700; }
+
+/* ── TOOLS ROW ── */
+.tools-row { display:flex; flex-wrap:wrap; gap:8px; margin-top:24px; margin-bottom:8px; }
+.tool-chip { display:inline-flex; align-items:center; gap:6px; background:#fff; border:1px solid var(--border); border-radius:8px; padding:7px 14px; font-size:12px; font-weight:600; color:var(--text); transition:all .2s; }
+.tool-chip:hover { border-color:#bfdbfe; background:#eff6ff; color:var(--blue); }
+
+/* ── RESULT SUMMARY ── */
+.result-summary { background:linear-gradient(135deg,#0f172a,#1e3a5f); border-radius:16px; padding:28px 32px; display:grid; grid-template-columns:repeat(3,1fr); gap:20px; margin-top:32px; position:relative; overflow:hidden; }
+.result-summary::before { content:''; position:absolute; inset:0; background-image:linear-gradient(rgba(60,131,246,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(60,131,246,.05) 1px,transparent 1px); background-size:32px 32px; pointer-events:none; }
+.rs-item { position:relative; z-index:1; text-align:center; }
+.rs-num { font-family:monospace; font-size:32px; font-weight:700; line-height:1; margin-bottom:4px; }
+.rs-label { font-size:12px; color:rgba(255,255,255,.4); line-height:1.5; }
+
+/* ══ COMPARE TAB ══ */
+.compare-controls { background:#fff; border:1px solid var(--border); border-radius:16px; padding:20px 24px; margin-bottom:24px; display:flex; align-items:flex-start; gap:16px; flex-wrap:wrap; box-shadow:0 1px 3px rgba(0,0,0,.04); }
+.compare-controls-label { font-size:11px; font-weight:800; color:var(--muted2); letter-spacing:.5px; white-space:nowrap; padding-top:10px; }
+.compare-tool-pills { display:flex; gap:8px; flex-wrap:wrap; flex:1; }
+.cmp-pill { display:inline-flex; align-items:center; gap:7px; padding:8px 16px; border-radius:30px; cursor:pointer; font-size:13px; font-weight:700; user-select:none; background:var(--bg); border:1.5px solid var(--border); color:var(--muted); transition:all .2s; }
+.cmp-pill:hover { border-color:#bfdbfe; color:var(--blue); background:#eff6ff; }
+.cmp-pill.sel { background:var(--blue); border-color:var(--blue); color:#fff; box-shadow:0 2px 8px rgba(60,131,246,.3); }
+.cmp-pill-icon { font-size:16px; }
+.cmp-pill-max-hint { font-size:11px; color:var(--muted2); align-self:center; margin-left:4px; white-space:nowrap; }
+.compare-section-row { width:100%; border-top:1px solid var(--border); padding-top:14px; display:flex; gap:6px; overflow-x:auto; -webkit-overflow-scrolling:touch; scrollbar-width:none; -ms-overflow-style:none; align-items:center; }
+.compare-section-row::-webkit-scrollbar { width:0; height:0; display:none; background:transparent; }
+.cmp-section-label { font-size:10px; font-weight:800; letter-spacing:1px; text-transform:uppercase; color:var(--muted2); margin-right:4px; white-space:nowrap; }
+.cmp-section-btn { font-size:12px; font-weight:700; padding:6px 14px; border-radius:20px; border:1.5px solid var(--border); background:var(--bg); color:var(--muted); cursor:pointer; transition:all .2s; white-space:nowrap; }
+.cmp-section-btn:hover { color:var(--text); border-color:#cbd5e1; }
+.cmp-section-btn.active { background:var(--text); color:#fff; border-color:var(--text); }
+.compare-grid { display:grid; gap:14px; grid-template-columns:repeat(var(--cols,3),1fr); }
+.compare-col { background:#fff; border:1.5px solid var(--border); border-radius:16px; overflow:hidden; box-shadow:0 1px 4px rgba(0,0,0,.05); }
+.compare-col-head { padding:16px 20px; border-bottom:1px solid var(--border); display:flex; align-items:center; gap:12px; background:linear-gradient(135deg,#0f172a,#1a2c4a); }
+.cch-icon { font-size:22px; width:42px; height:42px; border-radius:10px; background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.1); display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+.cch-info { flex:1; min-width:0; }
+.cch-name { font-size:15px; font-weight:800; color:#fff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.cch-tagline { font-size:10px; color:rgba(255,255,255,.35); margin-top:2px; line-height:1.4; }
+.cch-score { text-align:center; flex-shrink:0; }
+.cch-score-num { font-size:20px; font-weight:700; color:#fff; line-height:1; font-family:monospace; }
+.cch-score-label { font-size:9px; color:rgba(255,255,255,.3); font-weight:600; letter-spacing:.5px; margin-top:2px; }
+.cmp-section { display:none; }
+.cmp-section.active { display:block; }
+.score-rows { padding:14px 18px; }
+.score-row { margin-bottom:12px; }
+.score-row:last-child { margin-bottom:0; }
+.score-row-label { display:flex; justify-content:space-between; align-items:center; margin-bottom:4px; }
+.score-row-name { font-size:11.5px; font-weight:700; color:var(--text); }
+.score-row-val { font-size:11.5px; font-weight:700; font-family:monospace; }
+.score-bar-track { height:6px; background:var(--bg); border-radius:10px; border:1px solid var(--border); overflow:hidden; }
+.score-bar-fill { height:100%; border-radius:10px; transition:width .6s ease; }
+.bench-rows { padding:14px 18px; }
+.bench-row { display:flex; align-items:center; gap:10px; padding:8px 0; border-bottom:1px solid var(--border); }
+.bench-row:last-child { border-bottom:none; }
+.bench-name { font-size:11.5px; font-weight:700; color:var(--text); min-width:80px; }
+.bench-bar { flex:1; height:6px; background:var(--bg); border-radius:10px; overflow:hidden; border:1px solid var(--border); }
+.bench-bar-fill { height:100%; border-radius:10px; }
+.bench-val { font-size:12px; font-weight:700; min-width:32px; text-align:right; font-family:monospace; }
+.bench-na { font-size:11px; color:var(--muted2); font-style:italic; }
+.detail-rows { padding:14px 18px; }
+.detail-row { padding:8px 0; border-bottom:1px solid var(--border); }
+.detail-row:last-child { border-bottom:none; }
+.detail-row-label { font-size:9px; font-weight:800; letter-spacing:1.5px; text-transform:uppercase; color:var(--muted2); margin-bottom:3px; }
+.detail-row-val { font-size:12.5px; font-weight:600; color:var(--text); line-height:1.5; }
+.detail-row-val a { color:var(--blue); text-decoration:none; }
+.pros-cons { padding:14px 18px; }
+.pc-group-label { font-size:9px; font-weight:800; letter-spacing:1.5px; text-transform:uppercase; margin-bottom:6px; }
+.pc-list { list-style:none; margin-bottom:14px; }
+.pc-list:last-child { margin-bottom:0; }
+.pc-list li { font-size:12px; color:var(--muted); line-height:1.6; padding:3px 0; display:flex; align-items:flex-start; gap:6px; }
+.pc-list li .pc-icon { flex-shrink:0; margin-top:2px; font-size:11px; font-weight:900; }
+.pc-list.pros li .pc-icon { color:#10b981; }
+.pc-list.cons li .pc-icon { color:#ef4444; }
+.pricing-rows { padding:14px 18px; }
+.pricing-tier { padding:10px 0; border-bottom:1px solid var(--border); }
+.pricing-tier:last-child { border-bottom:none; }
+.pricing-tier-head { display:flex; justify-content:space-between; align-items:baseline; margin-bottom:2px; }
+.pricing-tier-name { font-size:12.5px; font-weight:800; color:var(--text); }
+.pricing-tier-price { font-size:13px; font-weight:700; color:var(--blue); font-family:monospace; }
+.pricing-tier-desc { font-size:11px; color:var(--muted2); }
+.use-case-list { padding:14px 18px; display:flex; flex-direction:column; gap:8px; }
+.use-case-item { background:var(--bg); border:1px solid var(--border); border-radius:10px; padding:10px 12px; display:flex; align-items:flex-start; gap:10px; }
+.use-case-icon { font-size:18px; flex-shrink:0; margin-top:1px; }
+.use-case-title { font-size:12px; font-weight:800; color:var(--text); margin-bottom:2px; }
+.use-case-desc { font-size:11px; color:var(--muted); line-height:1.5; }
+.no-tool-col { display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:240px; gap:10px; border:2px dashed var(--border); border-radius:16px; background:var(--bg); }
+.no-tool-icon { font-size:30px; opacity:.25; }
+.no-tool-text { font-size:12px; font-weight:600; color:var(--muted2); }
+
+@media(max-width:768px) {
+    .p-hero-inner, .p-page-inner { padding-left:20px; padding-right:20px; }
+    .p-hero { padding:48px 0 0; }
+    .panel-header { padding:20px; }
+    .step-body { padding-left:20px; }
+    .compare-grid { grid-template-columns:1fr !important; }
+    .result-summary { grid-template-columns:1fr 1fr; }
+}
+</style>
+
+<div class="p-hero">
+    <div class="p-hero-orb1"></div>
+    <div class="p-hero-orb2"></div>
+    <div class="p-hero-inner">
+        <div class="p-premium-pill">👑 Premium Access — Exclusive</div>
+        <div class="p-hero-eyebrow"><span class="p-hero-eyebrow-dot"></span>Budasai Tool Finder — Exclusive Access</div>
+        <h1 class="p-hero-title">Step-by-Step AI <em>Workflow Guides</em></h1>
+        <p class="p-hero-sub">Real prompts, real tools, real results. Pick your tool, pick your use case, follow the workflow.</p>
+
+        <!-- TOOL SELECTOR DROPDOWN (populated from backend ai_tools) -->
+        <div class="tool-selector-row">
+            <span class="tool-selector-label">🛠 Select AI Tool</span>
+            <div class="tool-dropdown-wrap" id="toolDropdown">
+                <div class="tool-dropdown-btn" onclick="toggleDropdown()">
+                    <span class="tdb-left">
+                        <span id="dd-icon">🤖</span>
+                        <span id="dd-name">Claude</span>
+                    </span>
+                    <span class="tdb-arrow">▾</span>
+                </div>
+                <div class="tool-dropdown-menu" id="toolMenuList">
+                    {% for tool in ai_tools %}
+                    <div class="tool-option{% if loop.first %} active{% endif %}"
+                         data-tool-id="{{ tool.id }}"
+                         data-tool-name="{{ tool.name }}"
+                         data-tool-sub="{{ tool.best_for or 'AI Workflow Tool' }}"
+                         onclick="selectTool(this.dataset.toolId, this.dataset.toolName, this.dataset.toolSub, this)">
+                        <span class="tool-option-icon">
+                            {% if 'claude' in tool.name|lower %}🤖
+                            {% elif 'chatgpt' in tool.name|lower or 'openai' in tool.name|lower %}💬
+                            {% elif 'gemini' in tool.name|lower %}✨
+                            {% elif 'copilot' in tool.name|lower %}🐙
+                            {% elif 'perplexity' in tool.name|lower %}🔍
+                            {% elif 'canva' in tool.name|lower %}🎨
+                            {% else %}🤖{% endif %}
+                        </span>
+                        <div class="tool-option-right">
+                            <div class="tool-option-name">{{ tool.name }}</div>
+                            <div class="tool-option-sub">{{ tool.best_for or 'AI Workflow Tool' }}</div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                    {% if not ai_tools %}
+                    <div class="tool-option active" onclick="return;">
+                        <span class="tool-option-icon">🤖</span>
+                        <div class="tool-option-right"><div class="tool-option-name">Claude</div><div class="tool-option-sub">Best for long-form & research</div></div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- TABS -->
+        <div class="p-tab-strip">
+            <button class="p-tab-btn active" onclick="switchTab('youtube',this)"><span>🎬</span> YouTube Creator</button>
+            <button class="p-tab-btn" onclick="switchTab('instagram',this)"><span>📸</span> Instagram Content</button>
+            <button class="p-tab-btn" onclick="switchTab('analyst',this)"><span>📊</span> Data Analyst</button>
+            <button class="p-tab-btn" onclick="switchTab('compare',this)"><span>⚖️</span> Compare Tools</button>
+        </div>
+    </div>
+</div>
+
+<div class="p-body-wrap">
+<div class="p-page-inner">
+
+<!-- ══ CLAUDE TOOL ══ -->
+<div class="tool-data active" id="tool-claude">
+
+    <!-- YOUTUBE -->
+    <div class="tab-panel active" id="panel-youtube">
+        <div class="panel-header">
+            <div>
+                <div class="ph-eyebrow" style="color:#ef4444">🎬 YouTube Creator Workflow</div>
+                <div class="ph-title">Full Video Production Pipeline</div>
+                <div class="ph-desc">From blank page to published video with repurposed social content — entirely AI-assisted. Saves a solo creator 8–12 hours per video.</div>
+                <div class="ph-stats">
+                    <span class="ph-stat">⏱ ~35 mins total</span>
+                    <span class="ph-stat">🤖 Claude + Canva AI</span>
+                    <span class="ph-stat">📹 Works for any niche</span>
+                    <span class="ph-stat">🔁 Repeatable every week</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="wf-section">
+            <div class="wf-section-title">Phase 1 — Pre-Production</div>
+
+            <div class="step-card open" id="yt-s1">
+                <div class="step-card-head" onclick="toggleStep('yt-s1')">
+                    <div class="step-num-col"><div class="step-num" style="background:#ef4444">01</div></div>
+                    <div class="step-info">
+                        <div class="step-title">Topic & Angle Research</div>
+                        <div class="step-meta">
+                            <span class="step-tool-badge" style="background:#fef2f2;color:#b91c1c;border:1px solid #fecaca">🤖 Claude</span>
+                            <span class="step-time">⏱ 5 mins</span>
+                        </div>
+                    </div>
+                    <div class="step-toggle">▾</div>
+                </div>
+                <div class="step-body">
+                    <p class="step-desc">Before writing a single word, generate 20 validated video ideas ranked by search potential. Claude acts as your research assistant — paste this prompt and replace the placeholders.</p>
+                    <div class="prompt-block">
+                        <div class="prompt-head">
+                            <span class="prompt-label">Prompt — copy & paste into Claude</span>
+                            <button class="copy-btn" onclick="copyPrompt(this,'p-yt-1')">Copy</button>
+                        </div>
+                        <div class="prompt-text" id="p-yt-1">You are a YouTube strategy expert. My channel is about <span class="ph">[YOUR NICHE]</span> and my target audience is <span class="ph">[e.g. beginner freelancers aged 20-30]</span>.
+
+Generate 20 YouTube video ideas. For each idea provide:
+- A click-worthy title (under 60 characters)
+- The search intent behind it (informational / problem-solving / entertainment)
+- Estimated monthly search volume: High / Medium / Low
+- One competitor gap — why this hasn't been done well yet
+
+Rank them from highest to lowest potential. Output as a clean table.</div>
+                    </div>
+                    <div class="pro-tip">
+                        <span class="pro-tip-icon">💡</span>
+                        <span class="pro-tip-text"><strong>Pro tip:</strong> After Claude gives you the list, paste the top 5 titles into Google Trends and compare. Pick the one with an upward trend, not a peak.</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="step-card" id="yt-s2">
+                <div class="step-card-head" onclick="toggleStep('yt-s2')">
+                    <div class="step-num-col"><div class="step-num" style="background:#ef4444">02</div></div>
+                    <div class="step-info">
+                        <div class="step-title">Full Script Writing</div>
+                        <div class="step-meta">
+                            <span class="step-tool-badge" style="background:#fef2f2;color:#b91c1c;border:1px solid #fecaca">🤖 Claude</span>
+                            <span class="step-time">⏱ 10 mins</span>
+                        </div>
+                    </div>
+                    <div class="step-toggle">▾</div>
+                </div>
+                <div class="step-body">
+                    <p class="step-desc">Paste your chosen topic. Claude will write a complete, structured script with hook, sections, B-roll cues and CTA — ready to record.</p>
+                    <div class="prompt-block">
+                        <div class="prompt-head"><span class="prompt-label">Prompt — copy & paste into Claude</span><button class="copy-btn" onclick="copyPrompt(this,'p-yt-2')">Copy</button></div>
+                        <div class="prompt-text" id="p-yt-2">Write a YouTube video script on: <span class="ph">[YOUR TOPIC]</span>
+
+Channel details:
+- My tone: <span class="ph">[e.g. conversational, direct, slightly humorous]</span>
+- Target audience: <span class="ph">[e.g. small business owners who are new to AI]</span>
+- Video length target: <span class="ph">[e.g. 8-10 minutes]</span>
+
+Script structure required:
+1. HOOK (first 30 seconds) — open with a bold statement or surprising fact
+2. INTRO — who this video is for and what they'll learn
+3. MAIN SECTIONS (3-5 sections with clear subheadings)
+4. B-ROLL CUES — in brackets after relevant sentences e.g. [B-roll: screen recording of tool]
+5. TRANSITIONS — smooth sentences linking each section
+6. CALL TO ACTION — subscribe + comment prompt
+7. OUTRO — 15 seconds max
+
+Do not use filler phrases like "In today's video" or "Without further ado". Start strong.</div>
+                    </div>
+                    <div class="output-box">
+                        <div class="output-label">✅ What you get</div>
+                        <div class="output-text">A word-for-word script (~1,500 words for 8-min video), B-roll directions, section headers you can use as chapter timestamps, and a CTA that doesn't feel forced.</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="step-card" id="yt-s3">
+                <div class="step-card-head" onclick="toggleStep('yt-s3')">
+                    <div class="step-num-col"><div class="step-num" style="background:#ef4444">03</div></div>
+                    <div class="step-info">
+                        <div class="step-title">Title, Description & Tags (SEO)</div>
+                        <div class="step-meta">
+                            <span class="step-tool-badge" style="background:#fef2f2;color:#b91c1c;border:1px solid #fecaca">🤖 Claude</span>
+                            <span class="step-time">⏱ 3 mins</span>
+                        </div>
+                    </div>
+                    <div class="step-toggle">▾</div>
+                </div>
+                <div class="step-body">
+                    <p class="step-desc">YouTube SEO is 40% of discoverability. This prompt generates everything you need for the upload page in one shot.</p>
+                    <div class="prompt-block">
+                        <div class="prompt-head"><span class="prompt-label">Prompt — copy & paste into Claude</span><button class="copy-btn" onclick="copyPrompt(this,'p-yt-3')">Copy</button></div>
+                        <div class="prompt-text" id="p-yt-3">I'm uploading a YouTube video about: <span class="ph">[TOPIC]</span>
+Target keyword: <span class="ph">[MAIN KEYWORD e.g. "AI tools for students"]</span>
+
+Generate:
+1. <span class="kw">10 title options</span> — mix of curiosity, how-to, list, and controversy formats. Keep each under 60 characters. Flag the top 3.
+2. <span class="kw">YouTube description</span> — 250 words, keyword-rich, natural tone. Include: 1-line hook, 3-sentence summary, chapter timestamps (placeholder format 0:00, 2:30 etc), 3 relevant links as [LINK 1], CTA to subscribe.
+3. <span class="kw">30 tags</span> — mix of broad, niche, and long-tail. Comma-separated, no hashtags.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="wf-section">
+            <div class="wf-section-title">Phase 2 — Post-Production & Repurposing</div>
+
+            <div class="step-card" id="yt-s4">
+                <div class="step-card-head" onclick="toggleStep('yt-s4')">
+                    <div class="step-num-col"><div class="step-num" style="background:#f97316">04</div></div>
+                    <div class="step-info">
+                        <div class="step-title">Thumbnail Brief (Canva AI)</div>
+                        <div class="step-meta">
+                            <span class="step-tool-badge" style="background:#fff7ed;color:#9a3412;border:1px solid #fed7aa">🤖 Claude + Canva AI</span>
+                            <span class="step-time">⏱ 5 mins</span>
+                        </div>
+                    </div>
+                    <div class="step-toggle">▾</div>
+                </div>
+                <div class="step-body">
+                    <p class="step-desc">Claude writes the thumbnail brief, Canva AI creates the visual. No designer needed.</p>
+                    <div class="prompt-block">
+                        <div class="prompt-head"><span class="prompt-label">Prompt — copy & paste into Claude</span><button class="copy-btn" onclick="copyPrompt(this,'p-yt-4')">Copy</button></div>
+                        <div class="prompt-text" id="p-yt-4">Write a YouTube thumbnail design brief for this video: <span class="ph">[TOPIC]</span>
+
+Include:
+- <span class="kw">Text overlay</span>: max 4 words, high contrast, what should it say?
+- <span class="kw">Colour palette</span>: 2-3 hex codes that create high click-through contrast
+- <span class="kw">Emotion/facial expression</span>: if a face is used, what should it convey?
+- <span class="kw">Background style</span>: solid, gradient, scene — describe it
+- <span class="kw">Composition</span>: where should text, face and visual elements be placed?
+- <span class="kw">Canva AI image prompt</span>: a ready-to-paste prompt for Canva's AI image tool</div>
+                    </div>
+                    <div class="pro-tip">
+                        <span class="pro-tip-icon">💡</span>
+                        <span class="pro-tip-text"><strong>Pro tip:</strong> Copy the Canva AI image prompt directly from Claude's output and paste it into Canva → Elements → AI Image Generator.</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="step-card" id="yt-s5">
+                <div class="step-card-head" onclick="toggleStep('yt-s5')">
+                    <div class="step-num-col"><div class="step-num" style="background:#f97316">05</div></div>
+                    <div class="step-info">
+                        <div class="step-title">Auto-Repurpose to Instagram + LinkedIn + X</div>
+                        <div class="step-meta">
+                            <span class="step-tool-badge" style="background:#fff7ed;color:#9a3412;border:1px solid #fed7aa">🤖 Claude</span>
+                            <span class="step-time">⏱ 5 mins</span>
+                        </div>
+                    </div>
+                    <div class="step-toggle">▾</div>
+                </div>
+                <div class="step-body">
+                    <p class="step-desc">Paste your script or transcript — Claude converts it into platform-native content for every channel in one go.</p>
+                    <div class="prompt-block">
+                        <div class="prompt-head"><span class="prompt-label">Prompt — copy & paste into Claude</span><button class="copy-btn" onclick="copyPrompt(this,'p-yt-5')">Copy</button></div>
+                        <div class="prompt-text" id="p-yt-5">Here is my YouTube video script/transcript:
+<span class="ph">[PASTE YOUR SCRIPT HERE]</span>
+
+Repurpose this into:
+
+1. <span class="kw">Instagram caption</span> (max 150 words): hook in first line, value in body, CTA at end, 5 relevant hashtags
+2. <span class="kw">LinkedIn post</span> (200-250 words): professional tone, story-led, no cringe buzzwords, end with a question
+3. <span class="kw">X / Twitter thread</span>: 6-8 tweets, each standalone, first tweet is the hook, last tweet links back to YouTube
+4. <span class="kw">Email newsletter intro</span> (100 words): conversational, as if writing to a friend, include YouTube link placeholder</div>
+                    </div>
+                    <div class="output-box">
+                        <div class="output-label">✅ What you get</div>
+                        <div class="output-text">4 pieces of platform-native content from one script. Total time: 5 minutes copy-paste. Without AI this would take 2+ hours manually.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="wf-section-title" style="margin-top:32px">Tools Used in This Workflow</div>
+        <div class="tools-row"><span class="tool-chip">🤖 Claude</span><span class="tool-chip">🎨 Canva AI</span></div>
+        <div class="result-summary">
+            <div class="rs-item"><div class="rs-num" style="color:#10b981">~35</div><div class="rs-label">Total workflow time</div></div>
+            <div class="rs-item"><div class="rs-num" style="color:#3C83F6">8–12 hrs</div><div class="rs-label">Saved per video</div></div>
+            <div class="rs-item"><div class="rs-num" style="color:#f59e0b">4 tools</div><div class="rs-label">Used in workflow</div></div>
+        </div>
+    </div>
+
+    <!-- INSTAGRAM -->
+    <div class="tab-panel" id="panel-instagram">
+        <div class="panel-header">
+            <div>
+                <div class="ph-eyebrow" style="color:#ec4899">📸 Instagram Content Workflow</div>
+                <div class="ph-title">30-Day Content Calendar in 30 Minutes</div>
+                <div class="ph-desc">Plan, write and schedule a full month of Instagram content — captions, carousels, Reels scripts and Stories — using only Claude and Canva AI.</div>
+                <div class="ph-stats"><span class="ph-stat">⏱ ~30 mins total</span><span class="ph-stat">🤖 Claude + Canva AI</span><span class="ph-stat">📅 Full month planned</span></div>
+            </div>
+        </div>
+        <div class="wf-section">
+            <div class="wf-section-title">Phase 1 — Strategy & Planning</div>
+            <div class="step-card open" id="ig-s1">
+                <div class="step-card-head" onclick="toggleStep('ig-s1')">
+                    <div class="step-num-col"><div class="step-num" style="background:#ec4899">01</div></div>
+                    <div class="step-info"><div class="step-title">30-Day Content Calendar</div><div class="step-meta"><span class="step-tool-badge" style="background:#fdf2f8;color:#9d174d;border:1px solid #fbcfe8">🤖 Claude</span><span class="step-time">⏱ 5 mins</span></div></div>
+                    <div class="step-toggle">▾</div>
+                </div>
+                <div class="step-body">
+                    <p class="step-desc">One prompt, one full month of content ideas. Claude creates a balanced mix of content types so your feed never feels repetitive.</p>
+                    <div class="prompt-block">
+                        <div class="prompt-head"><span class="prompt-label">Prompt — copy & paste into Claude</span><button class="copy-btn" onclick="copyPrompt(this,'p-ig-1')">Copy</button></div>
+                        <div class="prompt-text" id="p-ig-1">Create a 30-day Instagram content calendar for my account.
+
+My niche: <span class="ph">[e.g. personal finance for Gen Z]</span>
+My audience: <span class="ph">[e.g. 18-25 year olds who want to save money]</span>
+My goal: <span class="ph">[e.g. grow followers + drive DMs]</span>
+Posting frequency: <span class="ph">[e.g. 5x per week]</span>
+
+For each post include:
+- Day number and content type (Reel / Carousel / Static / Story)
+- Post topic / hook
+- Content angle (educational / entertaining / personal story / promotional)
+- Suggested caption style (short punchy / long storytelling / question-based)
+
+Use a 4:1 ratio — 4 value posts for every 1 promotional post.
+Output as a table.</div>
+                    </div>
+                </div>
+            </div>
+            <div class="step-card" id="ig-s2">
+                <div class="step-card-head" onclick="toggleStep('ig-s2')">
+                    <div class="step-num-col"><div class="step-num" style="background:#ec4899">02</div></div>
+                    <div class="step-info"><div class="step-title">Carousel Post — 10-Slide Script</div><div class="step-meta"><span class="step-tool-badge" style="background:#fdf2f8;color:#9d174d;border:1px solid #fbcfe8">🤖 Claude</span><span class="step-time">⏱ 5 mins</span></div></div>
+                    <div class="step-toggle">▾</div>
+                </div>
+                <div class="step-body">
+                    <p class="step-desc">Carousels get 3× more saves than regular posts. This prompt gives you a complete slide-by-slide script ready to drop into Canva.</p>
+                    <div class="prompt-block">
+                        <div class="prompt-head"><span class="prompt-label">Prompt — copy & paste into Claude</span><button class="copy-btn" onclick="copyPrompt(this,'p-ig-2')">Copy</button></div>
+                        <div class="prompt-text" id="p-ig-2">Write a 10-slide Instagram carousel post on: <span class="ph">[TOPIC]</span>
+
+Audience: <span class="ph">[YOUR AUDIENCE]</span>
+Tone: <span class="ph">[e.g. bold and direct / warm and encouraging]</span>
+
+Slide 1: Cover — must stop the scroll, make it controversial or bold
+Slides 2-9: One insight per slide, build on each other
+Slide 10: CTA — tell them exactly what to do next
+
+For each slide: headline (max 7 words) + body copy (max 25 words) + visual direction
+
+Also write: caption (150 words max) + 10 hashtags</div>
+                    </div>
+                </div>
+            </div>
+            <div class="step-card" id="ig-s3">
+                <div class="step-card-head" onclick="toggleStep('ig-s3')">
+                    <div class="step-num-col"><div class="step-num" style="background:#ec4899">03</div></div>
+                    <div class="step-info"><div class="step-title">Reels Script (Viral Format)</div><div class="step-meta"><span class="step-tool-badge" style="background:#fdf2f8;color:#9d174d;border:1px solid #fbcfe8">🤖 Claude</span><span class="step-time">⏱ 4 mins</span></div></div>
+                    <div class="step-toggle">▾</div>
+                </div>
+                <div class="step-body">
+                    <p class="step-desc">Reels under 30 seconds get the highest reach. This prompt writes a punchy, hook-first script in the exact format that Instagram's algorithm rewards.</p>
+                    <div class="prompt-block">
+                        <div class="prompt-head"><span class="prompt-label">Prompt — copy & paste into Claude</span><button class="copy-btn" onclick="copyPrompt(this,'p-ig-3')">Copy</button></div>
+                        <div class="prompt-text" id="p-ig-3">Write a 30-second Instagram Reel script about: <span class="ph">[TOPIC]</span>
+
+- <span class="kw">0-3 sec HOOK</span>: One bold sentence that creates curiosity. No "Hey guys".
+- <span class="kw">3-20 sec BODY</span>: 3 rapid-fire points, each 1-2 sentences max.
+- <span class="kw">20-28 sec PAYOFF</span>: The "aha moment" — surprising fact or result
+- <span class="kw">28-30 sec CTA</span>: One action — Save this / Follow / Comment your answer.
+
+Also provide: on-screen text overlays + background suggestion + audio style</div>
+                    </div>
+                </div>
+            </div>
+            <div class="step-card" id="ig-s4">
+                <div class="step-card-head" onclick="toggleStep('ig-s4')">
+                    <div class="step-num-col"><div class="step-num" style="background:#8b5cf6">04</div></div>
+                    <div class="step-info"><div class="step-title">Bulk Caption Writing (5 posts at once)</div><div class="step-meta"><span class="step-tool-badge" style="background:#f5f3ff;color:#5b21b6;border:1px solid #ddd6fe">🤖 Claude</span><span class="step-time">⏱ 8 mins</span></div></div>
+                    <div class="step-toggle">▾</div>
+                </div>
+                <div class="step-body">
+                    <p class="step-desc">Stop writing captions one by one. This prompt batches 5 captions in a single Claude session — covering different formats and tones.</p>
+                    <div class="prompt-block">
+                        <div class="prompt-head"><span class="prompt-label">Prompt — copy & paste into Claude</span><button class="copy-btn" onclick="copyPrompt(this,'p-ig-4')">Copy</button></div>
+                        <div class="prompt-text" id="p-ig-4">Write 5 Instagram captions for my <span class="ph">[NICHE]</span> account. Each caption a different style:
+
+1. <span class="kw">Storytelling</span> (200 words): personal story that leads to a lesson
+2. <span class="kw">List-based</span> (100 words): "X things I wish I knew about [topic]"
+3. <span class="kw">Controversial opinion</span> (80 words): bold take that starts debate, ends with a question
+4. <span class="kw">Mini tutorial</span> (150 words): step-by-step instructions on <span class="ph">[SPECIFIC TASK]</span>
+5. <span class="kw">Social proof</span> (100 words): frame a result or achievement naturally, CTA at end
+
+Topics: <span class="ph">[LIST YOUR 5 TOPICS]</span> | Voice: <span class="ph">[e.g. confident, relatable]</span>
+Add 5 relevant hashtags at the end of each caption.</div>
+                    </div>
+                    <div class="output-box"><div class="output-label">✅ What you get</div><div class="output-text">A full week of ready-to-post captions across storytelling, listicle, opinion, tutorial and proof formats.</div></div>
+                </div>
+            </div>
+        </div>
+        <div class="wf-section-title" style="margin-top:32px">Tools Used in This Workflow</div>
+        <div class="tools-row"><span class="tool-chip">🤖 Claude</span><span class="tool-chip">🎨 Canva AI</span></div>
+        <div class="result-summary">
+            <div class="rs-item"><div class="rs-num" style="color:#ec4899">~30 mins</div><div class="rs-label">Total workflow time</div></div>
+            <div class="rs-item"><div class="rs-num" style="color:#3C83F6">15+ hrs</div><div class="rs-label">Saved per month</div></div>
+            <div class="rs-item"><div class="rs-num" style="color:#f59e0b">2 tools</div><div class="rs-label">Used in workflow</div></div>
+        </div>
+    </div>
+
+    <!-- DATA ANALYST -->
+    <div class="tab-panel" id="panel-analyst">
+        <div class="panel-header">
+            <div>
+                <div class="ph-eyebrow" style="color:#6366f1">📊 Data Analyst Workflow</div>
+                <div class="ph-title">Analyse Faster. Report Smarter.</div>
+                <div class="ph-desc">Use Claude to clean data, write SQL queries, explain findings in plain English and turn raw numbers into executive-ready reports.</div>
+                <div class="ph-stats"><span class="ph-stat">⏱ ~40 mins end-to-end</span><span class="ph-stat">🤖 Claude + Excel / Python</span><span class="ph-stat">📊 Works for any dataset</span></div>
+            </div>
+        </div>
+        <div class="wf-section">
+            <div class="wf-section-title">Phase 1 — Data Preparation</div>
+            <div class="step-card open" id="da-s1">
+                <div class="step-card-head" onclick="toggleStep('da-s1')">
+                    <div class="step-num-col"><div class="step-num" style="background:#6366f1">01</div></div>
+                    <div class="step-info"><div class="step-title">Clean & Understand Your Dataset</div><div class="step-meta"><span class="step-tool-badge" style="background:#f5f3ff;color:#5b21b6;border:1px solid #ddd6fe">🤖 Claude</span><span class="step-time">⏱ 5 mins</span></div></div>
+                    <div class="step-toggle">▾</div>
+                </div>
+                <div class="step-body">
+                    <p class="step-desc">Paste your raw CSV headers or a sample — Claude audits data quality, flags issues and suggests the right analysis approach.</p>
+                    <div class="prompt-block">
+                        <div class="prompt-head"><span class="prompt-label">Prompt — copy & paste into Claude</span><button class="copy-btn" onclick="copyPrompt(this,'p-da-1')">Copy</button></div>
+                        <div class="prompt-text" id="p-da-1">I have a dataset with these columns:
+<span class="ph">[PASTE YOUR CSV HEADERS OR FIRST 5 ROWS HERE]</span>
+
+Business context: <span class="ph">[e.g. monthly sales data for an e-commerce store]</span>
+
+Please:
+1. <span class="kw">Describe</span> what this dataset contains and what each column likely represents
+2. <span class="kw">Flag</span> data quality issues to fix before analysing (nulls, duplicates, type mismatches)
+3. <span class="kw">Suggest</span> 5 high-value analysis questions this dataset can answer
+4. <span class="kw">Recommend</span> the best tool: Excel / Python (Pandas) / SQL — and why</div>
+                    </div>
+                    <div class="pro-tip"><span class="pro-tip-icon">💡</span><span class="pro-tip-text"><strong>Pro tip:</strong> Upload the file directly to Claude if it's under 10MB — it reads actual data and gives far more specific insights.</span></div>
+                </div>
+            </div>
+            <div class="step-card" id="da-s2">
+                <div class="step-card-head" onclick="toggleStep('da-s2')">
+                    <div class="step-num-col"><div class="step-num" style="background:#6366f1">02</div></div>
+                    <div class="step-info"><div class="step-title">Write SQL or Python Code On Demand</div><div class="step-meta"><span class="step-tool-badge" style="background:#f5f3ff;color:#5b21b6;border:1px solid #ddd6fe">🤖 Claude</span><span class="step-time">⏱ 3 mins</span></div></div>
+                    <div class="step-toggle">▾</div>
+                </div>
+                <div class="step-body">
+                    <p class="step-desc">Describe what you want to find out in plain English — Claude writes the exact SQL or Python/Pandas code.</p>
+                    <div class="prompt-block">
+                        <div class="prompt-head"><span class="prompt-label">Prompt — copy & paste into Claude</span><button class="copy-btn" onclick="copyPrompt(this,'p-da-2')">Copy</button></div>
+                        <div class="prompt-text" id="p-da-2">My table/dataframe: <span class="ph">[TABLE NAME]</span>
+Columns: <span class="ph">[LIST KEY COLUMNS]</span>
+Tool: <span class="ph">[PostgreSQL / MySQL / Python Pandas / Excel]</span>
+
+Write code to:
+<span class="ph">[PLAIN ENGLISH — e.g. "Find top 10 customers by revenue in last 90 days, broken down by product category"]</span>
+
+Requirements:
+- Comment each step
+- Handle nulls gracefully
+- Show expected output format</div>
+                    </div>
+                    <div class="output-box"><div class="output-label">✅ What you get</div><div class="output-text">Production-ready SQL or Python with comments, null handling and expected output — ready to run immediately.</div></div>
+                </div>
+            </div>
+        </div>
+        <div class="wf-section">
+            <div class="wf-section-title">Phase 2 — Insights & Reporting</div>
+            <div class="step-card" id="da-s3">
+                <div class="step-card-head" onclick="toggleStep('da-s3')">
+                    <div class="step-num-col"><div class="step-num" style="background:#10b981">03</div></div>
+                    <div class="step-info"><div class="step-title">Explain Your Results in Plain English</div><div class="step-meta"><span class="step-tool-badge" style="background:#f0fdf4;color:#065f46;border:1px solid #bbf7d0">🤖 Claude</span><span class="step-time">⏱ 3 mins</span></div></div>
+                    <div class="step-toggle">▾</div>
+                </div>
+                <div class="step-body">
+                    <p class="step-desc">Paste your query results — Claude translates them into clear business language that non-technical stakeholders can act on.</p>
+                    <div class="prompt-block">
+                        <div class="prompt-head"><span class="prompt-label">Prompt — copy & paste into Claude</span><button class="copy-btn" onclick="copyPrompt(this,'p-da-3')">Copy</button></div>
+                        <div class="prompt-text" id="p-da-3">Here are my analysis results:
+<span class="ph">[PASTE YOUR DATA / QUERY OUTPUT / NUMBERS HERE]</span>
+
+Context: <span class="ph">[e.g. monthly revenue by region for Q3 2024]</span>
+Audience: <span class="ph">[e.g. non-technical marketing manager]</span>
+
+1. <span class="kw">Summarise</span> the key finding in one sentence
+2. <span class="kw">Explain</span> what the numbers mean in plain business English
+3. <span class="kw">Highlight</span> 3 specific insights worth acting on
+4. <span class="kw">Flag</span> anything unusual or worth investigating
+5. <span class="kw">Suggest</span> one follow-up analysis question</div>
+                    </div>
+                </div>
+            </div>
+            <div class="step-card" id="da-s4">
+                <div class="step-card-head" onclick="toggleStep('da-s4')">
+                    <div class="step-num-col"><div class="step-num" style="background:#10b981">04</div></div>
+                    <div class="step-info"><div class="step-title">Write the Executive Report</div><div class="step-meta"><span class="step-tool-badge" style="background:#f0fdf4;color:#065f46;border:1px solid #bbf7d0">🤖 Claude</span><span class="step-time">⏱ 8 mins</span></div></div>
+                    <div class="step-toggle">▾</div>
+                </div>
+                <div class="step-body">
+                    <p class="step-desc">Turn raw findings into a polished, structured report ready for management.</p>
+                    <div class="prompt-block">
+                        <div class="prompt-head"><span class="prompt-label">Prompt — copy & paste into Claude</span><button class="copy-btn" onclick="copyPrompt(this,'p-da-4')">Copy</button></div>
+                        <div class="prompt-text" id="p-da-4">Write a data analysis report based on:
+<span class="ph">[PASTE KEY NUMBERS, INSIGHTS AND CONCLUSIONS]</span>
+
+Title: <span class="ph">[e.g. "Q3 2024 Sales Performance Analysis"]</span>
+Audience: <span class="ph">[e.g. senior management, non-technical]</span> | Tone: <span class="ph">[formal and concise]</span>
+
+Structure:
+1. <span class="kw">Executive Summary</span> — 3 sentences, key finding + recommendation
+2. <span class="kw">Key Metrics</span> — 4-5 numbers that matter, with context
+3. <span class="kw">What The Data Shows</span> — 3-5 plain-English insights
+4. <span class="kw">Anomalies & Watch Points</span>
+5. <span class="kw">Recommendations</span> — 2-3 specific next steps
+
+Under 400 words. No jargon.</div>
+                    </div>
+                    <div class="pro-tip"><span class="pro-tip-icon">💡</span><span class="pro-tip-text"><strong>Pro tip:</strong> After the report, ask: "Now write a 3-bullet TL;DR for a Slack message."</span></div>
+                </div>
+            </div>
+        </div>
+        <div class="wf-section-title" style="margin-top:32px">Tools Used in This Workflow</div>
+        <div class="tools-row"><span class="tool-chip">🤖 Claude</span><span class="tool-chip">💬 ChatGPT</span><span class="tool-chip">✨ Gemini</span></div>
+        <div class="result-summary">
+            <div class="rs-item"><div class="rs-num" style="color:#6366f1">~40 mins</div><div class="rs-label">Total workflow time</div></div>
+            <div class="rs-item"><div class="rs-num" style="color:#10b981">3× faster</div><div class="rs-label">Reports vs manual</div></div>
+            <div class="rs-item"><div class="rs-num" style="color:#f59e0b">4 tools</div><div class="rs-label">Used in workflow</div></div>
+        </div>
+    </div>
+
+</div><!-- /tool-claude -->
+
+<!-- COMPARE TAB — shared, always rendered, shown/hidden by JS -->
+<div id="panel-compare" style="display:none;">
+    <div class="compare-controls">
+        <span class="compare-controls-label">Tools:</span>
+        <div class="compare-tool-pills" id="cmp-pills">
+            <div class="cmp-pill sel" data-tool="claude" onclick="cmpToggleTool('claude',this)"><span class="cmp-pill-icon">🤖</span> Claude</div>
+            <div class="cmp-pill sel" data-tool="chatgpt" onclick="cmpToggleTool('chatgpt',this)"><span class="cmp-pill-icon">💬</span> ChatGPT</div>
+            <div class="cmp-pill sel" data-tool="gemini" onclick="cmpToggleTool('gemini',this)"><span class="cmp-pill-icon">✨</span> Gemini</div>
+            <div class="cmp-pill" data-tool="copilot" onclick="cmpToggleTool('copilot',this)"><span class="cmp-pill-icon">🐙</span> Copilot</div>
+            <div class="cmp-pill" data-tool="perplexity" onclick="cmpToggleTool('perplexity',this)"><span class="cmp-pill-icon">🔍</span> Perplexity</div>
+            <span class="cmp-pill-max-hint">Select up to 4</span>
+        </div>
+        <div class="compare-section-row">
+            <span class="cmp-section-label">View:</span>
+            <button class="cmp-section-btn active" onclick="cmpSection('scores',this)">📊 Scores</button>
+            <button class="cmp-section-btn" onclick="cmpSection('benchmarks',this)">🧪 Benchmarks</button>
+            <button class="cmp-section-btn" onclick="cmpSection('details',this)">🏢 Details</button>
+            <button class="cmp-section-btn" onclick="cmpSection('proscons',this)">⚖️ Pros / Cons</button>
+            <button class="cmp-section-btn" onclick="cmpSection('pricing',this)">💰 Pricing</button>
+            <button class="cmp-section-btn" onclick="cmpSection('usecases',this)">🎯 Use Cases</button>
+        </div>
+    </div>
+    <div class="compare-grid" id="cmp-grid" style="--cols:3;"></div>
+</div>
+
+</div><!-- /p-page-inner -->
+</div><!-- /p-body-wrap -->
+
+<script>
+// ── Tool selector ──
+let currentTool = 'claude';
+let currentTab  = 'youtube';
+
+function toggleDropdown() {
+    document.getElementById('toolDropdown').classList.toggle('open');
+}
+document.addEventListener('click', function(e) {
+    const dd = document.getElementById('toolDropdown');
+    if (dd && !dd.contains(e.target)) dd.classList.remove('open');
+});
+
+function selectTool(toolKey, name, sub, el) {
+    if (el.classList.contains('soon')) return;
+    // normalize: use lowercase name as key for TOOLS_DATA lookup, use id for data block
+    const nameKey = name.toLowerCase().replace(/\s+/g, '');
+    currentTool = toolKey;
+    document.getElementById('dd-name').textContent = name;
+    document.querySelectorAll('.tool-option').forEach(o => o.classList.remove('active'));
+    el.classList.add('active');
+    document.getElementById('toolDropdown').classList.remove('open');
+    // show matching tool-data block; fall back to claude if none found
+    const slugKey = name.toLowerCase().replace(/[^a-z0-9]/g, '');
+    const block = document.getElementById('tool-' + slugKey);
+    document.querySelectorAll('.tool-data').forEach(d => d.classList.remove('active'));
+    if (block) block.classList.add('active');
+    else document.getElementById('tool-claude').classList.add('active');
+    switchTab(currentTab, document.querySelector('.p-tab-btn.active'));
+}
+
+// ── Tab switching ──
+let _cmpRendered = false;
+function switchTab(id, btn) {
+    currentTab = id;
+    const cmpPanel = document.getElementById('panel-compare');
+    if (id === 'compare') {
+        document.querySelectorAll('.tool-data .tab-panel').forEach(p => p.classList.remove('active'));
+        if (cmpPanel) cmpPanel.style.display = 'block';
+        if (!_cmpRendered) { cmpRender(); _cmpRendered = true; }
+    } else {
+        if (cmpPanel) cmpPanel.style.display = 'none';
+        const activeTool = document.querySelector('.tool-data.active');
+        if (activeTool) activeTool.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+        const target = document.getElementById('panel-' + id);
+        if (target) target.classList.add('active');
+    }
+    document.querySelectorAll('.p-tab-btn').forEach(b => b.classList.remove('active'));
+    if (btn) btn.classList.add('active');
+}
+
+function toggleStep(id) {
+    document.getElementById(id).classList.toggle('open');
+}
+
+// ── Copy prompt ──
+function copyPrompt(btn, id) {
+    const el = document.getElementById(id);
+    navigator.clipboard.writeText(el.innerText).then(() => {
+        btn.textContent = '✓ Copied';
+        btn.classList.add('copied');
+        setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
+    });
+}
+
+// ════════════════════════════════════════
+// COMPARE ENGINE
+// ════════════════════════════════════════
+const TOOLS_DATA = {
+    claude:     { name:'Claude',     icon:'🤖', tagline:'Built for thoughtful, nuanced work', overall:8.7,
+        scores:{'Output Quality':9.0,'Ease of Use':8.5,'Accuracy':9.0,'Speed':7.8,'Value for Money':8.2,'Creativity':9.1,'Integration':7.5,'Consistency':9.0,'Support & Updates':8.8,'Time Saved':9.2},
+        benchmarks:{MMLU:9.2,HumanEval:7.8,GSM8K:8.9,HellaSwag:9.0,TruthfulQA:8.8},
+        details:{Company:'Anthropic',Founded:'2021',Headquarters:'San Francisco, CA',Website:'claude.ai','Best For':'Long-form writing, analysis, coding'},
+        pros:['Exceptional long-form reasoning','Follows nuanced instructions','Consistent tone & style','Low hallucination rate'],
+        cons:['No live internet access by default','Slower than some competitors','Limited image generation'],
+        pricing:[{name:'Free',price:'$0/mo',desc:'Limited access to Claude'},{name:'Pro',price:'$20/mo',desc:'Unlimited Claude 3.5 Sonnet'},{name:'Team',price:'$25/user/mo',desc:'Collaborative workspace'}],
+        usecases:[{icon:'✍️',title:'Content Writing',desc:'Scripts, blogs, social copy'},{icon:'📊',title:'Data Analysis',desc:'Interpret datasets and reports'},{icon:'💻',title:'Code Review',desc:'Debug and improve code'},{icon:'📚',title:'Research',desc:'Summarise and synthesise sources'}],
+    },
+    chatgpt:    { name:'ChatGPT',    icon:'💬', tagline:'Fast, versatile, widely integrated', overall:8.4,
+        scores:{'Output Quality':8.5,'Ease of Use':9.2,'Accuracy':8.0,'Speed':9.0,'Value for Money':8.5,'Creativity':8.8,'Integration':9.3,'Consistency':8.0,'Support & Updates':9.0,'Time Saved':9.0},
+        benchmarks:{MMLU:8.8,HumanEval:8.5,GSM8K:9.1,HellaSwag:8.7,TruthfulQA:7.9},
+        details:{Company:'OpenAI',Founded:'2015',Headquarters:'San Francisco, CA',Website:'chat.openai.com','Best For':'Speed, brainstorming, code generation'},
+        pros:['Massive plugin/tool ecosystem','Code Interpreter runs real Python','GPT-4o vision & audio','Browsing for live data'],
+        cons:['Can hallucinate confidently','Inconsistent across long chats','Expensive at high usage'],
+        pricing:[{name:'Free',price:'$0/mo',desc:'GPT-3.5 access'},{name:'Plus',price:'$20/mo',desc:'GPT-4o + plugins'},{name:'Team',price:'$30/user/mo',desc:'Team workspace'}],
+        usecases:[{icon:'⚡',title:'Rapid Ideation',desc:'Brainstorm 30 ideas fast'},{icon:'🐍',title:'Live Code Execution',desc:'Run Python in-chat'},{icon:'🌐',title:'Web Research',desc:'Browse and summarise'},{icon:'📸',title:'Image Understanding',desc:'Analyse uploaded images'}],
+    },
+    gemini:     { name:'Gemini',     icon:'✨', tagline:'Google-powered, live search built in', overall:8.1,
+        scores:{'Output Quality':8.2,'Ease of Use':8.8,'Accuracy':8.5,'Speed':8.9,'Value for Money':9.0,'Creativity':8.0,'Integration':9.5,'Consistency':7.8,'Support & Updates':8.5,'Time Saved':8.8},
+        benchmarks:{MMLU:8.5,HumanEval:7.5,GSM8K:8.8,HellaSwag:8.4,TruthfulQA:8.2},
+        details:{Company:'Google DeepMind',Founded:'1998',Headquarters:'Mountain View, CA',Website:'gemini.google.com','Best For':'Research, Google Workspace, live data'},
+        pros:['Native Google Search integration','Free Advanced tier via Google One','Deep Google Workspace integration','Multimodal by default'],
+        cons:['Less strong on nuanced writing','Can feel generic','Privacy concerns for enterprises'],
+        pricing:[{name:'Free',price:'$0/mo',desc:'Gemini 1.5 Flash'},{name:'Advanced',price:'$19.99/mo',desc:'Gemini Ultra via Google One'},{name:'Business',price:'Custom',desc:'Google Workspace add-on'}],
+        usecases:[{icon:'🔍',title:'Live Research',desc:'Real-time Google Search results'},{icon:'📄',title:'Google Docs',desc:'Write and edit in Workspace'},{icon:'📊',title:'Sheets Analysis',desc:'Analyse data in Google Sheets'},{icon:'🗺️',title:'Multimodal',desc:'Images, audio, video understanding'}],
+    },
+    copilot:    { name:'Copilot',    icon:'🐙', tagline:'GitHub-native coding assistant', overall:7.9,
+        scores:{'Output Quality':8.2,'Ease of Use':8.8,'Accuracy':8.0,'Speed':9.1,'Value for Money':8.0,'Creativity':7.5,'Integration':9.2,'Consistency':8.2,'Support & Updates':8.8,'Time Saved':9.0},
+        benchmarks:{MMLU:7.8,HumanEval:9.0,GSM8K:8.2,HellaSwag:7.9,TruthfulQA:7.5},
+        details:{Company:'Microsoft / GitHub',Founded:'2018',Headquarters:'Redmond, WA',Website:'github.com/features/copilot','Best For':'Code completion, pull request reviews'},
+        pros:['Best-in-class code autocomplete','Deeply integrated with VS Code & GitHub','PR summaries and review suggestions','Multi-language support'],
+        cons:['Limited to coding tasks','Requires GitHub subscription','Less useful for general writing'],
+        pricing:[{name:'Free',price:'$0/mo',desc:'2,000 completions/month'},{name:'Pro',price:'$10/mo',desc:'Unlimited completions'},{name:'Business',price:'$19/user/mo',desc:'Team management'}],
+        usecases:[{icon:'💻',title:'Code Autocomplete',desc:'Line and block suggestions'},{icon:'🔍',title:'PR Review',desc:'Automated code review'},{icon:'🐛',title:'Bug Finding',desc:'Spot issues in your code'},{icon:'📝',title:'Docstring Gen',desc:'Auto-write documentation'}],
+    },
+    perplexity: { name:'Perplexity', icon:'🔍', tagline:'Answer engine with cited sources', overall:7.8,
+        scores:{'Output Quality':7.8,'Ease of Use':9.0,'Accuracy':8.8,'Speed':9.2,'Value for Money':8.8,'Creativity':6.5,'Integration':7.0,'Consistency':8.5,'Support & Updates':8.0,'Time Saved':9.0},
+        benchmarks:{MMLU:8.0,HumanEval:6.5,GSM8K:7.5,HellaSwag:7.8,TruthfulQA:9.0},
+        details:{Company:'Perplexity AI',Founded:'2022',Headquarters:'San Francisco, CA',Website:'perplexity.ai','Best For':'Research, fact-checking, cited answers'},
+        pros:['Every answer includes citations','Always uses live web data','Clean, fast interface','Great for research workflows'],
+        cons:['Not for creative writing','Limited conversational depth','Basic document handling'],
+        pricing:[{name:'Free',price:'$0/mo',desc:'Standard search'},{name:'Pro',price:'$20/mo',desc:'GPT-4o + Claude + unlimited searches'}],
+        usecases:[{icon:'📰',title:'News Research',desc:'Current events with sources'},{icon:'✅',title:'Fact Checking',desc:'Verify claims with citations'},{icon:'📚',title:'Academic Research',desc:'Find and cite papers'},{icon:'🔎',title:'Competitive Intel',desc:'Research companies & products'}],
+    },
+};
+
+let cmpSelectedTools = ['claude','chatgpt','gemini'];
+let cmpActiveSection = 'scores';
+
+function cmpToggleTool(tool, el) {
+    const idx = cmpSelectedTools.indexOf(tool);
+    if (idx > -1) {
+        if (cmpSelectedTools.length <= 1) return;
+        cmpSelectedTools.splice(idx, 1);
+        el.classList.remove('sel');
+    } else {
+        if (cmpSelectedTools.length >= 4) return;
+        cmpSelectedTools.push(tool);
+        el.classList.add('sel');
+    }
+    cmpRender();
+}
+
+function cmpSection(sec, btn) {
+    cmpActiveSection = sec;
+    document.querySelectorAll('.cmp-section-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    document.querySelectorAll('#cmp-grid .cmp-section').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('#cmp-grid .cmp-section.' + sec).forEach(s => s.classList.add('active'));
+}
+
+function scoreColor(v) {
+    return v >= 9 ? '#10b981' : v >= 8 ? '#3C83F6' : v >= 7 ? '#f59e0b' : '#ef4444';
+}
+
+function cmpRender() {
+    const grid = document.getElementById('cmp-grid');
+    grid.style.setProperty('--cols', cmpSelectedTools.length);
+    grid.innerHTML = cmpSelectedTools.map(key => {
+        const t = TOOLS_DATA[key];
+        if (!t) return `<div class="no-tool-col"><div class="no-tool-icon">❓</div><div class="no-tool-text">Unknown tool</div></div>`;
+        const scoreRows = Object.entries(t.scores).map(([n,v]) =>
+            `<div class="score-row"><div class="score-row-label"><span class="score-row-name">${n}</span><span class="score-row-val" style="color:${scoreColor(v)}">${v.toFixed(1)}</span></div><div class="score-bar-track"><div class="score-bar-fill" style="width:${v*10}%;background:${scoreColor(v)}"></div></div></div>`
+        ).join('');
+        const benchRows = Object.entries(t.benchmarks).map(([n,v]) =>
+            v == null ? `<div class="bench-row"><span class="bench-name">${n}</span><div class="bench-bar"></div><span class="bench-na">N/A</span></div>` :
+            `<div class="bench-row"><span class="bench-name">${n}</span><div class="bench-bar"><div class="bench-bar-fill" style="width:${v*10}%;background:${scoreColor(v)}"></div></div><span class="bench-val" style="color:${scoreColor(v)}">${v.toFixed(1)}</span></div>`
+        ).join('');
+        const detailRows = Object.entries(t.details).map(([k,v]) =>
+            `<div class="detail-row"><div class="detail-row-label">${k}</div><div class="detail-row-val">${k==='Website'?`<a href="https://${v}" target="_blank">${v} ↗</a>`:v}</div></div>`
+        ).join('');
+        const prosHtml = t.pros.map(p => `<li><span class="pc-icon">✓</span>${p}</li>`).join('');
+        const consHtml = t.cons.map(c => `<li><span class="pc-icon">✗</span>${c}</li>`).join('');
+        const pricingRows = t.pricing.map(p =>
+            `<div class="pricing-tier"><div class="pricing-tier-head"><span class="pricing-tier-name">${p.name}</span><span class="pricing-tier-price">${p.price}</span></div><div class="pricing-tier-desc">${p.desc}</div></div>`
+        ).join('');
+        const ucItems = t.usecases.map(u =>
+            `<div class="use-case-item"><div class="use-case-icon">${u.icon}</div><div><div class="use-case-title">${u.title}</div><div class="use-case-desc">${u.desc}</div></div></div>`
+        ).join('');
+        return `
+        <div class="compare-col">
+            <div class="compare-col-head">
+                <div class="cch-icon">${t.icon}</div>
+                <div class="cch-info"><div class="cch-name">${t.name}</div><div class="cch-tagline">${t.tagline}</div></div>
+                <div class="cch-score"><div class="cch-score-num" style="color:${scoreColor(t.overall)}">${t.overall.toFixed(1)}</div><div class="cch-score-label">Overall</div></div>
+            </div>
+            <div class="cmp-section scores active"><div class="score-rows">${scoreRows}</div></div>
+            <div class="cmp-section benchmarks"><div class="bench-rows">${benchRows}</div></div>
+            <div class="cmp-section details"><div class="detail-rows">${detailRows}</div></div>
+            <div class="cmp-section proscons"><div class="pros-cons">
+                <div class="pc-group-label" style="color:#10b981">Pros</div>
+                <ul class="pc-list pros">${prosHtml}</ul>
+                <div class="pc-group-label" style="color:#ef4444">Cons</div>
+                <ul class="pc-list cons">${consHtml}</ul>
+            </div></div>
+            <div class="cmp-section pricing"><div class="pricing-rows">${pricingRows}</div></div>
+            <div class="cmp-section usecases"><div class="use-case-list">${ucItems}</div></div>
+        </div>`;
+    }).join('');
+    document.querySelectorAll('#cmp-grid .cmp-section').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('#cmp-grid .cmp-section.' + cmpActiveSection).forEach(s => s.classList.add('active'));
+}
+</script>
+{% endblock %}

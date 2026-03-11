@@ -2,3 +2,12 @@ venv/
 .env
 __pycache__/
 *.pyc
+
+# Local SQL migration scratch files
+sql_migrations/
+
+# Pricing color guide docs/notes
+pricing_colors_guid*
+pricing_colors_guide*
+*pricing_colors_guid*
+*pricing_colors_guide*

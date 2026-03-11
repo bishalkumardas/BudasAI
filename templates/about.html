@@ -1,271 +1,1307 @@
 {% extends "base.html" %}
 
-{% block title %}About BUDASAI{% endblock %}
-
+{% block title %}About - BUDASAI{% endblock %}
 
 {% block content %}
-<div class="container text-center mt-3 pt-5">
-    <!-- <div class="mb-3">
-        <img src="/static/images/favicon1.png" alt="About BUDASAI" width="50">
-    </div> -->
-    <h1 class="reveal">About BUDASAI</h1>
-    <p class="p-5 reveal reveal-delay-1">
-        Budasai helps businesses increase revenue, eliminate manual work, and make smarter decisions using practical AI
-        systems.
-    </p>
-</div>
-<div class="container mt-5 text-center">
-    <h1 class="reveal reveal-delay-2">Our Process</h1>
+<style>
+    :root {
+        --blue: #3c83f6;
+        --blue-dark: #2563eb;
+        --blue-light: #eff6ff;
+        --blue-border: #bfdbfe;
+        --ink: #0a0f1e;
+        --text: #0f172a;
+        --muted: #64748b;
+        --muted2: #94a3b8;
+        --border: #e2e8f0;
+        --bg: #f8fafc;
+    }
 
-    <div class="row justify-content-center mt-5 g-4">
+    /* Keep page-specific styling only. Shared nav/footer/fonts come from base.html */
+    .about-page {
+        background: var(--bg);
+        color: var(--text);
+        overflow-x: hidden;
+    }
 
-        <!-- Card 1 -->
-        <div class="col-12 col-md-6 col-lg-4 col-xl-3 reveal-left reveal-delay-3">
-            <div class="process-card">
-                <div class="step-number">01</div>
+    .hero {
+        background: var(--ink);
+        min-height: 88vh;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        position: relative;
+        overflow: hidden;
+    }
 
-                <div class="icon-circle">
-                    <i class="bi bi-file-text-fill"></i>
-                </div>
+    @media (max-width: 850px) {
+        .hero {
+            grid-template-columns: 1fr;
+            min-height: auto;
+        }
+    }
 
-                <h5 class="mt-3">Free Guide</h5>
-                <div>
-                    Download our AI starter guide to understand the landscape.
-                </div>
+    .hero::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background-image: linear-gradient(rgba(60, 131, 246, 0.07) 1px, transparent 1px), linear-gradient(90deg, rgba(60, 131, 246, 0.07) 1px, transparent 1px);
+        background-size: 44px 44px;
+        pointer-events: none;
+    }
+
+    .hero::after {
+        content: "";
+        position: absolute;
+        width: 600px;
+        height: 600px;
+        top: -150px;
+        right: -150px;
+        background: radial-gradient(circle, rgba(60, 131, 246, 0.18) 0%, transparent 65%);
+        pointer-events: none;
+    }
+
+    .hero-left {
+        padding: 80px 60px 80px 80px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        position: relative;
+        z-index: 2;
+    }
+
+    @media (max-width: 1100px) {
+        .hero-left {
+            padding: 60px 40px;
+        }
+    }
+
+    @media (max-width: 850px) {
+        .hero-left {
+            padding: 60px 24px 40px;
+        }
+    }
+
+    .hero-eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        color: rgba(255, 255, 255, 0.45);
+        margin-bottom: 28px;
+    }
+
+    .hero-headline {
+        font-size: clamp(2.6rem, 6vw, 5rem);
+        font-weight: 800;
+        color: #fff;
+        line-height: 1;
+        letter-spacing: -2px;
+        margin-bottom: 28px;
+    }
+
+    .hero-headline .accent {
+        color: var(--blue);
+        display: inline-block;
+        position: relative;
+    }
+
+    .hero-headline .accent::after {
+        content: "";
+        position: absolute;
+        bottom: 4px;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: var(--blue);
+        opacity: 0.4;
+        border-radius: 2px;
+    }
+
+    .hero-sub {
+        font-size: 17px;
+        color: rgba(255, 255, 255, 0.58);
+        line-height: 1.75;
+        max-width: 520px;
+        margin-bottom: 40px;
+    }
+
+    .hero-sub strong {
+        color: rgba(255, 255, 255, 0.84);
+        font-weight: 700;
+    }
+
+    .hero-chips {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        background: rgba(255, 255, 255, 0.06);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        color: rgba(255, 255, 255, 0.66);
+        font-size: 12px;
+        font-weight: 500;
+        padding: 6px 14px;
+        border-radius: 20px;
+        transition: all 0.2s;
+    }
+
+    .chip:hover {
+        background: rgba(60, 131, 246, 0.15);
+        border-color: rgba(60, 131, 246, 0.4);
+        color: #93c5fd;
+    }
+
+    .hero-right {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 60px 80px 60px 40px;
+        position: relative;
+        z-index: 2;
+    }
+
+    @media (max-width: 1100px) {
+        .hero-right {
+            padding: 40px;
+        }
+    }
+
+    @media (max-width: 850px) {
+        .hero-right {
+            padding: 40px 24px 60px;
+        }
+    }
+
+    .stat-stack {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+        width: 100%;
+        max-width: 360px;
+    }
+
+    .stat-card {
+        background: rgba(255, 255, 255, 0.04);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 16px;
+        padding: 24px 28px;
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        transition: all 0.3s;
+    }
+
+    .stat-card:hover {
+        background: rgba(60, 131, 246, 0.1);
+        border-color: rgba(60, 131, 246, 0.3);
+        transform: translateX(-6px);
+    }
+
+    .stat-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        background: rgba(60, 131, 246, 0.18);
+        border: 1px solid rgba(60, 131, 246, 0.3);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 22px;
+        flex-shrink: 0;
+    }
+
+    .stat-val {
+        font-size: 30px;
+        font-weight: 800;
+        color: #fff;
+        line-height: 1;
+        margin-bottom: 3px;
+    }
+
+    .stat-val span {
+        color: var(--blue);
+    }
+
+    .stat-label {
+        font-size: 13px;
+        color: rgba(255, 255, 255, 0.45);
+    }
+
+    .mission-strip {
+        background: var(--blue);
+        padding: 28px 0;
+        overflow: hidden;
+        position: relative;
+    }
+
+    .marquee-wrap {
+        display: flex;
+        align-items: center;
+        white-space: nowrap;
+        animation: marquee 18s linear infinite;
+    }
+
+    @keyframes marquee {
+        0% {
+            transform: translateX(0);
+        }
+
+        100% {
+            transform: translateX(-50%);
+        }
+    }
+
+    .marquee-item {
+        display: inline-flex;
+        align-items: center;
+        gap: 16px;
+        font-size: 15px;
+        font-weight: 700;
+        color: rgba(255, 255, 255, 0.88);
+        padding: 0 32px;
+    }
+
+    .marquee-sep {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.5);
+        flex-shrink: 0;
+    }
+
+    .story-section,
+    .social-section {
+        padding: 100px 0;
+        background: #fff;
+    }
+
+    .story-grid,
+    .social-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 48px;
+        align-items: center;
+    }
+
+    .story-grid {
+        gap: 80px;
+    }
+
+    @media (max-width: 850px) {
+        .story-grid,
+        .social-grid {
+            grid-template-columns: 1fr;
+            gap: 40px;
+        }
+    }
+
+    .section-label {
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 2.5px;
+        text-transform: uppercase;
+        color: var(--blue);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 16px;
+    }
+
+    .section-label::before {
+        content: "";
+        display: block;
+        width: 24px;
+        height: 1.5px;
+        background: var(--blue);
+    }
+
+    .section-title {
+        font-size: clamp(2rem, 3.5vw, 3rem);
+        font-weight: 800;
+        color: var(--text);
+        letter-spacing: -1px;
+        line-height: 1.1;
+        margin-bottom: 20px;
+    }
+
+    .section-body {
+        font-size: 15px;
+        color: var(--muted);
+        line-height: 1.85;
+    }
+
+    .section-body p + p {
+        margin-top: 14px;
+    }
+
+    .story-card-main {
+        background: var(--ink);
+        border-radius: 20px;
+        padding: 36px;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .story-card-main::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background-image: linear-gradient(rgba(60, 131, 246, 0.08) 1px, transparent 1px), linear-gradient(90deg, rgba(60, 131, 246, 0.08) 1px, transparent 1px);
+        background-size: 32px 32px;
+    }
+
+    .story-card-inner {
+        position: relative;
+        z-index: 1;
+    }
+
+    .story-quote {
+        font-size: 22px;
+        font-weight: 700;
+        color: #fff;
+        line-height: 1.45;
+        margin-bottom: 24px;
+    }
+
+    .story-quote span {
+        color: var(--blue);
+    }
+
+    .story-author {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .story-avatar {
+        width: 44px;
+        height: 44px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--blue), #6366f1);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 18px;
+        flex-shrink: 0;
+    }
+
+    .story-author-name {
+        font-size: 14px;
+        font-weight: 700;
+        color: #fff;
+    }
+
+    .story-author-role {
+        font-size: 12px;
+        color: rgba(255, 255, 255, 0.4);
+        margin-top: 2px;
+    }
+
+    .story-visual {
+        position: relative;
+    }
+
+    .story-float-badge {
+        position: absolute;
+        bottom: -16px;
+        right: 24px;
+        background: #fff;
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 12px 16px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    }
+
+    .story-float-badge .num {
+        font-size: 22px;
+        font-weight: 800;
+        color: var(--blue);
+        line-height: 1;
+    }
+
+    .story-float-badge .lbl {
+        font-size: 11px;
+        color: var(--muted);
+        line-height: 1.4;
+    }
+
+    .values-section,
+    .cta-section {
+        padding: 100px 0;
+        background: var(--bg);
+    }
+
+    .cta-section {
+        padding: 80px 0;
+    }
+
+    .values-header {
+        text-align: center;
+        margin-bottom: 56px;
+    }
+
+    .values-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 20px;
+    }
+
+    @media (max-width: 900px) {
+        .values-grid {
+            grid-template-columns: 1fr 1fr;
+        }
+    }
+
+    @media (max-width: 560px) {
+        .values-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    .value-card {
+        background: #fff;
+        border: 1px solid var(--border);
+        border-radius: 18px;
+        padding: 32px 28px;
+        position: relative;
+        overflow: hidden;
+        transition: all 0.3s;
+    }
+
+    .value-card::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        opacity: 0;
+        transition: opacity 0.3s;
+    }
+
+    .value-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.07);
+    }
+
+    .value-card:hover::before {
+        opacity: 1;
+    }
+
+    .vc-1::before {
+        background: linear-gradient(90deg, #3c83f6, #6366f1);
+    }
+
+    .vc-2::before {
+        background: linear-gradient(90deg, #10b981, #0ea5e9);
+    }
+
+    .vc-3::before {
+        background: linear-gradient(90deg, #f59e0b, #ef4444);
+    }
+
+    .vc-4::before {
+        background: linear-gradient(90deg, #8b5cf6, #ec4899);
+    }
+
+    .vc-5::before {
+        background: linear-gradient(90deg, #0ea5e9, #10b981);
+    }
+
+    .vc-6::before {
+        background: linear-gradient(90deg, #f97316, #f59e0b);
+    }
+
+    .value-num {
+        font-size: 11px;
+        font-weight: 600;
+        color: var(--muted2);
+        letter-spacing: 1px;
+        margin-bottom: 16px;
+    }
+
+    .value-icon {
+        font-size: 32px;
+        margin-bottom: 14px;
+        display: block;
+    }
+
+    .value-title {
+        font-size: 17px;
+        font-weight: 700;
+        color: var(--text);
+        margin-bottom: 8px;
+    }
+
+    .value-desc {
+        font-size: 13px;
+        color: var(--muted);
+        line-height: 1.7;
+    }
+
+    .services-section {
+        padding: 100px 0;
+        background: var(--ink);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .services-section::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background-image: linear-gradient(rgba(60, 131, 246, 0.06) 1px, transparent 1px), linear-gradient(90deg, rgba(60, 131, 246, 0.06) 1px, transparent 1px);
+        background-size: 44px 44px;
+    }
+
+    .services-section .section-title {
+        color: #fff;
+    }
+
+    .services-section .section-label {
+        color: #93c5fd;
+    }
+
+    .services-section .section-label::before {
+        background: #93c5fd;
+    }
+
+    .services-header {
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-between;
+        margin-bottom: 48px;
+        gap: 24px;
+        flex-wrap: wrap;
+    }
+
+    .services-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 16px;
+        position: relative;
+        z-index: 1;
+    }
+
+    @media (max-width: 700px) {
+        .services-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    .service-card {
+        background: rgba(255, 255, 255, 0.04);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 16px;
+        padding: 28px 28px 24px;
+        display: flex;
+        gap: 20px;
+        transition: all 0.3s;
+    }
+
+    .service-card:hover {
+        background: rgba(60, 131, 246, 0.1);
+        border-color: rgba(60, 131, 246, 0.3);
+        transform: translateY(-2px);
+    }
+
+    .service-card-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        background: rgba(60, 131, 246, 0.2);
+        border: 1px solid rgba(60, 131, 246, 0.3);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 22px;
+        flex-shrink: 0;
+    }
+
+    .service-card-title {
+        font-size: 16px;
+        font-weight: 700;
+        color: #fff;
+        margin-bottom: 6px;
+    }
+
+    .service-card-desc {
+        font-size: 13px;
+        color: rgba(255, 255, 255, 0.48);
+        line-height: 1.7;
+    }
+
+    .service-card-tag {
+        display: inline-block;
+        margin-top: 12px;
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        color: var(--blue);
+        background: rgba(60, 131, 246, 0.15);
+        border: 1px solid rgba(60, 131, 246, 0.3);
+        padding: 3px 10px;
+        border-radius: 20px;
+    }
+
+    .platform-cards {
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+    }
+
+    .platform-card {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        background: var(--bg);
+        border: 1.5px solid var(--border);
+        border-radius: 14px;
+        padding: 18px 20px;
+        text-decoration: none;
+        transition: all 0.25s;
+    }
+
+    .platform-card:hover {
+        border-color: var(--blue-border);
+        background: var(--blue-light);
+        transform: translateX(4px);
+    }
+
+    .platform-icon {
+        width: 44px;
+        height: 44px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 20px;
+        flex-shrink: 0;
+    }
+
+    .pi-yt {
+        background: #fee2e2;
+    }
+
+    .pi-ig {
+        background: #fdf4ff;
+    }
+
+    .pi-tw {
+        background: #f0f9ff;
+    }
+
+    .platform-name {
+        font-size: 15px;
+        font-weight: 700;
+        color: var(--text);
+        margin-bottom: 3px;
+    }
+
+    .platform-handle {
+        font-size: 12px;
+        color: var(--muted);
+    }
+
+    .platform-arrow {
+        margin-left: auto;
+        color: var(--muted2);
+        font-size: 14px;
+        transition: transform 0.2s;
+    }
+
+    .platform-card:hover .platform-arrow {
+        transform: translateX(3px);
+        color: var(--blue);
+    }
+
+    .cta-inner {
+        background: linear-gradient(135deg, var(--ink) 0%, #1e3a5f 100%);
+        border-radius: 24px;
+        padding: 64px 56px;
+        position: relative;
+        overflow: hidden;
+        text-align: center;
+    }
+
+    .cta-inner::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background-image: linear-gradient(rgba(60, 131, 246, 0.07) 1px, transparent 1px), linear-gradient(90deg, rgba(60, 131, 246, 0.07) 1px, transparent 1px);
+        background-size: 36px 36px;
+    }
+
+    .cta-inner::after {
+        content: "";
+        position: absolute;
+        top: -100px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 500px;
+        height: 300px;
+        background: radial-gradient(circle, rgba(60, 131, 246, 0.2) 0%, transparent 65%);
+        pointer-events: none;
+    }
+
+    .cta-tag,
+    .cta-title,
+    .cta-sub,
+    .cta-btns {
+        position: relative;
+        z-index: 1;
+    }
+
+    .cta-tag {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background: rgba(60, 131, 246, 0.18);
+        border: 1px solid rgba(60, 131, 246, 0.35);
+        color: #93c5fd;
+        font-size: 11px;
+        letter-spacing: 1.5px;
+        text-transform: uppercase;
+        padding: 5px 14px;
+        border-radius: 20px;
+        margin-bottom: 20px;
+    }
+
+    .cta-title {
+        font-size: clamp(2rem, 4vw, 3.2rem);
+        font-weight: 800;
+        color: #fff;
+        letter-spacing: -1px;
+        line-height: 1.1;
+        margin-bottom: 16px;
+    }
+
+    .cta-sub {
+        font-size: 16px;
+        color: rgba(255, 255, 255, 0.56);
+        max-width: 500px;
+        margin: 0 auto 36px;
+        line-height: 1.7;
+    }
+
+    .cta-btns {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+        flex-wrap: wrap;
+    }
+
+    .btn-primary,
+    .btn-ghost {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        font-size: 14px;
+        padding: 13px 26px;
+        border-radius: 10px;
+        text-decoration: none;
+        transition: all 0.25s;
+    }
+
+    .btn-primary {
+        background: var(--blue);
+        color: #fff;
+        font-weight: 700;
+    }
+
+    .btn-primary:hover {
+        background: var(--blue-dark);
+        color: #fff;
+        box-shadow: 0 8px 28px rgba(60, 131, 246, 0.4);
+        transform: translateY(-2px);
+    }
+
+    .btn-ghost {
+        background: rgba(255, 255, 255, 0.07);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        color: rgba(255, 255, 255, 0.86);
+        font-weight: 600;
+    }
+
+    .btn-ghost:hover {
+        background: rgba(255, 255, 255, 0.12);
+        border-color: rgba(255, 255, 255, 0.25);
+        color: #fff;
+    }
+
+    .about-container {
+        max-width: 1160px;
+        margin: 0 auto;
+        padding: 0 48px;
+    }
+
+    @media (max-width: 600px) {
+        .about-container {
+            padding: 0 20px;
+        }
+    }
+
+    .reveal {
+        opacity: 0;
+        transform: translateY(28px);
+        transition: opacity 0.7s ease, transform 0.7s ease;
+    }
+
+    .reveal.visible {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    @media (max-width: 850px) {
+        .contact-grid {
+            grid-template-columns: 1fr !important;
+            gap: 40px !important;
+        }
+    }
+
+    #form-message.success {
+        background: #f0fdf4;
+        border: 1px solid #bbf7d0;
+        color: #065f46;
+    }
+
+    #form-message.error {
+        background: #fef2f2;
+        border: 1px solid #fecaca;
+        color: #991b1b;
+    }
+</style>
+
+<div class="about-page">
+    <section class="hero">
+        <div class="hero-left">
+            <div class="hero-eyebrow">
+                <img src="/static/images/logo2.png" alt="BUDASAI" width="100">
+                <span style="width:1px;height:14px;background:rgba(255,255,255,.2);display:inline-block;margin:0 4px;"></span>
+                About BUDASAI
+            </div>
+
+            <h1 class="hero-headline">
+                Human<br>
+                Intelligence.<br>
+                <span class="accent">AI Brilliance.</span>
+            </h1>
+
+            <p class="hero-sub">
+                We are a small team obsessed with making AI <strong>actually useful</strong> for real businesses, not just impressive in demos. We test, rate, build, and teach so you do not have to start from zero.
+            </p>
+
+            <div class="hero-chips">
+                <span class="chip"><i class="bi bi-check2-circle"></i> No Sponsorships</span>
+                <span class="chip"><i class="bi bi-shield-check"></i> Honest Reviews</span>
+                <span class="chip"><i class="bi bi-youtube"></i> YouTube Creators</span>
+                <span class="chip"><i class="bi bi-gear"></i> AI Automation</span>
             </div>
         </div>
 
-        <!-- Card 2 -->
-        <div class="col-12 col-md-6 col-lg-4 col-xl-3 reveal-left reveal-delay-4">
-            <div class="process-card">
-                <div class="step-number">02</div>
-
-                <div class="icon-circle">
-                    <i class="bi bi-filetype-pdf"></i>
-                </div>
-
-                <h5 class="mt-3">AI Audit PDF</h5>
-
-                <div>
-                    Get a personalized audit revealing your automation opportunities.
-                </div>
-            </div>
-        </div>
-
-        <!-- Card 3 -->
-        <div class="col-12 col-md-6 col-lg-4 col-xl-3 reveal-right reveal-delay-4">
-            <div class="process-card">
-                <div class="step-number">03</div>
-
-                <div class="icon-circle">
-                    <i class="bi bi-tools"></i>
-                </div>
-
-                <h5 class="mt-3">Software Toolkit</h5>
-
-                <div>
-                    Implement plug-and-play AI tools with our automation kit.
-                </div>
-            </div>
-        </div>
-
-        <!-- Card 4 -->
-        <div class="col-12 col-md-6 col-lg-4 col-xl-3 reveal-right reveal-delay-3">
-            <div class="process-card">
-                <div class="step-number">04</div>
-
-                <div class="icon-circle">
-                    <img src="/static/images/crown.png" width="30">
-                </div>
-
-                <h5 class="mt-3">Premium Subscription</h5>
-                <div>
-                    Ongoing support, updates, and advanced AI strategies.
-                </div>
-            </div>
-        </div>
-
-    </div>
-</div>
-
-
-<div class="container text-center mt-5">
-    <h1 class="mb-4 reveal">Frequently Asked Questions</h1>
-
-    <div class="row justify-content-center">
-        <div class="col-md-6 text-start">
-
-            <!-- Card 1 -->
-            <div class="info-card mb-4 reveal">
-                <button class="toggle-btn w-100 d-flex justify-content-between align-items-center"
-                    data-bs-toggle="collapse" data-bs-target="#item1" aria-expanded="false">
-                    <span class="card-title">Is AI expensive?</span>
-                    <span class="arrow">&#9662;</span>
-                </button>
-
-                <div id="item1" class="collapse dropdown-details mt-2">
-                    Not with BudasAI. Our solutions are designed to deliver ROI within weeks. Most clients save more
-                    than their investment within the first month through time savings alone.
-                </div>
-            </div>
-
-            <!-- Card 2 -->
-            <div class="info-card mb-4 reveal">
-                <button class="toggle-btn w-100 d-flex justify-content-between align-items-center"
-                    data-bs-toggle="collapse" data-bs-target="#item2">
-                    <span class="card-title">Do I need technical knowledge?</span>
-                    <span class="arrow">&#9662;</span>
-                </button>
-
-                <div id="item2" class="collapse dropdown-details mt-2">
-                    Absolutely not. Our tools come with step-by-step guides and video walkthroughs. If you can use
-                    email, you can use our AI solutions.
-                </div>
-            </div>
-
-            <!-- Card 3 -->
-            <div class="info-card mb-4 reveal">
-                <button class="toggle-btn w-100 d-flex justify-content-between align-items-center"
-                    data-bs-toggle="collapse" data-bs-target="#item3">
-                    <span class="card-title">How quickly can I see results?</span>
-                    <span class="arrow">&#9662;</span>
-                </button>
-
-                <div id="item3" class="collapse dropdown-details mt-2">
-                    Most clients report measurable time savings within the first week. Full ROI typically happens within
-                    30–60 days depending on implementation scope.
-                </div>
-            </div>
-
-            <!-- Card 4 -->
-            <div class="info-card mb-4 reveal">
-                <button class="toggle-btn w-100 d-flex justify-content-between align-items-center"
-                    data-bs-toggle="collapse" data-bs-target="#item4">
-                    <span class="card-title">Is this suitable for small businesses?</span>
-                    <span class="arrow">&#9662;</span>
-                </button>
-
-                <div id="item4" class="collapse dropdown-details mt-2">
-                    Yes! Our solutions are specifically designed with small and mid-size businesses in mind. No
-                    enterprise-level complexity or pricing.
-                </div>
-            </div>
-
-        </div>
-    </div>
-</div>
-
-
-<div id="contact-section" class="container text-center mt-5 mb-5">
-    <h1 class="reveal">Get in Touch</h1>
-    <div class="text-content reveal">
-        We'd love to hear from you. Let's explore how AI can help your business.
-    </div>
-
-    <div class="container my-5">
-        <div class="row justify-content-center">
-            <div class="col-md-6">
-
-                <form action="/contact" method="POST" class="contact-form p-4 reveal position-relative">
-
-                    <!-- 🔔 Status Message -->
-                    <div id="form-message" class="form-message d-none"></div>
-
-                    <div class="mb-3">
-                        <label class="form-label">Name</label>
-                        <input type="text" class="form-control" placeholder="Your name" name="name" required>
+        <div class="hero-right">
+            <div class="stat-stack">
+                <div class="stat-card">
+                    <div class="stat-icon">🤖</div>
+                    <div>
+                        <div class="stat-val">{{ ai_tools_count }}<span>+</span></div>
+                        <div class="stat-label">AI tools rated and reviewed</div>
                     </div>
+                </div>
 
-                    <div class="mb-3">
-                        <label class="form-label">Email</label>
-                        <input type="email" class="form-control" placeholder="Your email" name="email" required>
+                <div class="stat-card">
+                    <div class="stat-icon">⏱️</div>
+                    <div>
+                        <div class="stat-val">20<span>+</span></div>
+                        <div class="stat-label">Hours saved weekly for clients</div>
                     </div>
+                </div>
 
-                    <div class="mb-3">
-                        <label class="form-label">Business Type</label>
-                        <input type="text" class="form-control" placeholder="Business type" name="business_type"
-                            required>
+                <div class="stat-card">
+                    <div class="stat-icon">📉</div>
+                    <div>
+                        <div class="stat-val">40<span>%</span></div>
+                        <div class="stat-label">Average error reduction</div>
                     </div>
+                </div>
 
-                    <div class="mb-4">
-                        <label class="form-label">Message</label>
-                        <textarea class="form-control" rows="4" placeholder="Write your message" name="message"
-                            required></textarea>
+                <div class="stat-card">
+                    <div class="stat-icon">🚀</div>
+                    <div>
+                        <div class="stat-val">3<span>x</span></div>
+                        <div class="stat-label">Faster workflows for clients</div>
                     </div>
-
-                    <button type="submit" class="button-fill-square w-100">
-                        <span class="btn-text">Send Message</span>
-                        <span class="btn-loading d-none">Sending...</span>
-                    </button>
-
-                </form>
-
+                </div>
             </div>
         </div>
+    </section>
+
+    <div class="mission-strip">
+        <div class="marquee-wrap">
+            <span class="marquee-item">AI Tool Reviews <span class="marquee-sep"></span></span>
+            <span class="marquee-item">Workflow Automation <span class="marquee-sep"></span></span>
+            <span class="marquee-item">No Sponsorships <span class="marquee-sep"></span></span>
+            <span class="marquee-item">Real Business Results <span class="marquee-sep"></span></span>
+            <span class="marquee-item">YouTube Channel <span class="marquee-sep"></span></span>
+            <span class="marquee-item">Honest Ratings <span class="marquee-sep"></span></span>
+            <span class="marquee-item">AI Consulting <span class="marquee-sep"></span></span>
+            <span class="marquee-item">Free AI Guide <span class="marquee-sep"></span></span>
+            <span class="marquee-item">AI Tool Reviews <span class="marquee-sep"></span></span>
+            <span class="marquee-item">Workflow Automation <span class="marquee-sep"></span></span>
+            <span class="marquee-item">No Sponsorships <span class="marquee-sep"></span></span>
+            <span class="marquee-item">Real Business Results <span class="marquee-sep"></span></span>
+            <span class="marquee-item">YouTube Channel <span class="marquee-sep"></span></span>
+            <span class="marquee-item">Honest Ratings <span class="marquee-sep"></span></span>
+            <span class="marquee-item">AI Consulting <span class="marquee-sep"></span></span>
+            <span class="marquee-item">Free AI Guide <span class="marquee-sep"></span></span>
+        </div>
     </div>
+
+    <section class="story-section">
+        <div class="about-container">
+            <div class="story-grid">
+                <div class="reveal">
+                    <div class="section-label">Our Story</div>
+                    <h2 class="section-title">Why We Started BUDASAI</h2>
+                    <div class="section-body">
+                        <p>AI was exploding, but most content around it was either overhyped fluff or buried in technical jargon. Business owners and creators were left guessing which tools were actually worth their time and money.</p>
+                        <p>We started BUDASAI to cut through the noise. We test AI tools the way real users do, on real tasks, across practical criteria, and publish findings without sponsorship influence.</p>
+                        <p>Beyond ratings, we help businesses implement AI workflows that stick: automations that save hours every week, not just demos that gather dust.</p>
+                    </div>
+                </div>
+
+                <div class="reveal" style="transition-delay:.15s">
+                    <div class="story-visual">
+                        <div class="story-card-main">
+                            <div class="story-card-inner">
+                                <p class="story-quote">"We do not rate tools to sound smart. We rate them so <span>you can decide in 5 minutes</span> instead of 5 days."</p>
+                                <div class="story-author">
+                                    <div class="story-avatar">👤</div>
+                                    <div>
+                                        <div class="story-author-name">BUDASAI Team</div>
+                                        <div class="story-author-role">Founders · budasai.com</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="story-float-badge">
+                            <div class="num">10</div>
+                            <div class="lbl">criteria tested<br>per tool</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="values-section">
+        <div class="about-container">
+            <div class="values-header reveal">
+                <div class="section-label" style="justify-content:center">What We Stand For</div>
+                <h2 class="section-title" style="text-align:center">Our Core Values</h2>
+            </div>
+
+            <div class="values-grid">
+                <div class="value-card vc-1 reveal">
+                    <div class="value-num">01</div>
+                    <span class="value-icon">🎯</span>
+                    <div class="value-title">Radical Honesty</div>
+                    <div class="value-desc">No sponsored rankings. No affiliate-inflated scores. If a tool is mediocre, we say it clearly.</div>
+                </div>
+
+                <div class="value-card vc-2 reveal" style="transition-delay:.08s">
+                    <div class="value-num">02</div>
+                    <span class="value-icon">🔬</span>
+                    <div class="value-title">Real Testing</div>
+                    <div class="value-desc">Every tool gets hands-on testing across practical criteria, not a quick demo and opinion.</div>
+                </div>
+
+                <div class="value-card vc-3 reveal" style="transition-delay:.16s">
+                    <div class="value-num">03</div>
+                    <span class="value-icon">⚡</span>
+                    <div class="value-title">Practical Over Flashy</div>
+                    <div class="value-desc">We measure time saved, errors reduced, and output quality, not shiny demo moments.</div>
+                </div>
+
+                <div class="value-card vc-4 reveal" style="transition-delay:.24s">
+                    <div class="value-num">04</div>
+                    <span class="value-icon">🌐</span>
+                    <div class="value-title">Accessible to Everyone</div>
+                    <div class="value-desc">Our ratings and educational content stay free, so AI productivity is not paywalled by default.</div>
+                </div>
+
+                <div class="value-card vc-5 reveal" style="transition-delay:.32s">
+                    <div class="value-num">05</div>
+                    <span class="value-icon">🤝</span>
+                    <div class="value-title">Client-First Consulting</div>
+                    <div class="value-desc">We design automations for real operations and stay hands-on until workflows run reliably.</div>
+                </div>
+
+                <div class="value-card vc-6 reveal" style="transition-delay:.40s">
+                    <div class="value-num">06</div>
+                    <span class="value-icon">🔄</span>
+                    <div class="value-title">Always Updating</div>
+                    <div class="value-desc">AI moves fast. We re-test tools and revise scores when real-world performance changes.</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="services-section">
+        <div class="about-container">
+            <div class="services-header reveal">
+                <div>
+                    <div class="section-label">What We Do</div>
+                    <h2 class="section-title">Three Things.<br>Done Well.</h2>
+                </div>
+                <a href="/products" style="position:relative;z-index:1;display:inline-flex;align-items:center;gap:7px;color:rgba(255,255,255,.55);font-size:13px;font-weight:600;text-decoration:none;border:1px solid rgba(255,255,255,.12);padding:10px 18px;border-radius:9px;transition:all .2s" onmouseover="this.style.color='#fff';this.style.borderColor='rgba(255,255,255,.3)'" onmouseout="this.style.color='rgba(255,255,255,.55)';this.style.borderColor='rgba(255,255,255,.12)'">See all products <i class="bi bi-arrow-right"></i></a>
+            </div>
+
+            <div class="services-grid">
+                <div class="service-card reveal">
+                    <div class="service-card-icon">📊</div>
+                    <div>
+                        <div class="service-card-title">AI Tool Ratings</div>
+                        <div class="service-card-desc">We rate major AI tools across quality, speed, value, creativity, accuracy and more. Fully independent.</div>
+                        <a href="/ai-tools" class="service-card-tag">View Ratings</a>
+                    </div>
+                </div>
+
+                <div class="service-card reveal" style="transition-delay:.1s">
+                    <div class="service-card-icon">⚙️</div>
+                    <div>
+                        <div class="service-card-title">Workflow Automation</div>
+                        <div class="service-card-desc">We build custom AI automations for lead qualification, content pipelines, screening and reporting.</div>
+                        <a href="/products" class="service-card-tag">See Plans</a>
+                    </div>
+                </div>
+
+                <div class="service-card reveal" style="transition-delay:.2s">
+                    <div class="service-card-icon">🎬</div>
+                    <div>
+                        <div class="service-card-title">YouTube Education</div>
+                        <div class="service-card-desc">Practical no-fluff breakdowns of tools, automations, and workflows for creators and businesses.</div>
+                        <a href="https://www.youtube.com/@BudasAI_insight" target="_blank" rel="noopener noreferrer" class="service-card-tag">Watch on YouTube</a>
+                    </div>
+                </div>
+
+                <div class="service-card reveal" style="transition-delay:.3s">
+                    <div class="service-card-icon">📄</div>
+                    <div>
+                        <div class="service-card-title">Free AI Starter Guide</div>
+                        <div class="service-card-desc">A practical PDF to apply AI into day-to-day workflows without overcomplication.</div>
+                        <a href="/products#plans" class="service-card-tag">Download Free</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="social-section">
+        <div class="about-container">
+            <div class="social-grid">
+                <div class="reveal">
+                    <div class="section-label">Find Us Online</div>
+                    <h2 class="section-title">We Are Building in Public</h2>
+                    <div class="section-body">
+                        <p>Follow our journey across platforms. We share tool breakdowns, automation tips, and behind-the-scenes experiments.</p>
+                        <p style="margin-top:14px">Subscribe on YouTube for deep walkthroughs. Follow Instagram and X for quick wins and new tool drops.</p>
+                    </div>
+                </div>
+
+                <div class="reveal" style="transition-delay:.15s">
+                    <div class="platform-cards">
+                        <a href="https://www.youtube.com/@BudasAI_insight" target="_blank" rel="noopener noreferrer" class="platform-card">
+                            <div class="platform-icon pi-yt">🎬</div>
+                            <div>
+                                <div class="platform-name">YouTube</div>
+                                <div class="platform-handle">@BudasAI_insight</div>
+                            </div>
+                            <i class="bi bi-arrow-right platform-arrow"></i>
+                        </a>
+
+                        <a href="https://www.instagram.com/budasai_insight/" target="_blank" rel="noopener noreferrer" class="platform-card">
+                            <div class="platform-icon pi-ig">📸</div>
+                            <div>
+                                <div class="platform-name">Instagram</div>
+                                <div class="platform-handle">@budasai_insight</div>
+                            </div>
+                            <i class="bi bi-arrow-right platform-arrow"></i>
+                        </a>
+
+                        <a href="https://x.com/BudasAI_insight" target="_blank" rel="noopener noreferrer" class="platform-card">
+                            <div class="platform-icon pi-tw">✖️</div>
+                            <div>
+                                <div class="platform-name">X (Twitter)</div>
+                                <div class="platform-handle">@BudasAI_insight</div>
+                            </div>
+                            <i class="bi bi-arrow-right platform-arrow"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="cta-section">
+        <div class="about-container">
+            <div class="cta-inner reveal">
+                <div class="cta-tag">Let us work together</div>
+                <h2 class="cta-title">Ready to Put AI<br>to Work?</h2>
+                <p class="cta-sub">Whether you want custom automation, an AI audit, or a free guide to get started, there is a path for every stage.</p>
+                <div class="cta-btns">
+                    <a href="/products" class="btn-primary">Explore Solutions <i class="bi bi-arrow-right"></i></a>
+                    <a href="/ai-tools" class="btn-ghost">View AI Ratings</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="contact-section" style="padding: 100px 0; background: #fff;">
+        <div class="about-container">
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: start;" class="contact-grid">
+                <div class="reveal">
+                    <div class="section-label">Get in Touch</div>
+                    <h2 class="section-title">Let us Explore What AI Can Do for You</h2>
+                    <p class="section-body">Tell us about your business and we will come back with practical ideas.</p>
+
+                    <div style="margin-top:36px; display:flex; flex-direction:column; gap:20px;">
+                        <div style="display:flex; align-items:center; gap:16px;">
+                            <div style="width:44px;height:44px;border-radius:12px;background:var(--blue-light);border:1px solid var(--blue-border);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;">📧</div>
+                            <div>
+                                <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:2px;">Email Us</div>
+                                <div style="font-size:13px;color:var(--muted);">contact@budasai.com</div>
+                            </div>
+                        </div>
+
+                        <div style="display:flex; align-items:center; gap:16px;">
+                            <div style="width:44px;height:44px;border-radius:12px;background:var(--blue-light);border:1px solid var(--blue-border);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;">⚡</div>
+                            <div>
+                                <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:2px;">Response Time</div>
+                                <div style="font-size:13px;color:var(--muted);">Usually within 24 hours on business days</div>
+                            </div>
+                        </div>
+
+                        <div style="display:flex; align-items:center; gap:16px;">
+                            <div style="width:44px;height:44px;border-radius:12px;background:var(--blue-light);border:1px solid var(--blue-border);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;">🌍</div>
+                            <div>
+                                <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:2px;">We Work Globally</div>
+                                <div style="font-size:13px;color:var(--muted);">Remote-first and worldwide</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="reveal" style="transition-delay:.15s">
+                    <form action="/contact" method="POST" class="contact-form" style="background:var(--bg);border:1px solid var(--border);border-radius:20px;padding:36px;position:relative;">
+                        <div id="form-message" style="display:none;margin-bottom:18px;padding:12px 16px;border-radius:10px;font-size:13px;font-weight:600;line-height:1.5;"></div>
+
+                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;">
+                            <div>
+                                <label style="display:block;font-size:11px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--muted2);margin-bottom:7px;">Name</label>
+                                <input type="text" name="name" placeholder="Your name" required style="width:100%;padding:11px 14px;background:#fff;border:1.5px solid var(--border);border-radius:9px;font-size:14px;color:var(--text);outline:none;transition:border-color .2s,box-shadow .2s;" onfocus="this.style.borderColor='var(--blue)';this.style.boxShadow='0 0 0 3px rgba(60,131,246,.1)'" onblur="this.style.borderColor='var(--border)';this.style.boxShadow='none'">
+                            </div>
+                            <div>
+                                <label style="display:block;font-size:11px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--muted2);margin-bottom:7px;">Email</label>
+                                <input type="email" name="email" placeholder="your@email.com" required style="width:100%;padding:11px 14px;background:#fff;border:1.5px solid var(--border);border-radius:9px;font-size:14px;color:var(--text);outline:none;transition:border-color .2s,box-shadow .2s;" onfocus="this.style.borderColor='var(--blue)';this.style.boxShadow='0 0 0 3px rgba(60,131,246,.1)'" onblur="this.style.borderColor='var(--border)';this.style.boxShadow='none'">
+                            </div>
+                        </div>
+
+                        <div style="margin-bottom:14px;">
+                            <label style="display:block;font-size:11px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--muted2);margin-bottom:7px;">Business Type</label>
+                            <input type="text" name="business_type" placeholder="e.g. E-commerce, Agency, SaaS..." required style="width:100%;padding:11px 14px;background:#fff;border:1.5px solid var(--border);border-radius:9px;font-size:14px;color:var(--text);outline:none;transition:border-color .2s,box-shadow .2s;" onfocus="this.style.borderColor='var(--blue)';this.style.boxShadow='0 0 0 3px rgba(60,131,246,.1)'" onblur="this.style.borderColor='var(--border)';this.style.boxShadow='none'">
+                        </div>
+
+                        <div style="margin-bottom:22px;">
+                            <label style="display:block;font-size:11px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--muted2);margin-bottom:7px;">Message</label>
+                            <textarea name="message" rows="4" placeholder="Tell us what you are working on..." required style="width:100%;padding:11px 14px;background:#fff;border:1.5px solid var(--border);border-radius:9px;font-size:14px;color:var(--text);outline:none;resize:vertical;transition:border-color .2s,box-shadow .2s;" onfocus="this.style.borderColor='var(--blue)';this.style.boxShadow='0 0 0 3px rgba(60,131,246,.1)'" onblur="this.style.borderColor='var(--border)';this.style.boxShadow='none'"></textarea>
+                        </div>
+
+                        <button type="submit" style="width:100%;padding:13px;background:var(--blue);color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:all .25s;" onmouseover="this.style.background='var(--blue-dark)';this.style.boxShadow='0 8px 28px rgba(60,131,246,.35)';this.style.transform='translateY(-1px)'" onmouseout="this.style.background='var(--blue)';this.style.boxShadow='none';this.style.transform='none'">
+                            <span class="btn-text">Send Message <i class="bi bi-send"></i></span>
+                            <span class="btn-loading" style="display:none;">Sending...</span>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
 </div>
 
 <script>
-    const form = document.querySelector(".contact-form");
-    const submitBtn = form.querySelector("button[type='submit']");
-    const btnText = submitBtn.querySelector(".btn-text");
-    const btnLoading = submitBtn.querySelector(".btn-loading");
+    const contactForm = document.querySelector(".contact-form");
+    const submitBtn = contactForm ? contactForm.querySelector("button[type='submit']") : null;
+    const btnText = submitBtn ? submitBtn.querySelector(".btn-text") : null;
+    const btnLoading = submitBtn ? submitBtn.querySelector(".btn-loading") : null;
     const messageBox = document.getElementById("form-message");
 
     let isSubmitting = false;
 
     function showMessage(type, text) {
-        messageBox.classList.remove("d-none", "success", "error");
-        messageBox.classList.add(type);
+        if (!messageBox) return;
+        messageBox.className = type;
+        messageBox.style.display = "block";
         messageBox.innerText = text;
-
-        // Auto hide after 5 seconds
         setTimeout(() => {
-            messageBox.classList.add("d-none");
+            messageBox.style.display = "none";
         }, 5000);
     }
 
-    form.addEventListener("submit", async (e) => {
-        e.preventDefault();
+    if (contactForm && submitBtn && btnText && btnLoading) {
+        contactForm.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            if (isSubmitting) return;
+            isSubmitting = true;
 
-        if (isSubmitting) return;
-        isSubmitting = true;
+            submitBtn.disabled = true;
+            btnText.style.display = "none";
+            btnLoading.style.display = "inline";
 
-        submitBtn.disabled = true;
-        btnText.classList.add("d-none");
-        btnLoading.classList.remove("d-none");
+            try {
+                const response = await fetch("/contact", { method: "POST", body: new FormData(contactForm) });
+                const result = await response.json();
 
-        const formData = new FormData(form);
-
-        try {
-            const response = await fetch("/contact", {
-                method: "POST",
-                body: formData
-            });
-
-            const result = await response.json();
-
-            if (response.status === 429) {
-                showMessage("error", "Too many requests. Please try again tomorrow.");
+                if (response.status === 429) {
+                    showMessage("error", "Too many requests. Please try again tomorrow.");
+                } else if (result.success) {
+                    showMessage("success", "Message sent! We will be in touch soon.");
+                    contactForm.reset();
+                } else {
+                    showMessage("error", result.message || "Something went wrong. Please try again.");
+                }
+            } catch (err) {
+                showMessage("error", "Unexpected error. Please try again later.");
+            } finally {
+                submitBtn.disabled = false;
+                btnText.style.display = "inline";
+                btnLoading.style.display = "none";
+                isSubmitting = false;
             }
-            else if (result.success) {
-                showMessage("success", "Message sent successfully! We'll contact you soon.");
-                form.reset();
-            } 
-            else {
-                showMessage("error", result.message || "Something went wrong. Please try again.");
-            }
+        });
+    }
 
-        } catch (err) {
-            console.error(err);
-            showMessage("error", "Unexpected error occurred. Please try again later.");
-        } finally {
-            submitBtn.disabled = false;
-            btnText.classList.remove("d-none");
-            btnLoading.classList.add("d-none");
-            isSubmitting = false;
-        }
-    });
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add("visible");
+                observer.unobserve(entry.target);
+            }
+        });
+    }, { threshold: 0.12 });
+
+    document.querySelectorAll(".reveal").forEach((el) => observer.observe(el));
 </script>
-
 {% endblock %}

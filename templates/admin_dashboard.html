@@ -365,6 +365,36 @@
         .checkbox-row input[type="checkbox"] { width: 16px; height: 16px; cursor: pointer; accent-color: var(--primary); }
         .checkbox-row label { font-size: 13px; font-weight: 600; color: var(--text); margin: 0; cursor: pointer; }
 
+        /* ── PLAN PILL MULTI-SELECT ── */
+        .plan-pills-grid {
+            display: flex; flex-wrap: wrap; gap: 10px; margin-top: 8px;
+        }
+        .plan-pill-item {
+            position: relative;
+        }
+        .plan-pill-item input[type="checkbox"] {
+            position: absolute; opacity: 0; width: 0; height: 0;
+        }
+        .plan-pill-label {
+            display: flex; align-items: center; gap: 9px;
+            padding: 10px 16px; border-radius: 30px; cursor: pointer; user-select: none;
+            font-size: 13px; font-weight: 700;
+            background: var(--bg); border: 1.5px solid var(--border); color: var(--muted);
+            transition: all .18s;
+            white-space: nowrap;
+        }
+        .plan-pill-label:hover { border-color: #bfdbfe; color: #1d4ed8; background: #eff6ff; }
+        .plan-pill-item input:checked + .plan-pill-label {
+            background: var(--primary); border-color: var(--primary); color: #fff;
+            box-shadow: 0 2px 8px rgba(60,131,246,.35);
+        }
+        .plan-pill-label .ppl-price {
+            font-size: 11px; font-weight: 600; opacity: .7;
+            background: rgba(0,0,0,.08); padding: 2px 7px; border-radius: 10px;
+        }
+        .plan-pill-item input:checked + .plan-pill-label .ppl-price { background: rgba(255,255,255,.2); opacity:1; }
+        .plan-pills-empty { font-size: 13px; color: var(--muted); font-style: italic; }
+
         /* ── BUTTONS ── */
         .btn-primary {
             background: var(--primary);
@@ -738,6 +768,198 @@
 
         .modal-body { padding: 24px; }
 
+        /* ── PRICING PREVIEW CARD ── */
+        .preview-price-card {
+            max-width: 380px;
+            margin: 0 auto;
+            background: #0b1120;
+            border-radius: 22px;
+            padding: 40px 32px;
+            position: relative;
+        }
+
+        .preview-card-wrap {
+            position: relative;
+            padding-top: 22px;
+        }
+
+        .preview-price-badge {
+            position: absolute;
+            top: 0;
+            right: 20px;
+            z-index: 10;
+            padding: 6px 16px;
+            border-radius: 30px;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: .8px;
+            text-transform: uppercase;
+            box-shadow: 0 4px 18px rgba(0,0,0,.45);
+        }
+
+        .preview-card-inner {
+            background: #111827;
+            border: 1px solid rgba(255,255,255,.08);
+            border-radius: 22px;
+            overflow: hidden;
+        }
+
+        .preview-card-topbar {
+            height: 3px;
+            width: 100%;
+        }
+
+        .preview-card-content {
+            padding: 22px;
+        }
+
+        .preview-price-name {
+            font-size: 18px;
+            font-weight: 800;
+            color: #fff;
+            margin-bottom: 5px;
+            margin-top: 14px;
+            line-height: 1.2;
+        }
+
+        .preview-price-sub {
+            font-size: 12px;
+            color: rgba(255,255,255,.3);
+            margin-bottom: 22px;
+            line-height: 1.5;
+            min-height: 20px;
+        }
+
+        .preview-price-original {
+            font-size: 18px;
+            color: rgba(255,255,255,.3);
+            text-decoration: line-through;
+            margin-bottom: 6px;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .preview-price-amount {
+            font-size: 42px;
+            font-weight: 700;
+            color: #fff;
+            line-height: 1;
+            letter-spacing: -1px;
+            margin-bottom: 6px;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .preview-price-amount.free {
+            color: #10b981;
+        }
+
+        .preview-price-amount.custom {
+            color: rgba(255,255,255,.4);
+            font-size: 30px;
+            letter-spacing: 0;
+        }
+
+        .preview-price-note {
+            font-size: 11px;
+            color: rgba(255,255,255,.22);
+            margin-bottom: 22px;
+        }
+
+        .preview-price-divider {
+            border: none;
+            border-top: 1px solid rgba(255,255,255,.06);
+            margin: 18px 0;
+        }
+
+        .preview-price-group-label {
+            font-size: 9px;
+            font-weight: 800;
+            color: rgba(255,255,255,.18);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 10px;
+        }
+
+        .preview-price-features {
+            list-style: none;
+            margin-bottom: 18px;
+        }
+
+        .preview-price-features li {
+            padding: 4px 0;
+            font-size: 13px;
+            color: rgba(255,255,255,.52);
+            display: flex;
+            align-items: flex-start;
+            gap: 9px;
+            line-height: 1.5;
+        }
+
+        .preview-price-features li:before {
+            content: '✓';
+            width: 17px;
+            height: 17px;
+            flex-shrink: 0;
+            margin-top: 1px;
+            border-radius: 5px;
+            background: rgba(16,185,129,.12);
+            border: 1px solid rgba(16,185,129,.25);
+            color: #10b981;
+            font-size: 9px;
+            font-weight: 900;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .preview-price-btn-wrapper {
+            margin-top: 24px;
+        }
+
+        .preview-price-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            width: 100%;
+            padding: 13px 18px;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 14px;
+            border: none;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .preview-price-btn-outline {
+            background: rgba(255,255,255,.05);
+            border: 1px solid rgba(255,255,255,.1);
+            color: rgba(255,255,255,.6);
+        }
+
+        .preview-price-btn-green {
+            background: #10b981;
+            color: #fff;
+        }
+
+        .preview-price-btn-blue {
+            background: #3C83F6;
+            color: #fff;
+        }
+
+        .preview-price-btn-violet {
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            color: #fff;
+        }
+
+        .preview-price-terms {
+            font-size: 10px;
+            color: rgba(255,255,255,.16);
+            text-align: center;
+            margin-top: 10px;
+            line-height: 1.5;
+        }
+
         /* ── RESPONSIVE ── */
         @media (max-width: 900px) {
             .sidebar { transform: translateX(-100%); }
@@ -769,6 +991,17 @@
         <button class="nav-item" onclick="goPage('aitoolsinfo')">
             <i class="bi bi-info-circle"></i> AI Tools Info
         </button>
+        <button class="nav-item" onclick="goPage('pricing')">
+            <i class="bi bi-cash-stack"></i> Pricing Plans
+        </button>
+        <div class="nav-section-label">Users</div>
+        <button class="nav-item" onclick="goPage('users')">
+            <i class="bi bi-people"></i> Manage Users
+        </button>
+        <div class="nav-section-label">Config</div>
+        <button class="nav-item" onclick="goPage('settings')">
+            <i class="bi bi-gear"></i> Site Settings
+        </button>
     </nav>
     <div class="sidebar-footer">
         <a href="/admin/logout" class="logout-link">
@@ -780,7 +1013,6 @@
 <!-- ══ MAIN ══ -->
 <div class="main-wrap">
 
-    <!-- TOP BAR -->
     <div class="topbar">
         <div class="topbar-left">
             <div class="topbar-title" id="topbar-title">Blogs</div>
@@ -2172,6 +2404,473 @@
         </div>
         <!-- ══════════ END AI TOOLS INFO PAGE ══════════ -->
 
+        <!-- ══════════ PRICING PLANS PAGE ══════════ -->
+        <div id="page-pricing" class="page">
+            <div class="page-header">
+                <div>
+                    <h2>Pricing Plans</h2>
+                    <p>Create and update pricing cards used on the products page.</p>
+                </div>
+            </div>
+
+            <div class="subtab-bar">
+                <button class="stab active" onclick="goSub('pricing','create')">Create</button>
+                <button class="stab" onclick="goSub('pricing','list')">View All</button>
+                <button class="stab" onclick="goSub('pricing','edit')">Edit</button>
+            </div>
+
+            <div id="pricing-create" class="subpage active">
+                <div class="card">
+                    <div class="card-header"><h3>Create Pricing Plan</h3></div>
+                    <div class="card-body">
+                        <form method="post" action="/admin/pricing/create" id="pricing-create-form" onsubmit="return submitFormAjax(event, 'pricing-create-form')">
+                            <div class="form-grid-2">
+                                <div class="form-group">
+                                    <label>Plan Name (slug) <span class="req">*</span></label>
+                                    <input type="text" class="form-control" name="plan_name" placeholder="e.g. budasai_blueprint" required>
+                                </div>
+                                <div class="form-group">
+                                    <label>Plan Heading <span class="req">*</span></label>
+                                    <input type="text" class="form-control" name="plan_heading" required>
+                                </div>
+                                <div class="form-group form-full">
+                                    <label>Plan Subheading</label>
+                                    <input type="text" class="form-control" name="plan_subheading">
+                                </div>
+                                <div class="form-group">
+                                    <label>Price INR (blank for custom)</label>
+                                    <input type="number" class="form-control" name="price_inr" step="0.01">
+                                </div>
+                                <div class="form-group">
+                                    <label>Discount %</label>
+                                    <input type="number" class="form-control" name="discount_percent" step="0.01" value="0">
+                                </div>
+                                <div class="form-group">
+                                    <label>Display Order</label>
+                                    <input type="number" class="form-control" name="display_order" value="0" min="0">
+                                </div>
+                                <div class="form-group">
+                                    <label>Badge Text</label>
+                                    <input type="text" class="form-control" name="badge_text" value="Standard">
+                                </div>
+                                <div class="form-group">
+                                    <label>Button Text <span class="req">*</span></label>
+                                    <input type="text" class="form-control" name="button_text" required>
+                                </div>
+                                <div class="form-group form-full">
+                                    <label>Price Note (shown below price)</label>
+                                    <input type="text" class="form-control" name="price_note" placeholder="e.g. One-time payment · Instant access">
+                                </div>
+                                <div class="form-group">
+                                    <label>Button URL</label>
+                                    <select class="form-select" id="plan-button-url" name="button_url" onchange="togglePricingCustomUrl('')">
+                                        <option value="/download-guide">Download Free PDF (signed URL flow)</option>
+                                        <option value="/product-detail">/product-detail</option>
+                                        <option value="/premium">/premium</option>
+                                        <option value="/about#contact-section" selected>/about#contact-section</option>
+                                        <option value="__custom__">Custom URL</option>
+                                    </select>
+                                </div>
+                                <div class="form-group form-full" id="plan-custom-button-url-wrap" style="display:none;">
+                                    <label>Custom Button URL</label>
+                                    <input type="text" class="form-control" id="plan-custom-button-url" name="custom_button_url" placeholder="/my-custom-path or https://example.com/page">
+                                </div>
+                                <div class="form-group">
+                                    <label>Card BG Color</label>
+                                    <input type="color" class="form-control" name="card_bg_color" value="#ffffff">
+                                </div>
+                                <div class="form-group">
+                                    <label>Badge BG Color</label>
+                                    <input type="color" class="form-control" name="badge_bg_color" value="#3C83F6">
+                                </div>
+                                <div class="form-group">
+                                    <label>Badge Text Color</label>
+                                    <input type="color" class="form-control" name="badge_text_color" value="#ffffff">
+                                </div>
+                                <div class="form-group form-full">
+                                    <label>Plan Includes Heading 1</label>
+                                    <input type="text" class="form-control" name="features_heading_1">
+                                </div>
+                                <div class="form-group form-full">
+                                    <label>Plan Includes List 1 (JSON array)</label>
+                                    <textarea class="form-control" name="features_list_1" rows="3">[]</textarea>
+                                </div>
+                                <div class="form-group form-full">
+                                    <label>Plan Includes Heading 2</label>
+                                    <input type="text" class="form-control" name="features_heading_2">
+                                </div>
+                                <div class="form-group form-full">
+                                    <label>Plan Includes List 2 (JSON array)</label>
+                                    <textarea class="form-control" name="features_list_2" rows="3">[]</textarea>
+                                </div>
+                            </div>
+                            <div class="checkbox-row">
+                                <input type="checkbox" id="pricing-create-popular" name="is_popular" value="on">
+                                <label for="pricing-create-popular">Most Popular</label>
+                            </div>
+                            <div class="checkbox-row">
+                                <input type="checkbox" id="pricing-create-terms" name="show_terms" value="on">
+                                <label for="pricing-create-terms">Show terms link</label>
+                            </div>
+                            <div class="checkbox-row">
+                                <input type="checkbox" id="pricing-create-active" name="is_active" value="on" checked>
+                                <label for="pricing-create-active">Active</label>
+                            </div>
+                            <div class="btn-row">
+                                <button type="submit" class="btn-primary btn-full"><i class="bi bi-plus-circle"></i> Create Plan</button>
+                            </div>
+                        </form>
+                        
+                        <!-- Live Preview -->
+                        <div style="margin-top:32px;padding-top:32px;border-top:2px solid var(--border);">
+                            <h4 style="margin-bottom:16px;font-size:15px;font-weight:700;color:var(--text);"><i class="bi bi-eye"></i> Live Preview</h4>
+                            <div id="create-preview-card" class="preview-price-card"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="pricing-list" class="subpage">
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Plan</th><th>Price INR</th><th>Popular</th><th>Button URL</th><th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% if pricing_plans %}
+                            {% for plan in pricing_plans %}
+                            <tr>
+                                <td><strong>{{ plan.plan_heading }}</strong><div style="font-size:12px;color:var(--muted)">{{ plan.plan_name }}</div></td>
+                                <td>{{ plan.price_inr if plan.price_inr is not none else 'Custom' }}</td>
+                                <td>{% if plan.is_popular %}<span class="badge badge-green">Yes</span>{% else %}<span class="badge badge-red">No</span>{% endif %}</td>
+                                <td style="font-family:'JetBrains Mono',monospace;font-size:12px;">{{ plan.button_url }}</td>
+                                <td>{% if plan.is_active %}<span class="badge badge-green">Active</span>{% else %}<span class="badge badge-red">Inactive</span>{% endif %}</td>
+                            </tr>
+                            {% endfor %}
+                            {% else %}
+                            <tr><td colspan="5"><div class="empty-state"><i class="bi bi-cash-stack"></i><p>No pricing plans found.</p></div></td></tr>
+                            {% endif %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div id="pricing-edit" class="subpage">
+                <div class="card">
+                    <div class="card-header"><h3>Edit Pricing Plan</h3></div>
+                    <div class="card-body">
+                        {% if pricing_plans %}
+                        <form method="post" action="/admin/pricing/update" id="pricing-edit-form" onsubmit="return submitFormAjax(event, 'pricing-edit-form')">
+                            <div class="form-group">
+                                <label>Select Plan</label>
+                                <select id="pricing-select" name="id" class="form-select" onchange="populatePricingForm()" required>
+                                    <option value="">-- Select Plan --</option>
+                                    {% for plan in pricing_plans %}
+                                    <option value="{{ plan.id }}"
+                                        data-plan-name="{{ plan.plan_name }}"
+                                        data-plan-heading="{{ plan.plan_heading }}"
+                                        data-plan-subheading="{{ plan.plan_subheading or '' }}"
+                                        data-price="{{ plan.price_inr if plan.price_inr is not none else '' }}"
+                                        data-discount="{{ plan.discount_percent or 0 }}"
+                                        data-features-heading-1="{{ plan.features_heading_1 or '' }}"
+                                        data-features-list-1='{{ plan.features_list_1 | tojson | safe }}'
+                                        data-features-heading-2="{{ plan.features_heading_2 or '' }}"
+                                        data-features-list-2='{{ plan.features_list_2 | tojson | safe }}'
+                                        data-button-text="{{ plan.button_text or '' }}"
+                                        data-price-note="{{ plan.price_note or '' }}"
+                                        data-button-url="{{ plan.button_url or '/about#contact-section' }}"
+                                        data-show-terms="{{ plan.show_terms }}"
+                                        data-is-popular="{{ plan.is_popular }}"
+                                        data-display-order="{{ plan.display_order or 0 }}"
+                                        data-is-active="{{ plan.is_active }}"
+                                        data-card-bg-color="{{ plan.card_bg_color or '#ffffff' }}"
+                                        data-badge-bg-color="{{ plan.badge_bg_color or '#3C83F6' }}"
+                                        data-badge-text-color="{{ plan.badge_text_color or '#ffffff' }}"
+                                        data-badge-text="{{ plan.badge_text or 'Standard' }}">{{ plan.plan_heading }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="form-grid-2">
+                                <div class="form-group"><label>Plan Name</label><input type="text" class="form-control" id="edit-plan-name" name="plan_name" required></div>
+                                <div class="form-group"><label>Plan Heading</label><input type="text" class="form-control" id="edit-plan-heading" name="plan_heading" required></div>
+                                <div class="form-group form-full"><label>Plan Subheading</label><input type="text" class="form-control" id="edit-plan-subheading" name="plan_subheading"></div>
+                                <div class="form-group"><label>Price INR</label><input type="number" class="form-control" id="edit-plan-price" name="price_inr" step="0.01"></div>
+                                <div class="form-group"><label>Discount %</label><input type="number" class="form-control" id="edit-plan-discount" name="discount_percent" step="0.01"></div>
+                                <div class="form-group"><label>Display Order</label><input type="number" class="form-control" id="edit-plan-display-order" name="display_order" min="0"></div>
+                                <div class="form-group"><label>Badge Text</label><input type="text" class="form-control" id="edit-plan-badge-text" name="badge_text"></div>
+                                <div class="form-group"><label>Button Text</label><input type="text" class="form-control" id="edit-plan-button-text" name="button_text" required></div>
+                                <div class="form-group form-full"><label>Price Note (shown below price)</label><input type="text" class="form-control" id="edit-plan-price-note" name="price_note"></div>
+                                <div class="form-group">
+                                    <label>Button URL</label>
+                                    <select class="form-select" id="edit-plan-button-url" name="button_url" onchange="togglePricingCustomUrl('edit-')">
+                                        <option value="/download-guide">Download Free PDF (signed URL flow)</option>
+                                        <option value="/product-detail">/product-detail</option>
+                                        <option value="/premium">/premium</option>
+                                        <option value="/about#contact-section">/about#contact-section</option>
+                                        <option value="__custom__">Custom URL</option>
+                                    </select>
+                                </div>
+                                <div class="form-group form-full" id="edit-plan-custom-button-url-wrap" style="display:none;">
+                                    <label>Custom Button URL</label>
+                                    <input type="text" class="form-control" id="edit-plan-custom-button-url" name="custom_button_url" placeholder="/my-custom-path or https://example.com/page">
+                                </div>
+                                <div class="form-group"><label>Card BG Color</label><input type="color" class="form-control" id="edit-plan-card-bg-color" name="card_bg_color"></div>
+                                <div class="form-group"><label>Badge BG Color</label><input type="color" class="form-control" id="edit-plan-badge-bg-color" name="badge_bg_color"></div>
+                                <div class="form-group"><label>Badge Text Color</label><input type="color" class="form-control" id="edit-plan-badge-text-color" name="badge_text_color"></div>
+                                <div class="form-group form-full"><label>Plan Includes Heading 1</label><input type="text" class="form-control" id="edit-plan-features-heading-1" name="features_heading_1"></div>
+                                <div class="form-group form-full"><label>Plan Includes List 1 (JSON array)</label><textarea class="form-control" id="edit-plan-features-list-1" name="features_list_1" rows="3"></textarea></div>
+                                <div class="form-group form-full"><label>Plan Includes Heading 2</label><input type="text" class="form-control" id="edit-plan-features-heading-2" name="features_heading_2"></div>
+                                <div class="form-group form-full"><label>Plan Includes List 2 (JSON array)</label><textarea class="form-control" id="edit-plan-features-list-2" name="features_list_2" rows="3"></textarea></div>
+                            </div>
+                            <div class="checkbox-row"><input type="checkbox" id="edit-plan-is-popular" name="is_popular" value="on"><label for="edit-plan-is-popular">Most Popular</label></div>
+                            <div class="checkbox-row"><input type="checkbox" id="edit-plan-show-terms" name="show_terms" value="on"><label for="edit-plan-show-terms">Show terms link</label></div>
+                            <div class="checkbox-row"><input type="checkbox" id="edit-plan-is-active" name="is_active" value="on"><label for="edit-plan-is-active">Active</label></div>
+                            <div class="btn-row"><button type="submit" class="btn-primary btn-full"><i class="bi bi-floppy"></i> Update Plan</button></div>
+                            
+                            <!-- Live Preview -->
+                            <div style="margin-top:32px;padding-top:32px;border-top:2px solid var(--border);">
+                                <h4 style="margin-bottom:16px;font-size:15px;font-weight:700;color:var(--text);"><i class="bi bi-eye"></i> Live Preview</h4>
+                                <div id="edit-preview-card" class="preview-price-card"></div>
+                            </div>
+                        </form>
+                        {% else %}
+                        <div class="empty-state"><i class="bi bi-cash-stack"></i><p>No pricing plans found.</p></div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ══════════ MANAGE USERS PAGE ══════════ -->
+        <div id="page-users" class="page">
+            <div class="page-header">
+                <div>
+                    <h2>Manage Users</h2>
+                    <p>Create and update user profiles. Add paid plan activation from Billing records.</p>
+                </div>
+            </div>
+
+            <div class="subtab-bar">
+                <button class="stab active" onclick="goSub('users','create')">Create</button>
+                <button class="stab" onclick="goSub('users','list')">View All</button>
+                <button class="stab" onclick="goSub('users','edit')">Edit</button>
+                <button class="stab" onclick="goSub('users','billing')">Billing</button>
+            </div>
+
+            <div id="users-create" class="subpage active">
+                <div class="card">
+                    <div class="card-header"><h3>Create User Profile</h3></div>
+                    <div class="card-body">
+                        <form method="post" action="/admin/user/create" id="user-create-form" onsubmit="return submitFormAjax(event, 'user-create-form')">
+                            <div class="form-grid-2">
+                                <div class="form-group"><label>Email <span class="req">*</span></label><input type="email" class="form-control" name="email" required></div>
+                                <div class="form-group"><label>Full Name</label><input type="text" class="form-control" name="full_name"></div>
+                                <div class="form-group"><label>Phone Number</label><input type="text" class="form-control" name="phone_number"></div>
+                                <div class="form-group"><label>DOB</label><input type="date" class="form-control" name="dob"></div>
+                                <div class="form-group form-full"><label>Profession</label><input type="text" class="form-control" name="profession"></div>
+                            </div>
+                            <div class="checkbox-row"><input type="checkbox" id="user-create-active" name="is_active" value="on" checked><label for="user-create-active">Active</label></div>
+                            <div class="btn-row"><button type="submit" class="btn-primary btn-full"><i class="bi bi-person-plus"></i> Create User Profile</button></div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <div id="users-list" class="subpage">
+                <div class="table-wrap">
+                    <table>
+                        <thead><tr><th>Email</th><th>Name</th><th>Phone</th><th>Plans</th><th>Status</th></tr></thead>
+                        <tbody>
+                            {% if user_profiles %}
+                            {% for user in user_profiles %}
+                            <tr>
+                                <td><strong>{{ user.email }}</strong></td>
+                                <td>{{ user.full_name or '-' }}</td>
+                                <td>{{ user.phone_number or '-' }}</td>
+                                <td>{{ user.plan_ids|length }}</td>
+                                <td>{% if user.is_active %}<span class="badge badge-green">Active</span>{% else %}<span class="badge badge-red">Inactive</span>{% endif %}</td>
+                            </tr>
+                            {% endfor %}
+                            {% else %}
+                            <tr><td colspan="5"><div class="empty-state"><i class="bi bi-people"></i><p>No user profiles found.</p></div></td></tr>
+                            {% endif %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div id="users-edit" class="subpage">
+                <div class="card">
+                    <div class="card-header"><h3>Edit User Profile</h3></div>
+                    <div class="card-body">
+                        {% if user_profiles %}
+                        <form method="post" action="/admin/user/update" id="user-edit-form" onsubmit="return submitFormAjax(event, 'user-edit-form')">
+                            <div class="form-group">
+                                <label>Select User</label>
+                                <select id="user-select" name="id" class="form-select" onchange="populateUserForm()" required>
+                                    <option value="">-- Select User --</option>
+                                    {% for user in user_profiles %}
+                                    <option value="{{ user.id }}"
+                                        data-email="{{ user.email }}"
+                                        data-full-name="{{ user.full_name or '' }}"
+                                        data-phone-number="{{ user.phone_number or '' }}"
+                                        data-dob="{{ user.dob or '' }}"
+                                        data-profession="{{ user.profession or '' }}"
+                                        data-plan-ids='{{ user.plan_ids | tojson | safe }}'
+                                        data-primary-plan-id="{{ user.primary_plan_id or '' }}"
+                                        data-is-active="{{ user.is_active }}">{{ user.email }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="form-grid-2">
+                                <div class="form-group"><label>Email</label><input type="email" class="form-control" id="edit-user-email" name="email" required></div>
+                                <div class="form-group"><label>Full Name</label><input type="text" class="form-control" id="edit-user-full-name" name="full_name"></div>
+                                <div class="form-group"><label>Phone Number</label><input type="text" class="form-control" id="edit-user-phone-number" name="phone_number"></div>
+                                <div class="form-group"><label>DOB</label><input type="date" class="form-control" id="edit-user-dob" name="dob"></div>
+                                <div class="form-group form-full"><label>Profession</label><input type="text" class="form-control" id="edit-user-profession" name="profession"></div>
+                            </div>
+                            <div class="checkbox-row"><input type="checkbox" id="edit-user-is-active" name="is_active" value="on"><label for="edit-user-is-active">Active</label></div>
+                            <div class="btn-row"><button type="submit" class="btn-primary btn-full"><i class="bi bi-floppy"></i> Update User Profile</button></div>
+                        </form>
+                        {% else %}
+                        <div class="empty-state"><i class="bi bi-people"></i><p>No user profiles found.</p></div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <div id="users-billing" class="subpage">
+                <div class="card" style="margin-bottom:18px;">
+                    <div class="card-header"><h3>Add Billing Record</h3></div>
+                    <div class="card-body">
+                        <form method="post" action="/admin/billing/create" id="billing-create-form" onsubmit="return submitFormAjax(event, 'billing-create-form')">
+                            <div class="form-grid-2">
+                                <div class="form-group">
+                                    <label>User <span class="req">*</span></label>
+                                    <select class="form-select" name="user_id" required>
+                                        <option value="">-- Select User --</option>
+                                        {% for user in user_profiles %}
+                                        <option value="{{ user.id }}">{{ user.email }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>Plan <span class="req">*</span></label>
+                                    <select class="form-select" id="billing-plan-id" name="plan_id" required onchange="updateBillingAmount()">
+                                        <option value="">-- Select Plan --</option>
+                                        {% for plan in paid_plans %}
+                                        <option value="{{ plan.id }}" data-price="{{ plan.price_inr or 0 }}">{{ plan.plan_heading }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>Duration <span class="req">*</span></label>
+                                    <select class="form-select" name="duration_months" required>
+                                        <option value="1">1 month</option>
+                                        <option value="3">3 months</option>
+                                        <option value="6">6 months</option>
+                                        <option value="12">12 months</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>Amount</label>
+                                    <input type="number" step="0.01" min="0" class="form-control" id="billing-amount" name="amount" placeholder="Auto from plan">
+                                </div>
+                                <div class="form-group">
+                                    <label>Currency</label>
+                                    <select class="form-select" name="currency">
+                                        <option value="INR" selected>INR</option>
+                                        <option value="USD">USD</option>
+                                        <option value="AED">AED</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>Payment Status</label>
+                                    <select class="form-select" name="payment_status">
+                                        <option value="paid" selected>Paid</option>
+                                        <option value="success">Success</option>
+                                        <option value="pending">Pending</option>
+                                        <option value="failed">Failed</option>
+                                        <option value="refunded">Refunded</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>Payment Method</label>
+                                    <input type="text" class="form-control" name="payment_method" placeholder="UPI / Card / Cash / Manual">
+                                </div>
+                                <div class="form-group">
+                                    <label>Transaction ID</label>
+                                    <input type="text" class="form-control" name="transaction_id" placeholder="Optional">
+                                </div>
+                            </div>
+                            <div class="btn-row"><button type="submit" class="btn-primary btn-full"><i class="bi bi-receipt"></i> Add Billing Record</button></div>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="table-wrap">
+                    <table>
+                        <thead><tr><th>User</th><th>Plan</th><th>Amount</th><th>Status</th><th>Start</th><th>Expires</th></tr></thead>
+                        <tbody>
+                            {% if billing_records %}
+                            {% for br in billing_records %}
+                            <tr>
+                                <td>{{ br.email or '-' }}</td>
+                                <td>{{ br.plan_name or '-' }}</td>
+                                <td>{{ br.currency or 'INR' }} {{ br.amount or 0 }}</td>
+                                <td>{{ br.payment_status or '-' }}</td>
+                                <td>{{ br.starts_at or br.created_at or '-' }}</td>
+                                <td>{{ br.expires_at or '-' }}</td>
+                            </tr>
+                            {% endfor %}
+                            {% else %}
+                            <tr><td colspan="6"><div class="empty-state"><i class="bi bi-receipt"></i><p>No billing records found.</p></div></td></tr>
+                            {% endif %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ══════════ SITE SETTINGS PAGE ══════════ -->
+        <div id="page-settings" class="page">
+            <div class="page-header">
+                <div>
+                    <h2>Site Settings</h2>
+                    <p>Manage configurable website values used by public pages.</p>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header"><h3>Free PDF Download</h3></div>
+                <div class="card-body">
+                    <form method="post" action="/admin/settings/update" id="settings-form" onsubmit="return submitFormAjax(event, 'settings-form')">
+                        <div class="form-group">
+                            <label>Free PDF Filename <span class="req">*</span></label>
+                            <input
+                                type="text"
+                                class="form-control"
+                                name="free_pdf_filename"
+                                value="{{ free_pdf_filename }}"
+                                placeholder="BudasAI Insight Feb 2026.pdf"
+                                required>
+                            <small style="display:block;margin-top:8px;color:var(--text-light);font-size:12px;line-height:1.5;">
+                                Enter the exact file name stored in the Supabase <strong>PDFs</strong> bucket.
+                                Example: <code>BudasAI Insight Feb 2026.pdf</code>
+                            </small>
+                        </div>
+                        <div class="btn-row">
+                            <button type="submit" class="btn-primary">
+                                <i class="bi bi-floppy"></i> Save Settings
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
     </div><!-- /content-area -->
 </div><!-- /main-wrap -->
 
@@ -2313,6 +3012,9 @@ const PAGE_META = {
     stories:  { title: 'Stories',        crumb: 'budasai / admin / stories' },
     aitools:  { title: 'AI Tools Rating',crumb: 'budasai / admin / ai-tools' },
     aitoolsinfo: { title: 'AI Tools Info', crumb: 'budasai / admin / ai-tools-info' },
+    pricing:  { title: 'Pricing Plans',  crumb: 'budasai / admin / pricing' },
+    users:    { title: 'Manage Users',   crumb: 'budasai / admin / users' },
+    settings: { title: 'Site Settings',  crumb: 'budasai / admin / settings' },
 };
 
 function goPage(name) {
@@ -2381,6 +3083,112 @@ function populateStoryForm() {
     catch(e) { document.getElementById("edit-story-results").value = opt.dataset.results; }
     const pub = (opt.dataset.published || "").toLowerCase();
     document.getElementById("edit-story-published").checked = ["true","t","1","on"].includes(pub);
+}
+
+function populatePricingForm() {
+    const sel = document.getElementById('pricing-select');
+    const opt = sel.options[sel.selectedIndex];
+    if (!opt.value) return;
+
+    const getData = (camelKey, attrKey, fallback = '') => {
+        const byDataset = opt.dataset[camelKey];
+        if (byDataset !== undefined && byDataset !== null && byDataset !== '') return byDataset;
+        const byAttr = opt.getAttribute(`data-${attrKey}`);
+        if (byAttr !== null && byAttr !== undefined && byAttr !== '') return byAttr;
+        return fallback;
+    };
+
+    const toPrettyJson = (raw) => {
+        if (raw === null || raw === undefined || raw === '') return '[]';
+        if (Array.isArray(raw)) return JSON.stringify(raw, null, 2);
+        try {
+            const parsed = JSON.parse(raw);
+            return JSON.stringify(parsed, null, 2);
+        } catch (e) {
+            // Keep editable even when stored JSON is malformed.
+            return String(raw);
+        }
+    };
+
+    document.getElementById('edit-plan-name').value = getData('planName', 'plan-name', '');
+    document.getElementById('edit-plan-heading').value = getData('planHeading', 'plan-heading', '');
+    document.getElementById('edit-plan-subheading').value = getData('planSubheading', 'plan-subheading', '');
+    document.getElementById('edit-plan-price').value = getData('price', 'price', '');
+    document.getElementById('edit-plan-discount').value = getData('discount', 'discount', 0);
+    document.getElementById('edit-plan-features-heading-1').value = getData('featuresHeading1', 'features-heading-1', '');
+    document.getElementById('edit-plan-features-list-1').value = toPrettyJson(getData('featuresList1', 'features-list-1', '[]'));
+    document.getElementById('edit-plan-features-heading-2').value = getData('featuresHeading2', 'features-heading-2', '');
+    document.getElementById('edit-plan-features-list-2').value = toPrettyJson(getData('featuresList2', 'features-list-2', '[]'));
+    document.getElementById('edit-plan-button-text').value = getData('buttonText', 'button-text', '');
+    document.getElementById('edit-plan-price-note').value = getData('priceNote', 'price-note', '');
+    const existingButtonUrl = getData('buttonUrl', 'button-url', '/about#contact-section');
+    const editButtonUrlSelect = document.getElementById('edit-plan-button-url');
+    const editCustomButtonUrl = document.getElementById('edit-plan-custom-button-url');
+    const knownButtonUrls = ['/download-guide', '/product-detail', '/premium', '/about#contact-section'];
+
+    if (knownButtonUrls.includes(existingButtonUrl)) {
+        editButtonUrlSelect.value = existingButtonUrl;
+        editCustomButtonUrl.value = '';
+    } else {
+        editButtonUrlSelect.value = '__custom__';
+        editCustomButtonUrl.value = existingButtonUrl || '';
+    }
+    togglePricingCustomUrl('edit-');
+    document.getElementById('edit-plan-display-order').value = getData('displayOrder', 'display-order', 0);
+    document.getElementById('edit-plan-card-bg-color').value = getData('cardBgColor', 'card-bg-color', '#ffffff');
+    document.getElementById('edit-plan-badge-bg-color').value = getData('badgeBgColor', 'badge-bg-color', '#3C83F6');
+    document.getElementById('edit-plan-badge-text-color').value = getData('badgeTextColor', 'badge-text-color', '#ffffff');
+    document.getElementById('edit-plan-badge-text').value = getData('badgeText', 'badge-text', 'Standard');
+
+    const showTerms = getData('showTerms', 'show-terms', '').toLowerCase();
+    const isPopular = getData('isPopular', 'is-popular', '').toLowerCase();
+    const isActive = getData('isActive', 'is-active', '').toLowerCase();
+    document.getElementById('edit-plan-show-terms').checked = ["true","t","1","on"].includes(showTerms);
+    document.getElementById('edit-plan-is-popular').checked = ["true","t","1","on"].includes(isPopular);
+    document.getElementById('edit-plan-is-active').checked = ["true","t","1","on"].includes(isActive);
+}
+
+function togglePricingCustomUrl(formPrefix) {
+    const selectId = formPrefix + 'plan-button-url';
+    const wrapId = formPrefix + 'plan-custom-button-url-wrap';
+    const inputId = formPrefix + 'plan-custom-button-url';
+
+    const selectEl = document.getElementById(selectId);
+    const wrapEl = document.getElementById(wrapId);
+    const inputEl = document.getElementById(inputId);
+
+    if (!selectEl || !wrapEl || !inputEl) return;
+
+    const isCustom = selectEl.value === '__custom__';
+    wrapEl.style.display = isCustom ? 'block' : 'none';
+    inputEl.required = isCustom;
+}
+
+function populateUserForm() {
+    const sel = document.getElementById('user-select');
+    const opt = sel.options[sel.selectedIndex];
+    if (!opt.value) return;
+
+    document.getElementById('edit-user-email').value = opt.dataset.email || '';
+    document.getElementById('edit-user-full-name').value = opt.dataset.fullName || '';
+    document.getElementById('edit-user-phone-number').value = opt.dataset.phoneNumber || '';
+    document.getElementById('edit-user-dob').value = opt.dataset.dob || '';
+    document.getElementById('edit-user-profession').value = opt.dataset.profession || '';
+
+    const isActive = (opt.dataset.isActive || '').toLowerCase();
+    document.getElementById('edit-user-is-active').checked = ["true","t","1","on"].includes(isActive);
+}
+
+function updateBillingAmount() {
+    const planSelect = document.getElementById('billing-plan-id');
+    const amountInput = document.getElementById('billing-amount');
+    if (!planSelect || !amountInput) return;
+
+    const selected = planSelect.options[planSelect.selectedIndex];
+    const planPrice = selected ? selected.dataset.price : '';
+    if (planPrice !== undefined && planPrice !== null && planPrice !== '') {
+        amountInput.value = planPrice;
+    }
 }
 
 // ── AI Tool Score helpers ──
@@ -3221,6 +4029,157 @@ function loadFaqsForTool(select) {
         });
     }
 }
+
+// ── PRICING PLAN LIVE PREVIEW ──
+function updatePricingPreview(formPrefix, previewId) {
+    const getVal = (name) => {
+        const el = document.getElementById(formPrefix + name) || document.querySelector(`[name="${name}"]`);
+        return el ? el.value : '';
+    };
+    
+    const getChecked = (name) => {
+        const el = document.getElementById(formPrefix + name) || document.querySelector(`[name="${name}"]`);
+        return el ? el.checked : false;
+    };
+    
+    const planHeading = getVal('plan-heading') || getVal('plan_heading') || 'Plan Name';
+    const planSubheading = getVal('plan-subheading') || getVal('plan_subheading') || '';
+    const priceInr = parseFloat(getVal('plan-price') || getVal('price_inr')) || null;
+    const discount = parseFloat(getVal('plan-discount') || getVal('discount_percent')) || 0;
+    const badgeText = getVal('plan-badge-text') || getVal('badge_text') || 'Standard';
+    const buttonText = getVal('plan-button-text') || getVal('button_text') || 'Get Started';
+    const priceNote = getVal('plan-price-note') || getVal('price_note') || '';
+    const isPopular = getChecked('plan-is-popular') || getChecked('is_popular');
+    const showTerms = getChecked('plan-show-terms') || getChecked('show_terms');
+    
+    const cardBg = getVal('plan-card-bg-color') || getVal('card_bg_color') || '#ffffff';
+    const badgeBg = getVal('plan-badge-bg-color') || getVal('badge_bg_color') || '#3C83F6';
+    const badgeTextColor = getVal('plan-badge-text-color') || getVal('badge_text_color') || '#ffffff';
+    
+    const featuresHeading1 = getVal('plan-features-heading-1') || getVal('features_heading_1') || '';
+    const featuresHeading2 = getVal('plan-features-heading-2') || getVal('features_heading_2') || '';
+    
+    let featuresList1 = [];
+    let featuresList2 = [];
+    try {
+        const raw1 = getVal('plan-features-list-1') || getVal('features_list_1');
+        if (raw1) featuresList1 = JSON.parse(raw1);
+    } catch (e) {}
+    
+    try {
+        const raw2 = getVal('plan-features-list-2') || getVal('features_list_2');
+        if (raw2) featuresList2 = JSON.parse(raw2);
+    } catch (e) {}
+    
+    // Calculate prices
+    let originalPrice = null;
+    let finalPrice = null;
+    let priceDisplay = '';
+    
+    if (priceInr !== null && priceInr > 0) {
+        if (discount > 0) {
+            originalPrice = priceInr;
+            finalPrice = priceInr * (1 - discount / 100);
+            priceDisplay = finalPrice.toFixed(0);
+        } else {
+            finalPrice = priceInr;
+            priceDisplay = finalPrice.toFixed(0);
+        }
+    }
+    
+    // Build HTML
+    const priceNoteText = priceNote;
+    
+    let buttonClass = isPopular ? 'preview-price-btn-green' : 'preview-price-btn-outline';
+    let topBarGradient = isPopular ? 'linear-gradient(90deg,#10b981,#34d399)' : 
+                         'linear-gradient(90deg,#3C83F6,#6366f1)';
+    
+    let html = `
+        <div class="preview-card-wrap">
+            <div class="preview-price-badge" style="background:${badgeBg};color:${badgeTextColor}">
+                ${badgeText}
+            </div>
+            <div class="preview-card-inner" style="background:${cardBg}">
+                <div class="preview-card-topbar" style="background:${topBarGradient}"></div>
+                <div class="preview-card-content">
+                    <div class="preview-price-name">${planHeading}</div>
+                    ${planSubheading ? `<div class="preview-price-sub">${planSubheading}</div>` : '<div class="preview-price-sub">&nbsp;</div>'}
+                    
+                    <div>
+                        ${originalPrice ? `<div class="preview-price-original">₹${originalPrice.toFixed(0)}</div>` : ''}
+                        
+                        ${priceDisplay ? `<div class="preview-price-amount">₹${priceDisplay}</div>` : 
+                          priceInr === 0 ? '<div class="preview-price-amount free">Free</div>' : 
+                          '<div class="preview-price-amount custom">Custom</div>'}
+                        
+                        ${priceNoteText ? `<div class="preview-price-note">${priceNoteText}</div>` : ''}
+                    </div>
+                    
+                    <hr class="preview-price-divider">
+    `;
+    
+    if (featuresHeading1 && featuresList1.length > 0) {
+        html += `<div class="preview-price-group-label">${featuresHeading1}</div>`;
+        html += '<ul class="preview-price-features">';
+        featuresList1.forEach(f => {
+            html += `<li>${f}</li>`;
+        });
+        html += '</ul>';
+    }
+    
+    if (featuresHeading2 && featuresList2.length > 0) {
+        html += `<div class="preview-price-group-label">${featuresHeading2}</div>`;
+        html += '<ul class="preview-price-features">';
+        featuresList2.forEach(f => {
+            html += `<li>${f}</li>`;
+        });
+        html += '</ul>';
+    }
+    
+    html += `
+                    <div class="preview-price-btn-wrapper">
+                        <div class="preview-price-btn ${buttonClass}">
+                            ${buttonText} <i class="bi bi-arrow-right"></i>
+                        </div>
+                        ${showTerms ? '<p class="preview-price-terms"><a href="#">*terms & conditions apply</a></p>' : ''}
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    const previewCard = document.getElementById(previewId);
+    if (previewCard) {
+        previewCard.innerHTML = html;
+    }
+}
+
+// Attach listeners for CREATE form
+document.addEventListener('DOMContentLoaded', () => {
+    const createForm = document.getElementById('pricing-create-form');
+    if (createForm) {
+        // Update preview on any input change
+        createForm.addEventListener('input', () => updatePricingPreview('', 'create-preview-card'));
+        createForm.addEventListener('change', () => updatePricingPreview('', 'create-preview-card'));
+        // Initial render
+        updatePricingPreview('', 'create-preview-card');
+        togglePricingCustomUrl('');
+    }
+    
+    const editForm = document.getElementById('pricing-edit-form');
+    if (editForm) {
+        editForm.addEventListener('input', () => updatePricingPreview('edit-', 'edit-preview-card'));
+        editForm.addEventListener('change', () => updatePricingPreview('edit-', 'edit-preview-card'));
+        togglePricingCustomUrl('edit-');
+    }
+});
+
+// Update edit preview when plan is selected
+const originalPopulatePricingForm = populatePricingForm;
+populatePricingForm = function() {
+    originalPopulatePricingForm();
+    setTimeout(() => updatePricingPreview('edit-', 'edit-preview-card'), 100);
+};
 
 </script>
 

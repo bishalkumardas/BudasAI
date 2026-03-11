@@ -36,6 +36,36 @@
     fill: #fff;
     flex-shrink: 0;
   }
+
+  /* Clickable table rows */
+  #comparisonTable tbody tr {
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  #comparisonTable tbody tr:hover {
+    background-color: #f8fafc;
+    transform: scale(1.01);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  }
+
+  #comparisonTable tbody tr:active {
+    transform: scale(0.99);
+  }
+
+  .ai-tools-click-hint {
+    margin: 8px 0 14px;
+    font-size: 13px;
+    color: #2563eb;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .ai-tools-click-hint::before {
+    content: "👆";
+  }
 </style>
 <div class="ai-tools-page">
   <header class="ai-tools-hero">
@@ -77,9 +107,10 @@
           </div>
         </div>
       </div>
-      <p style="margin: -6px 0 14px; font-size: 12px; color: #64748b; line-height: 1.6;">
+      <p style="margin: -6px 0 8px; font-size: 12px; color: #64748b; line-height: 1.6;">
         Scores are based on our own hands-on research and public user experiences for a neutral review. None of the apps or tools listed here are sponsored - any sponsored listing will be clearly marked. Our recommendations are solely based on personal testing and publicly available feedback. Our research includes testing each tool on the parameters shown in the AI Tools Rating table.
       </p>
+      <p class="ai-tools-click-hint">Click any row to view full tool details, comparisons, and use cases</p>
       <div class="ai-tools-table-wrap">
         <div class="ai-tools-table-scroll">
           <table id="comparisonTable"></table>
@@ -259,11 +290,11 @@
           ${rows.map((tool, idx) => {
             const score = tool.overall;
             const scoreColors = scoreStyle(score);
+            const toolUrl = `/ai-tool-${slugifyToolName(tool.name || 'untitled-tool')}`;
             return `
-              <tr>
+              <tr data-href="${toolUrl}" onclick="window.location.href=this.dataset.href">
                 <td>
-                  <a class="ai-tools-tool-cell-link" href="/ai-tool-${slugifyToolName(tool.name || 'untitled-tool')}">
-                    <div class="ai-tools-tool">
+                  <div class="ai-tools-tool">
                       <div class="ai-tools-tool-icon">
                         ${tool.image_url ? `<img class="ai-tools-tool-img" src="${tool.image_url}" alt="${tool.name || 'AI Tool'}" loading="lazy">` : '<span>AI</span>'}
                       </div>
@@ -273,7 +304,6 @@
                         </div>
                       </div>
                     </div>
-                  </a>
                 </td>
                 ${TABLE_COLUMNS.map(key => {
                   const val = Number(tool[key] || 0);

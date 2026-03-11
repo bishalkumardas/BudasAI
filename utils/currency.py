@@ -99,20 +99,21 @@ async def load_currency_rates():
         return default_rates
 
 
-async def calculate_price(currency: str, amount_in_inr: int | None = None):
+async def calculate_price(currency: str, amount_in_inr: int | None = None, discount_percent: float | None = None):
     """
     Calculate price using rates stored in Google Sheets.
 
     - Starts from INR base
-    - Applies discount
+    - Applies discount (uses plan-level discount if provided, else global DISCOUNT_PERCENT)
     - Converts using sheet rate
     - Applies international markup (non-INR)
     """
     if amount_in_inr is None:
         amount_in_inr = BASE_PRICE_INR
 
-    # Discount
-    price_inr = amount_in_inr * (1 - DISCOUNT_PERCENT / 100)
+    # Discount: use plan-level discount if provided, otherwise use global
+    discount = discount_percent if discount_percent is not None else DISCOUNT_PERCENT
+    price_inr = amount_in_inr * (1 - discount / 100)
 
     if currency == "INR":
         return round(price_inr)

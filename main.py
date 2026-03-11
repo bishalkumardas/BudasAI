@@ -73,6 +73,11 @@ print("✅ [MAIN] Creating app with lifespan...")
 app = FastAPI(lifespan=lifespan)
 
 
+def _parse_csv_env(name: str, default: str) -> list[str]:
+    raw = os.getenv(name, default)
+    return [item.strip() for item in raw.split(",") if item.strip()]
+
+
 @app.middleware("http")
 async def debug_middleware(request: Request, call_next):
     request_id = id(request)
@@ -137,9 +142,10 @@ async def favicon():
 
 # CORS middleware
 print("🔵 [MAIN] Adding CORS middleware...")
+cors_origins = _parse_csv_env("CORS_ALLOW_ORIGINS", "http://localhost:8000,http://127.0.0.1:8000")
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=cors_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"]
@@ -147,9 +153,10 @@ app.add_middleware(
 
 # Trusted hosts middleware
 print("🔵 [MAIN] Adding TrustedHost middleware...")
+trusted_hosts = _parse_csv_env("TRUSTED_HOSTS", "localhost,127.0.0.1")
 app.add_middleware(
     TrustedHostMiddleware,
-    allowed_hosts=["*"]
+    allowed_hosts=trusted_hosts
 )
 
 # Static files
@@ -184,10 +191,3 @@ if __name__ == "__main__":
     port = int(os.environ.get("PORT", 8000))
     print(f"🚀 Starting Uvicorn server on http://0.0.0.0:{port}")
     uvicorn.run("main:app", host="0.0.0.0", port=port, log_level="info")
-print("✅ Admin router registered")
-
-if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 8000))
-    print(f"🚀 Starting BudasAI server on 0.0.0.0:{port}")
-    print(f"📍 Environment: {'Production' if os.getenv('RAILWAY_ENVIRONMENT') else 'Development'}")
-    uvicorn.run("main:app", host="0.0.0.0", port=port)

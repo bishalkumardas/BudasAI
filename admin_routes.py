@@ -194,6 +194,65 @@ async def admin_dashboard(
     except Exception as e:
         print(f"❌ Error fetching FAQs: {str(e)}")
         faqs = []
+
+    try:
+        pricing_res = (
+            supabase
+            .table("pricing_plans")
+            .select("*")
+            .order("display_order", desc=False)
+            .execute()
+        )
+        pricing_plans = pricing_res.data if pricing_res.data else []
+        for plan in pricing_plans:
+            plan["features_list_1"] = parse_json_list(plan.get("features_list_1"))
+            plan["features_list_2"] = parse_json_list(plan.get("features_list_2"))
+        # Only active paid plans for user access assignment (exclude free / null-price / inactive plans)
+        paid_plans = [
+            p for p in pricing_plans
+            if p.get("is_active") and p.get("price_inr") is not None and float(p.get("price_inr") or 0) > 0
+        ]
+    except Exception as e:
+        print(f"❌ Error fetching pricing plans: {str(e)}")
+        pricing_plans = []
+        paid_plans = []
+
+    try:
+        settings_res = supabase.table("site_settings").select("key,value").execute()
+        site_settings = {row["key"]: row["value"] for row in (settings_res.data or [])}
+    except Exception as e:
+        print(f"❌ Error fetching site settings: {str(e)}")
+        site_settings = {}
+    free_pdf_filename = site_settings.get("free_pdf_filename", "BudasAI Insight Feb 2026.pdf")
+
+    try:
+        users_res = (
+            supabase
+            .table("user_profiles")
+            .select("*")
+            .order("created_at", desc=True)
+            .execute()
+        )
+        user_profiles = users_res.data if users_res.data else []
+        for user in user_profiles:
+            user["plan_ids"] = parse_json_list(user.get("plan_ids"))
+    except Exception as e:
+        print(f"❌ Error fetching user profiles: {str(e)}")
+        user_profiles = []
+
+    try:
+        billing_res = (
+            supabase
+            .table("billing_records")
+            .select("*")
+            .order("created_at", desc=True)
+            .limit(150)
+            .execute()
+        )
+        billing_records = billing_res.data if billing_res.data else []
+    except Exception as e:
+        print(f"❌ Error fetching billing records: {str(e)}")
+        billing_records = []
     
     ctx = await get_price_context(request)
     status = request.query_params.get("status")
@@ -207,6 +266,11 @@ async def admin_dashboard(
             "ai_tools": ai_tools,
             "use_cases": use_cases,
             "faqs": faqs,
+            "pricing_plans": pricing_plans,
+            "paid_plans": paid_plans,
+            "user_profiles": user_profiles,
+            "billing_records": billing_records,
+            "free_pdf_filename": free_pdf_filename,
             "admin_status": status,
             "admin_message": message,
             **ctx
@@ -261,6 +325,48 @@ def parse_optional_int(value: str | int | None) -> int | None:
         except ValueError:
             return None
     return None
+
+
+def parse_json_list(value: str | list | None) -> list:
+    if value is None:
+        return []
+    if isinstance(value, list):
+        return value
+    if isinstance(value, str):
+        raw = value.strip()
+        if not raw:
+            return []
+        try:
+            parsed = json.loads(raw)
+            return parsed if isinstance(parsed, list) else []
+        except Exception:
+            return []
+    return []
+
+
+def add_months_iso(start_iso: str, months: int) -> str:
+    """Add calendar months to an ISO timestamp and return ISO string."""
+    start_dt = datetime.fromisoformat(start_iso)
+
+    year = start_dt.year
+    month = start_dt.month + months
+    day = start_dt.day
+
+    while month > 12:
+        month -= 12
+        year += 1
+
+    if month == 2:
+        is_leap = (year % 4 == 0 and year % 100 != 0) or (year % 400 == 0)
+        max_day = 29 if is_leap else 28
+    elif month in {4, 6, 9, 11}:
+        max_day = 30
+    else:
+        max_day = 31
+
+    safe_day = min(day, max_day)
+    end_dt = start_dt.replace(year=year, month=month, day=safe_day)
+    return end_dt.isoformat()
 
 
 def get_next_display_order() -> int:
@@ -793,7 +899,7 @@ async def update_blog(
             "excerpt": excerpt,
             "date": date,
             "html_content": html_content,
-            "update_at": now
+            "update_at": now,
         }
 
         try:
@@ -815,6 +921,342 @@ async def update_blog(
         return admin_json_response("error", "Failed to update blog. Check logs and values.")
 
     return admin_json_response("success", f"Blog '{title}' updated successfully.")
+
+
+@router.post("/admin/pricing/create")
+async def create_pricing_plan(
+    request: Request,
+    plan_name: str = Form(...),
+    plan_heading: str = Form(...),
+    plan_subheading: str = Form(default=""),
+    price_inr: str = Form(default=""),
+    discount_percent: str = Form(default="0"),
+    features_heading_1: str = Form(default=""),
+    features_list_1: str = Form(default="[]"),
+    features_heading_2: str = Form(default=""),
+    features_list_2: str = Form(default="[]"),
+    button_text: str = Form(...),
+    price_note: str = Form(default=""),
+    button_url: str = Form(default="/about#contact-section"),
+    custom_button_url: str = Form(default=""),
+    show_terms: str = Form(default=""),
+    is_popular: str = Form(default=""),
+    display_order: str = Form(default="0"),
+    is_active: str = Form(default=""),
+    card_bg_color: str = Form(default="#ffffff"),
+    badge_bg_color: str = Form(default="#3C83F6"),
+    badge_text_color: str = Form(default="#ffffff"),
+    badge_text: str = Form(default="Standard"),
+    auth=Depends(check_auth)
+):
+    try:
+        selected_button_url = button_url.strip()
+        if selected_button_url == "__custom__":
+            selected_button_url = custom_button_url.strip()
+        if not selected_button_url:
+            selected_button_url = "/about#contact-section"
+
+        parsed_price = None
+        if price_inr.strip() != "":
+            parsed_price = float(price_inr)
+
+        payload = {
+            "plan_name": plan_name.strip(),
+            "plan_heading": plan_heading.strip(),
+            "plan_subheading": plan_subheading.strip(),
+            "price_inr": parsed_price,
+            "discount_percent": float(discount_percent or 0),
+            "features_heading_1": features_heading_1.strip(),
+            "features_list_1": parse_json_list(features_list_1),
+            "features_heading_2": features_heading_2.strip(),
+            "features_list_2": parse_json_list(features_list_2),
+            "button_text": button_text.strip(),
+            "price_note": price_note.strip(),
+            "button_url": selected_button_url,
+            "show_terms": parse_checkbox_flag(show_terms, default=False),
+            "is_popular": parse_checkbox_flag(is_popular, default=False),
+            "display_order": int(display_order or 0),
+            "is_active": parse_checkbox_flag(is_active, default=False),
+            "card_bg_color": card_bg_color.strip() or "#ffffff",
+            "badge_bg_color": badge_bg_color.strip() or "#3C83F6",
+            "badge_text_color": badge_text_color.strip() or "#ffffff",
+            "badge_text": badge_text.strip() or "Standard",
+        }
+
+        supabase.table("pricing_plans").insert(payload).execute()
+        return admin_json_response("success", f"Pricing plan '{plan_heading}' created successfully.")
+    except Exception as e:
+        print(f"❌ Error creating pricing plan: {str(e)}")
+        traceback.print_exc()
+        return admin_json_response("error", "Failed to create pricing plan.")
+
+
+@router.post("/admin/pricing/update")
+async def update_pricing_plan(
+    request: Request,
+    id: str = Form(...),
+    plan_name: str = Form(...),
+    plan_heading: str = Form(...),
+    plan_subheading: str = Form(default=""),
+    price_inr: str = Form(default=""),
+    discount_percent: str = Form(default="0"),
+    features_heading_1: str = Form(default=""),
+    features_list_1: str = Form(default="[]"),
+    features_heading_2: str = Form(default=""),
+    features_list_2: str = Form(default="[]"),
+    button_text: str = Form(...),
+    price_note: str = Form(default=""),
+    button_url: str = Form(default="/about#contact-section"),
+    custom_button_url: str = Form(default=""),
+    show_terms: str = Form(default=""),
+    is_popular: str = Form(default=""),
+    display_order: str = Form(default="0"),
+    is_active: str = Form(default=""),
+    card_bg_color: str = Form(default="#ffffff"),
+    badge_bg_color: str = Form(default="#3C83F6"),
+    badge_text_color: str = Form(default="#ffffff"),
+    badge_text: str = Form(default="Standard"),
+    auth=Depends(check_auth)
+):
+    try:
+        selected_button_url = button_url.strip()
+        if selected_button_url == "__custom__":
+            selected_button_url = custom_button_url.strip()
+        if not selected_button_url:
+            selected_button_url = "/about#contact-section"
+
+        parsed_price = None
+        if price_inr.strip() != "":
+            parsed_price = float(price_inr)
+
+        payload = {
+            "plan_name": plan_name.strip(),
+            "plan_heading": plan_heading.strip(),
+            "plan_subheading": plan_subheading.strip(),
+            "price_inr": parsed_price,
+            "discount_percent": float(discount_percent or 0),
+            "features_heading_1": features_heading_1.strip(),
+            "features_list_1": parse_json_list(features_list_1),
+            "features_heading_2": features_heading_2.strip(),
+            "features_list_2": parse_json_list(features_list_2),
+            "button_text": button_text.strip(),
+            "price_note": price_note.strip(),
+            "button_url": selected_button_url,
+            "show_terms": parse_checkbox_flag(show_terms, default=False),
+            "is_popular": parse_checkbox_flag(is_popular, default=False),
+            "display_order": int(display_order or 0),
+            "is_active": parse_checkbox_flag(is_active, default=False),
+            "card_bg_color": card_bg_color.strip() or "#ffffff",
+            "badge_bg_color": badge_bg_color.strip() or "#3C83F6",
+            "badge_text_color": badge_text_color.strip() or "#ffffff",
+            "badge_text": badge_text.strip() or "Standard",
+            "updated_at": datetime.now().isoformat(),
+        }
+
+        supabase.table("pricing_plans").update(payload).eq("id", id).execute()
+        return admin_json_response("success", f"Pricing plan '{plan_heading}' updated successfully.")
+    except Exception as e:
+        print(f"❌ Error updating pricing plan: {str(e)}")
+        traceback.print_exc()
+        return admin_json_response("error", "Failed to update pricing plan.")
+
+
+@router.post("/admin/user/create")
+async def create_user_profile(
+    request: Request,
+    email: str = Form(...),
+    full_name: str = Form(default=""),
+    phone_number: str = Form(default=""),
+    dob: str = Form(default=""),
+    profession: str = Form(default=""),
+    is_active: str = Form(default="on"),
+    auth=Depends(check_auth)
+):
+    try:
+        # Ensure free plan is always included for new users.
+        FREE_PLAN_ID = "70e4b369-c45d-48d2-9287-af064a185511"
+        normalized_plan_ids = [FREE_PLAN_ID]
+        
+        payload = {
+            "email": email.strip().lower(),
+            "full_name": full_name.strip(),
+            "phone_number": phone_number.strip(),
+            "dob": dob.strip() or None,
+            "profession": profession.strip(),
+            "plan_ids": normalized_plan_ids,
+            "is_active": parse_checkbox_flag(is_active, default=True),
+        }
+
+        supabase.table("user_profiles").insert(payload).execute()
+        return admin_json_response("success", f"User profile created for {payload['email']}.")
+    except Exception as e:
+        print(f"❌ Error creating user profile: {str(e)}")
+        traceback.print_exc()
+        return admin_json_response("error", "Failed to create user profile.")
+
+
+@router.post("/admin/user/update")
+async def update_user_profile(
+    request: Request,
+    id: str = Form(...),
+    email: str = Form(...),
+    full_name: str = Form(default=""),
+    phone_number: str = Form(default=""),
+    dob: str = Form(default=""),
+    profession: str = Form(default=""),
+    is_active: str = Form(default="on"),
+    auth=Depends(check_auth)
+):
+    try:
+        # Keep existing plan_ids unchanged here; billing form controls paid activation.
+        existing_plan_ids = []
+        try:
+            existing_user_res = (
+                supabase
+                .table("user_profiles")
+                .select("plan_ids")
+                .eq("id", id)
+                .limit(1)
+                .execute()
+            )
+            if existing_user_res.data:
+                existing_plan_ids = parse_json_list(existing_user_res.data[0].get("plan_ids"))
+        except Exception:
+            existing_plan_ids = []
+
+        payload = {
+            "email": email.strip().lower(),
+            "full_name": full_name.strip(),
+            "phone_number": phone_number.strip(),
+            "dob": dob.strip() or None,
+            "profession": profession.strip(),
+            "plan_ids": existing_plan_ids,
+            "is_active": parse_checkbox_flag(is_active, default=True),
+            "updated_at": datetime.now().isoformat(),
+        }
+
+        supabase.table("user_profiles").update(payload).eq("id", id).execute()
+        return admin_json_response("success", f"User profile updated for {payload['email']}.")
+    except Exception as e:
+        print(f"❌ Error updating user profile: {str(e)}")
+        traceback.print_exc()
+        return admin_json_response("error", "Failed to update user profile.")
+
+
+@router.post("/admin/billing/create")
+async def create_billing_record(
+    request: Request,
+    user_id: str = Form(...),
+    plan_id: str = Form(...),
+    duration_months: str = Form(...),
+    amount: str = Form(default=""),
+    currency: str = Form(default="INR"),
+    payment_method: str = Form(default="manual"),
+    transaction_id: str = Form(default=""),
+    payment_status: str = Form(default="paid"),
+    auth=Depends(check_auth)
+):
+    try:
+        months = int(duration_months)
+        if months not in {1, 3, 6, 12}:
+            return admin_json_response("error", "Invalid duration. Use 1, 3, 6 or 12 months.")
+    except Exception:
+        return admin_json_response("error", "Invalid duration value.")
+
+    try:
+        user_res = (
+            supabase
+            .table("user_profiles")
+            .select("id,auth_user_id,email,plan_ids")
+            .eq("id", user_id)
+            .limit(1)
+            .execute()
+        )
+        if not user_res.data:
+            return admin_json_response("error", "User not found.")
+        user_row = user_res.data[0]
+        user_email = (user_row.get("email") or "").strip().lower()
+        billing_user_id = user_row.get("auth_user_id") or user_row.get("id")
+        if not user_email:
+            return admin_json_response("error", "Selected user does not have a valid email.")
+        if not billing_user_id:
+            return admin_json_response("error", "Selected user does not have a valid auth user ID.")
+    except Exception as e:
+        print(f"❌ Error loading user for billing: {str(e)}")
+        return admin_json_response("error", "Unable to load selected user.")
+
+    try:
+        plan_res = (
+            supabase
+            .table("pricing_plans")
+            .select("id,plan_name,plan_heading,price_inr")
+            .eq("id", plan_id)
+            .limit(1)
+            .execute()
+        )
+        if not plan_res.data:
+            return admin_json_response("error", "Selected plan not found.")
+        plan_row = plan_res.data[0]
+    except Exception as e:
+        print(f"❌ Error loading plan for billing: {str(e)}")
+        return admin_json_response("error", "Unable to load selected plan.")
+
+    plan_name = (plan_row.get("plan_heading") or plan_row.get("plan_name") or "BudasAI Plan").strip()
+    now_iso = datetime.now().isoformat()
+    expires_at = add_months_iso(now_iso, months)
+
+    try:
+        amount_value = float(amount) if str(amount).strip() else float(plan_row.get("price_inr") or 0)
+    except Exception:
+        amount_value = float(plan_row.get("price_inr") or 0)
+
+    currency_code = (currency or "INR").upper()
+    status_value = (payment_status or "paid").strip().lower()
+    if status_value not in {"paid", "success", "pending", "failed", "refunded", "active"}:
+        status_value = "paid"
+
+    billing_payload = {
+        "user_id": billing_user_id,
+        "email": user_email,
+        "plan_id": plan_id,
+        "plan_name": plan_name,
+        "amount": amount_value,
+        "currency": currency_code,
+        "payment_method": payment_method.strip(),
+        "transaction_id": transaction_id.strip() or None,
+        "payment_status": status_value,
+        "paid_at": now_iso,
+        "starts_at": now_iso,
+        "expires_at": expires_at,
+        "created_at": now_iso,
+        "updated_at": now_iso,
+    }
+
+    try:
+        supabase.table("billing_records").insert(billing_payload).execute()
+    except Exception as e:
+        print(f"❌ Error creating billing record: {str(e)}")
+        return admin_json_response(
+            "error",
+            "Failed to create billing record. Ensure billing_records table exists with required columns.",
+        )
+
+    if status_value in {"paid", "success", "active"}:
+        try:
+            plan_ids = parse_json_list(user_row.get("plan_ids"))
+            if plan_id not in plan_ids:
+                plan_ids.append(plan_id)
+            supabase.table("user_profiles").update(
+                {
+                    "plan_ids": plan_ids,
+                    "updated_at": datetime.now().isoformat(),
+                }
+            ).eq("id", user_id).execute()
+        except Exception as e:
+            print(f"❌ Billing created but failed to update user plan access: {str(e)}")
+            return admin_json_response("error", "Billing added but failed to sync user plan access.")
+
+    return admin_json_response("success", f"Billing added: {plan_name} active for {months} month(s).")
 
 
 @router.post("/admin/story/create")
@@ -964,4 +1406,26 @@ async def admin_logout(request: Request):
     response = RedirectResponse(url="/", status_code=302)
     response.delete_cookie("admin_token")
     return response
+
+
+@router.post("/admin/settings/update")
+async def update_site_settings(
+    request: Request,
+    free_pdf_filename: str = Form(...),
+    auth=Depends(check_auth)
+):
+    try:
+        filename = free_pdf_filename.strip()
+        if not filename:
+            return admin_json_response("error", "PDF filename cannot be empty.")
+
+        supabase.table("site_settings").upsert(
+            {"key": "free_pdf_filename", "value": filename},
+            on_conflict="key"
+        ).execute()
+        return admin_json_response("success", f"PDF filename updated to: {filename}")
+    except Exception as e:
+        print(f"❌ Error updating site settings: {str(e)}")
+        traceback.print_exc()
+        return admin_json_response("error", "Failed to update settings.")
 

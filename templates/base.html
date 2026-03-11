@@ -28,6 +28,32 @@
     <!-- Custom CSS -->
     <link rel="stylesheet" href="/static/css/style.css">
 
+    <style>
+        #premium-nav-link.is-premium,
+        #premium-nav-link.is-premium:hover,
+        #premium-nav-link.is-premium.active {
+            background: #fffbeb !important;
+            color: #b35309 !important;
+            padding: 8px 16px;
+            border-radius: 12px;
+            font-weight: 600;
+            text-decoration: none;
+            -webkit-background-clip: border-box !important;
+            background-clip: border-box !important;
+        }
+
+        #premium-nav-link.is-muted,
+        #premium-nav-link.is-muted:hover,
+        #premium-nav-link.is-muted.active {
+            background: transparent !important;
+            color: #94a3b8 !important;
+            font-weight: 600;
+            text-decoration: none;
+            -webkit-background-clip: border-box !important;
+            background-clip: border-box !important;
+        }
+    </style>
+
     <link rel="icon" type="image/x-icon" href="/static/images/favicon.png">
     <script>
         document.addEventListener("DOMContentLoaded", () => {
@@ -93,6 +119,12 @@
                         href="/blog">Blog</a>
                     <a class="nav-item nav-link {% if request.url.path == '/about' %}active{% endif %}"
                         href="/about">About</a>
+                    <a id="premium-nav-link"
+                        class="nav-item nav-link {% if request.url.path == '/premium' %}active{% endif %} d-none"
+                        href="/premium"
+                        style="background: linear-gradient(135deg, #f59e0b, #f97316); -webkit-background-clip: text; background-clip: text; color: transparent; font-weight: 800;">
+                        <i class="bi bi-gem me-1"></i>Premium
+                    </a>
                 </div>
 
                 <!-- Auth button inside collapse -->
@@ -158,12 +190,10 @@
         });
     </script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
         const supabase = window.supabase.createClient(
-            "https://aznlbmkbuwasvaqrnnfo.supabase.co",
-            "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF6bmxibWtidXdhc3ZhcXJubmZvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE1MDg2MTMsImV4cCI6MjA4NzA4NDYxM30.z_PCB9_JEUeQHGTbJGf7JWJqkF90-kStikh4WNz90MQ"
+            "{{ supabase_public_url }}",
+            "{{ supabase_anon_key }}"
         );
 
         /* Google login */
@@ -224,16 +254,12 @@
                     </div> -->
 
                     <!-- Google Login -->
-                    <button class="btn btn-outline-danger w-100 mb-3">
-                        <!-- <a href="https://aznlbmkbuwasvaqrnnfo.supabase.co/auth/v1/authorize?provider=google&flow_type=pkce&redirect_to=http://localhost:8000/auth/callback"
-                            style="text-decoration: none; color: inherit;">
-                            <img src="/static/images/google.png" alt="Google Icon" width="20" height="20" class="me-2">
-                            Login with Google
-                        </a> -->
-                        <a href="https://aznlbmkbuwasvaqrnnfo.supabase.co/auth/v1/authorize?provider=google&flow_type=pkce&redirect_to={{ base_url }}/auth/callback">
-                            Login with Google
-                        </a>
-                    </button>
+                    <a class="btn btn-outline-danger w-100 mb-3 d-inline-flex align-items-center justify-content-center gap-2 text-decoration-none"
+                        style="text-decoration: none;"
+                        href="{{ supabase_public_url }}/auth/v1/authorize?provider=google&flow_type=pkce&redirect_to={{ base_url }}/auth/callback">
+                        <img src="/static/images/google.png" alt="Google Icon" width="20" height="20">
+                        <span>Login with Google</span>
+                    </a>
 
                     <!-- Signup -->
                     <!-- <div class="text-center">
@@ -257,13 +283,27 @@
 
     <script>
         async function checkUser() {
-            console.log('Checking user...');
             const response = await fetch("/get-user");
             const data = await response.json();
-            console.log('User data:', data);
 
             if (data.user) {
-                console.log('User authenticated:', data.user.email);
+                const premiumTab = document.getElementById('premium-nav-link');
+                if (premiumTab) {
+                    premiumTab.classList.remove('d-none');
+                    if (data.has_premium) {
+                        // Premium user: match login button style
+                        premiumTab.innerHTML = '<i class="bi bi-gem me-1"></i>Premium';
+                        premiumTab.classList.remove('is-muted');
+                        premiumTab.classList.add('premium-btn', 'is-premium');
+                        premiumTab.style.cssText = '';
+                    } else {
+                        // Logged-in but not premium: plain muted style
+                        premiumTab.innerHTML = '<i class="bi bi-gem me-1"></i>Premium';
+                        premiumTab.classList.remove('premium-btn', 'is-premium');
+                        premiumTab.classList.add('is-muted');
+                        premiumTab.style.cssText = '';
+                    }
+                }
 
                 const firstName = data.user.user_metadata?.full_name
                     ? data.user.user_metadata.full_name.split(" ")[0]
@@ -277,32 +317,32 @@
                     ${firstName}
                 </button>
                 <ul class="dropdown-menu dropdown-menu-end" style="background-color: transparent; border: none; box-shadow: none; padding: 0;">
+                    <li><a class="dropdown-item" href="/profile" style="background-color: #1f2937; color: white; border-radius: 4px; margin: 5px; padding: 8px 12px; display: block; text-align: center; text-decoration: none; font-weight: 500;">Profile</a></li>
                     <li><a class="dropdown-item" href="#" onclick="logout(); return false;" style="background-color: #dc3545; color: white; border-radius: 4px; margin: 5px; padding: 8px 12px; display: block; text-align: center; text-decoration: none; font-weight: 500;">Logout</a></li>
                 </ul>
             </div>
         `;
             } else {
-                console.log('User not authenticated');
+                const premiumTab = document.getElementById('premium-nav-link');
+                if (premiumTab) {
+                    premiumTab.classList.add('d-none');
+                }
             }
         }
 
         async function logout() {
-            console.log('Logging out...');
             await fetch("/logout");
             window.location.href = "/";
         }
 
         async function handleDownloadAudit() {
-            console.log('Download audit clicked');
             const response = await fetch("/get-user");
             const data = await response.json();
 
             if (data.user) {
-                console.log('User authenticated, downloading...');
                 // User is logged in, download the PDF
                 window.location.href = '/download-audit-report';
             } else {
-                console.log('User not authenticated, opening login modal');
                 // User not logged in, open login modal
                 const loginModal = new bootstrap.Modal(document.getElementById('loginModal'));
                 loginModal.show();
@@ -311,7 +351,6 @@
 
         // Call checkUser after page fully loads
         window.addEventListener('load', function () {
-            console.log('Page loaded, checking user...');
             checkUser();
 
             // Attach click handler to download button if it exists

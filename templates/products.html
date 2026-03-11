@@ -1,514 +1,963 @@
 {% extends "base.html" %}
-
-{% block title %}AI Audit{% endblock %}
-
+{% block title %}AI Audit & Products — BUDASAI{% endblock %}
 
 {% block content %}
-<!-- FULL WIDTH AI AUDIT SECTION -->
-<div class="audit-hero">
+<style>
+    :root {
+        --blue: #3C83F6;
+        --blue-dark: #2563eb;
+        --blue-light: #eff6ff;
+        --blue-border: #bfdbfe;
+        --ink: #0a0f1e;
+        --text: #0f172a;
+        --muted: #64748b;
+        --muted2: #94a3b8;
+        --border: #e2e8f0;
+        --bg: #F8FAFC;
+        --green: #10b981;
+        --green-light: #f0fdf4;
+        --green-border: #bbf7d0;
+        --yellow: #f59e0b;
+        --shadow: 0 1px 3px rgba(0,0,0,.05), 0 4px 16px rgba(0,0,0,.04);
+    }
 
-    <div class="container text-center">
+    /* ══ HERO ══ */
+    .prod-hero {
+        background: var(--ink);
+        padding: 80px 0 0;
+        position: relative;
+        overflow: hidden;
+    }
 
-        <!-- Capsule -->
-        <div class="audit-pill reveal">AI Audit</div>
+    .prod-hero::before {
+        content: '';
+        position: absolute; inset: 0;
+        background-image:
+            linear-gradient(rgba(60,131,246,.07) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(60,131,246,.07) 1px, transparent 1px);
+        background-size: 44px 44px;
+        pointer-events: none;
+    }
 
-        <!-- Heading -->
-        <h2 class="audit-heading reveal reveal-delay-1">
-            Personalized AI Business Audit
-        </h2>
+    .prod-hero::after {
+        content: '';
+        position: absolute;
+        top: -120px; right: -120px;
+        width: 500px; height: 500px;
+        background: radial-gradient(circle, rgba(60,131,246,.18) 0%, transparent 65%);
+        pointer-events: none;
+    }
 
-        <p class="audit-sub reveal reveal-delay-2">
-            Discover exactly where AI can save your business time, money, and manual effort.
+    .hero-inner { position: relative; z-index: 2; text-align: center; padding-bottom: 0; }
+
+    .hero-pill {
+        display: inline-flex; align-items: center; gap: 8px;
+        background: rgba(60,131,246,.18);
+        border: 1px solid rgba(60,131,246,.35);
+        color: #93c5fd;
+        font-size: 11px; font-weight: 700;
+        letter-spacing: 1.5px; text-transform: uppercase;
+        padding: 6px 16px; border-radius: 20px;
+        margin-bottom: 24px;
+    }
+
+    .hero-pill-dot {
+        width: 6px; height: 6px; border-radius: 50%;
+        background: var(--blue); box-shadow: 0 0 8px var(--blue);
+        animation: blink 2s ease-in-out infinite;
+    }
+
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.3} }
+
+    .prod-hero h1 {
+        font-size: clamp(2.5rem, 5vw, 4rem);
+        font-weight: 800;
+        color: #fff;
+        letter-spacing: -1.5px;
+        line-height: 1.1;
+        margin-bottom: 20px;
+    }
+
+    .prod-hero h1 span { color: var(--blue); }
+
+    .prod-hero-sub {
+        font-size: 17px;
+        color: rgba(255,255,255,.5);
+        max-width: 560px;
+        margin: 0 auto 36px;
+        line-height: 1.75;
+    }
+
+    .hero-btns { display: flex; justify-content: center; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 48px; }
+
+    .btn-primary {
+        display: inline-flex; align-items: center; gap: 7px;
+        background: var(--blue); color: #fff;
+        font-size: 14px; font-weight: 700;
+        padding: 13px 26px; border-radius: 10px;
+        text-decoration: none; transition: all .25s;
+    }
+    .btn-primary:hover { background: var(--blue-dark); color: #fff; box-shadow: 0 8px 28px rgba(60,131,246,.4); transform: translateY(-2px); }
+
+    .btn-ghost-dark {
+        display: inline-flex; align-items: center; gap: 7px;
+        background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.15);
+        color: rgba(255,255,255,.7); font-size: 14px; font-weight: 600;
+        padding: 13px 26px; border-radius: 10px;
+        text-decoration: none; transition: all .25s;
+    }
+    .btn-ghost-dark:hover { background: rgba(255,255,255,.12); color: #fff; }
+
+    /* trust strip */
+    .hero-trust {
+        background: rgba(255,255,255,.04);
+        border-top: 1px solid rgba(255,255,255,.08);
+        padding: 20px 0;
+        display: flex; justify-content: center; align-items: center;
+        gap: 40px; flex-wrap: wrap;
+    }
+
+    .trust-item {
+        display: flex; align-items: center; gap: 8px;
+        font-size: 13px; color: rgba(255,255,255,.5);
+    }
+
+    .trust-item i { color: var(--blue); font-size: 15px; }
+
+    /* ══ MARQUEE ══ */
+    .marquee-strip { background: var(--blue); padding: 18px 0; overflow: hidden; }
+    .marquee-inner { display: flex; white-space: nowrap; animation: scroll 20s linear infinite; }
+    .marquee-inner span { padding: 0 28px; font-size: 13px; font-weight: 700; color: rgba(255,255,255,.85); display: inline-flex; align-items: center; gap: 14px; }
+    .marquee-inner span::after { content: '·'; color: rgba(255,255,255,.4); }
+    @keyframes scroll { 0%{transform:translateX(0)} 100%{transform:translateX(-50%)} }
+
+    /* ══ SECTION SHARED ══ */
+    .section { padding: 90px 0; }
+    .section-label {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 10px; font-weight: 600; letter-spacing: 2.5px; text-transform: uppercase;
+        color: var(--blue); display: flex; align-items: center; gap: 8px; margin-bottom: 12px;
+    }
+    .section-label::before { content:''; display:block; width:22px; height:1.5px; background:var(--blue); }
+    .section-title {
+        font-size: clamp(1.8rem, 3vw, 2.5rem); font-weight: 800;
+        color: var(--text); letter-spacing: -1px; line-height: 1.15; margin-bottom: 14px;
+    }
+    .section-sub { font-size: 15px; color: var(--muted); line-height: 1.8; max-width: 580px; }
+
+    /* ══ WHAT YOU RECEIVE ══ */
+    .receive-section { background: #fff; }
+
+    .receive-grid {
+        display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-top: 48px;
+    }
+
+    @media(max-width:900px){ .receive-grid{grid-template-columns:1fr 1fr;} }
+    @media(max-width:560px){ .receive-grid{grid-template-columns:1fr;} }
+
+    .receive-card {
+        background: var(--bg);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 28px 24px;
+        position: relative; overflow: hidden;
+        transition: all .3s;
+    }
+
+    .receive-card::before {
+        content: '';
+        position: absolute; top: 0; left: 0; right: 0; height: 3px;
+        opacity: 0; transition: opacity .3s;
+    }
+
+    .receive-card:hover { transform: translateY(-4px); box-shadow: 0 12px 40px rgba(0,0,0,.07); border-color: var(--blue-border); }
+    .receive-card:hover::before { opacity: 1; }
+    .rc-1::before { background: linear-gradient(90deg, #3C83F6, #6366f1); }
+    .rc-2::before { background: linear-gradient(90deg, #10b981, #0ea5e9); }
+    .rc-3::before { background: linear-gradient(90deg, #f59e0b, #ef4444); }
+    .rc-4::before { background: linear-gradient(90deg, #8b5cf6, #ec4899); }
+    .rc-5::before { background: linear-gradient(90deg, #0ea5e9, #10b981); }
+    .rc-6::before { background: linear-gradient(90deg, #f97316, #f59e0b); }
+
+    .receive-icon { font-size: 28px; margin-bottom: 14px; display: block; }
+    .receive-title { font-size: 15px; font-weight: 700; color: var(--text); margin-bottom: 8px; }
+    .receive-desc { font-size: 13px; color: var(--muted); line-height: 1.7; }
+
+    /* ══ WHAT'S INSIDE ══ */
+    .inside-section { background: var(--bg); }
+
+    .inside-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-top: 48px; }
+    @media(max-width:700px){ .inside-grid{grid-template-columns:1fr 1fr;} }
+    @media(max-width:420px){ .inside-grid{grid-template-columns:1fr;} }
+
+    .inside-item {
+        background: #fff; border: 1px solid var(--border); border-radius: 14px;
+        padding: 20px 18px; display: flex; align-items: flex-start; gap: 14px;
+        transition: all .25s;
+    }
+    .inside-item:hover { border-color: var(--blue-border); background: var(--blue-light); transform: translateY(-2px); }
+
+    .inside-num {
+        width: 32px; height: 32px; border-radius: 8px;
+        background: var(--blue); color: #fff;
+        font-size: 12px; font-weight: 800;
+        font-family: 'JetBrains Mono', monospace;
+        display: flex; align-items: center; justify-content: center;
+        flex-shrink: 0;
+    }
+
+    .inside-text { font-size: 14px; font-weight: 600; color: var(--text); line-height: 1.5; padding-top: 4px; }
+
+    /* ══ WHO IT'S FOR ══ */
+    .who-section { background: var(--ink); position: relative; overflow: hidden; }
+
+    .who-section::before {
+        content: '';
+        position: absolute; inset: 0;
+        background-image:
+            linear-gradient(rgba(60,131,246,.06) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(60,131,246,.06) 1px, transparent 1px);
+        background-size: 40px 40px;
+    }
+
+    .who-section .section-title { color: #fff; }
+    .who-section .section-label { color: #93c5fd; }
+    .who-section .section-label::before { background: #93c5fd; }
+    .who-section .section-sub { color: rgba(255,255,255,.45); }
+
+    .who-grid { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 40px; position: relative; z-index: 1; }
+
+    .who-pill {
+        display: inline-flex; align-items: center; gap: 10px;
+        background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.1);
+        color: rgba(255,255,255,.75); font-size: 14px; font-weight: 600;
+        padding: 12px 20px; border-radius: 12px;
+        transition: all .25s; cursor: default;
+    }
+    .who-pill:hover { background: rgba(60,131,246,.15); border-color: rgba(60,131,246,.4); color: #fff; }
+    .who-pill i { font-size: 18px; color: var(--blue); }
+    .who-pill .tick { color: var(--green); font-size: 13px; margin-left: 4px; }
+
+    /* ══ PRICING ══ */
+    .pricing-section { 
+        background: #0b1120; 
+        position: relative;
+        padding: 80px 0 100px;
+    }
+
+    /* subtle grid */
+    .pricing-section::before {
+        content: '';
+        position: absolute; inset: 0; pointer-events: none; z-index: 0;
+        background-image:
+            linear-gradient(rgba(60,131,246,.04) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(60,131,246,.04) 1px, transparent 1px);
+        background-size: 52px 52px;
+    }
+
+    /* glow orbs */
+    .pricing-orb {
+        position: absolute; border-radius: 50%;
+        filter: blur(100px); pointer-events: none; z-index: 0;
+    }
+    .pricing-orb1 { width:700px; height:700px; top:-300px; left:-200px;  background:radial-gradient(circle, rgba(60,131,246,.1), transparent 70%); }
+    .pricing-orb2 { width:500px; height:500px; bottom:-200px; right:-150px; background:radial-gradient(circle, rgba(99,102,241,.09), transparent 70%); }
+
+    .pricing-section .section-title { color: #fff; }
+    .pricing-section .section-label { color: #93c5fd; }
+    .pricing-section .section-label::before { background: #93c5fd; }
+    .pricing-section .section-sub { color: rgba(255,255,255,.35); }
+
+    .pricing-grid {
+        display: grid; 
+        grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+        max-width: calc(4 * 280px + 3 * 20px); /* cap at 4 cards wide */
+        margin-left: auto;
+        margin-right: auto;
+        gap: 20px; 
+        margin-top: 48px;
+        align-items: start;
+        position: relative; 
+        z-index: 1;
+        padding-top: 22px; /* room for floating badge */
+    }
+    @media(max-width:980px){ .pricing-grid{ max-width: calc(2 * 280px + 20px); } }
+    @media(max-width:520px){ .pricing-grid{ grid-template-columns:1fr; max-width:100%; } }
+
+    /* wrapper holds badge + card */
+    .card-wrap {
+        position: relative;
+        padding-top: 18px; /* space for badge */
+    }
+
+    /* badge floating over card */
+    .price-badge {
+        position: absolute;
+        top: 0;
+        right: 20px;
+        z-index: 10;
+        display: inline-flex; align-items: center; gap: 5px;
+        font-size: 11px; font-weight: 800;
+        letter-spacing: .8px; text-transform: uppercase;
+        padding: 6px 16px; border-radius: 30px;
+        white-space: nowrap;
+        box-shadow: 0 4px 18px rgba(0,0,0,.45);
+    }
+
+    .price-card {
+        border-radius: 22px;
+        overflow: hidden;
+        border: 1px solid rgba(255,255,255,.08);
+        background: #111827;
+        transition: transform .32s cubic-bezier(.34,1.3,.64,1), box-shadow .32s ease;
+        animation: rise .6s ease both;
+        display: flex;
+        flex-direction: column;
+        min-height: 620px;
+    }
+
+    .price-card .card-top-bar {
+        height: 3px; width: 100%;
+    }
+
+    .price-card .card-inner {
+        padding: 22px 22px 26px;
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+    }
+
+    .card-wrap:nth-child(1) .price-card { animation-delay:.05s }
+    .card-wrap:nth-child(2) .price-card { animation-delay:.15s }
+    .card-wrap:nth-child(3) .price-card { animation-delay:.25s }
+    .card-wrap:nth-child(4) .price-card { animation-delay:.35s }
+
+    @keyframes rise {
+        from { opacity:0; transform:translateY(24px); }
+        to   { opacity:1; transform:translateY(0); }
+    }
+
+    .card-wrap:hover .price-card {
+        transform: translateY(-8px);
+        box-shadow: 0 30px 70px rgba(0,0,0,.5);
+    }
+
+    .price-name { 
+        font-size: 18px; font-weight: 800; color: #fff; 
+        margin-bottom: 5px; margin-top: 14px; line-height: 1.2;
+    }
+    .price-sub  { 
+        font-size: 12px; color: rgba(255,255,255,.3); 
+        margin-bottom: 22px; line-height: 1.5; 
+    }
+
+    .price-amount {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 42px; font-weight: 700; color: #fff;
+        line-height: 1; letter-spacing: -1px;
+    }
+    .price-amount.free { color: #10b981; }
+    .price-amount.custom { font-size: 30px; color: rgba(255,255,255,.4); letter-spacing: 0; }
+
+    .price-original {
+        font-size: 18px; color: rgba(255,255,255,.3);
+        text-decoration: line-through; 
+        font-family: 'JetBrains Mono', monospace;
+        margin-bottom: 6px;
+    }
+
+    .price-note {
+        font-size: 11px; color: rgba(255,255,255,.22);
+        margin-top: 6px; margin-bottom: 22px;
+    }
+
+    .price-divider { 
+        border: none; 
+        border-top: 1px solid rgba(255,255,255,.06); 
+        margin: 18px 0; 
+    }
+
+    .price-group-label {
+        font-size: 9px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase;
+        color: rgba(255,255,255,.18); margin-bottom: 10px;
+    }
+
+    .price-features { 
+        list-style: none; 
+        padding: 0; 
+        margin: 0 0 18px; 
+        display: flex; 
+        flex-direction: column; 
+        gap: 8px; 
+    }
+
+    .price-features li { 
+        font-size: 13px; 
+        color: rgba(255,255,255,.52); 
+        display: flex; 
+        align-items: flex-start; 
+        gap: 9px; 
+        line-height: 1.5; 
+    }
+
+    .price-features li::before { 
+        content: '✓'; 
+        width: 17px; 
+        height: 17px; 
+        flex-shrink: 0; 
+        margin-top: 1px;
+        border-radius: 5px;
+        background: rgba(16,185,129,.12); 
+        border: 1px solid rgba(16,185,129,.25);
+        color: #10b981; 
+        font-size: 9px; 
+        font-weight: 900;
+        display: flex; 
+        align-items: center; 
+        justify-content: center;
+    }
+
+    .price-btn-wrapper {
+        margin-top: auto;
+    }
+
+    .price-btn {
+        display: flex; 
+        align-items: center; 
+        justify-content: center; 
+        gap: 8px;
+        width: 100%; 
+        padding: 13px 18px; 
+        border-radius: 12px;
+        font-size: 14px; 
+        font-weight: 700;
+        text-decoration: none; 
+        border: none; 
+        cursor: pointer;
+        transition: transform .2s ease, box-shadow .2s ease;
+        margin-top: 8px; 
+        position: relative; 
+        overflow: hidden;
+    }
+
+    .price-btn::after {
+        content: '';
+        position: absolute; inset: 0;
+        background: linear-gradient(105deg, transparent 40%, rgba(255,255,255,.1) 50%, transparent 60%);
+        transform: translateX(-120%); 
+        transition: transform .6s ease;
+    }
+
+    .price-btn:hover::after { transform: translateX(120%); }
+    .price-btn:hover { transform: translateY(-2px); }
+
+    .price-btn-outline { 
+        background: rgba(255,255,255,.05); 
+        border: 1px solid rgba(255,255,255,.1); 
+        color: rgba(255,255,255,.6); 
+    }
+    .price-btn-outline:hover { 
+        background: rgba(255,255,255,.09); 
+        color: #fff; 
+    }
+
+    .price-btn-green { background: #10b981; color: #fff; }
+    .price-btn-green:hover { 
+        background: #059669; 
+        box-shadow: 0 10px 28px rgba(16,185,129,.3); 
+        color: #fff; 
+    }
+
+    .price-btn-blue { background: #3C83F6; color: #fff; }
+    .price-btn-blue:hover { 
+        background: #2563eb; 
+        box-shadow: 0 10px 28px rgba(60,131,246,.3); 
+        color: #fff; 
+    }
+
+    .price-btn-violet { 
+        background: linear-gradient(135deg, #6366f1, #8b5cf6); 
+        color: #fff; 
+    }
+    .price-btn-violet:hover { 
+        box-shadow: 0 10px 28px rgba(99,102,241,.35); 
+        color: #fff; 
+    }
+
+    .price-btn-disabled {
+        background: rgba(255,255,255,.08);
+        border: 1px solid rgba(255,255,255,.14);
+        color: rgba(255,255,255,.5);
+        cursor: not-allowed;
+        pointer-events: none;
+    }
+
+    .price-btn-disabled::after {
+        display: none;
+    }
+
+    .price-btn-disabled:hover {
+        transform: none;
+        box-shadow: none;
+    }
+
+    .price-terms { 
+        font-size: 10px; 
+        color: rgba(255,255,255,.16); 
+        text-align: center; 
+        margin-top: 10px; 
+        line-height: 1.5; 
+    }
+    .price-terms a { color: inherit; text-decoration: underline; }
+    .price-terms a:hover { color: rgba(255,255,255,.4); }
+
+    /* currency selector */
+    .currency-bar {
+        display: flex; align-items: center; justify-content: center; gap: 10px;
+        margin-bottom: 36px;
+        position: relative;
+        z-index: 1;
+    }
+    .currency-label { font-size: 13px; color: rgba(255,255,255,.4); font-weight: 500; }
+    #currency-select {
+        padding: 7px 14px; 
+        border: 1px solid rgba(255,255,255,.1); 
+        border-radius: 8px;
+        font-size: 13px; font-weight: 600; 
+        color: #fff;
+        background: rgba(255,255,255,.05); 
+        outline: none; cursor: pointer;
+        transition: border-color .2s, background .2s;
+    }
+    #currency-select:focus { 
+        border-color: rgba(60,131,246,.5); 
+        background: rgba(255,255,255,.08);
+    }
+    #currency-select:hover {
+        background: rgba(255,255,255,.08);
+    }
+
+    /* ══ COMING SOON ══ */
+    .coming-section { background: var(--bg); }
+
+    .coming-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 48px; }
+    @media(max-width:700px){ .coming-grid{grid-template-columns:1fr;} }
+
+    .coming-card {
+        background: #fff; border: 1.5px dashed var(--border); border-radius: 18px;
+        padding: 32px; display: flex; gap: 20px; align-items: flex-start;
+        transition: all .3s;
+    }
+    .coming-card:hover { border-color: var(--blue-border); border-style: solid; transform: translateY(-2px); }
+
+    .coming-icon {
+        width: 52px; height: 52px; border-radius: 14px;
+        background: var(--bg); border: 1.5px dashed var(--border);
+        display: flex; align-items: center; justify-content: center;
+        font-size: 24px; flex-shrink: 0;
+    }
+
+    .coming-title { font-size: 16px; font-weight: 700; color: var(--text); margin-bottom: 6px; }
+    .coming-desc { font-size: 13px; color: var(--muted); line-height: 1.7; margin-bottom: 12px; }
+    .coming-pill {
+        display: inline-flex; align-items: center; gap: 5px;
+        background: #fffbeb; border: 1px solid #fde68a; color: #92400e;
+        font-size: 10px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase;
+        padding: 4px 10px; border-radius: 20px;
+    }
+
+    /* ══ FINAL CTA ══ */
+    .final-cta-section { background: var(--ink); position: relative; overflow: hidden; }
+    .final-cta-section::before {
+        content: '';
+        position: absolute; inset: 0;
+        background-image:
+            linear-gradient(rgba(60,131,246,.06) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(60,131,246,.06) 1px, transparent 1px);
+        background-size: 40px 40px;
+    }
+
+    .final-cta-inner { position: relative; z-index: 1; text-align: center; }
+    .final-cta-inner h2 { font-size: clamp(2rem,4vw,3rem); font-weight: 800; color: #fff; letter-spacing: -1px; margin-bottom: 14px; }
+    .final-cta-inner p { font-size: 16px; color: rgba(255,255,255,.45); max-width: 500px; margin: 0 auto 36px; line-height: 1.7; }
+
+    /* utils */
+    .text-center { text-align: center; }
+    .reveal { opacity: 0; transform: translateY(24px); transition: opacity .7s ease, transform .7s ease; }
+    .reveal.visible { opacity: 1; transform: none; }
+    .reveal-delay-1 { transition-delay: .1s; }
+    .reveal-delay-2 { transition-delay: .2s; }
+    .reveal-delay-3 { transition-delay: .3s; }
+</style>
+
+
+<!-- ══ HERO ══ -->
+<div class="prod-hero">
+    <div class="container hero-inner">
+
+        <div class="hero-pill reveal">
+            <span class="hero-pill-dot"></span>
+            AI Audit &amp; Products
+        </div>
+
+        <h1 class="reveal reveal-delay-1">
+            Find Out Exactly Where<br><span>AI Can Save Your Business</span>
+        </h1>
+
+        <p class="prod-hero-sub reveal reveal-delay-2">
+            We test, rate, and implement AI solutions that deliver real results — not just impressive demos. Get a personalised audit or explore our tools.
         </p>
 
-        <!-- Button -->
-        <a href="#plans" class="button-fill-square reveal reveal-delay-3" style="text-decoration: none;">
-            Get My AI Audit
-            <i class="bi bi-arrow-right-short"></i>
-        </a>
+        <div class="hero-btns reveal reveal-delay-3">
+            <a href="#plans" class="btn-primary">Get My AI Audit <i class="bi bi-arrow-right"></i></a>
+            <a href="/ai-tools" class="btn-ghost-dark">View AI Ratings <i class="bi bi-bar-chart"></i></a>
+        </div>
 
-        <!-- Features Row -->
-        <div class="audit-features reveal reveal-delay-4">
+    </div>
 
-            <div>
-                <i class="bi bi-clock"></i>
-                Delivered within 48 hours
+    <div class="hero-trust reveal">
+        <div class="trust-item"><i class="bi bi-clock"></i> Delivered within 48 hours</div>
+        <div class="trust-item"><i class="bi bi-shield-check"></i> Personalised to your business</div>
+        <div class="trust-item"><i class="bi bi-person-check"></i> No technical knowledge needed</div>
+        <div class="trust-item"><i class="bi bi-star-fill"></i> Trusted by 100+ businesses</div>
+    </div>
+</div>
+
+
+<!-- ══ MARQUEE ══ -->
+<div class="marquee-strip">
+    <div class="marquee-inner">
+        <span>AI Business Audit</span><span>Workflow Automation</span><span>No Sponsorships</span>
+        <span>Real ROI</span><span>48-Hour Delivery</span><span>Tool Recommendations</span>
+        <span>Step-by-Step Roadmap</span><span>Free Starter Guide</span>
+        <span>AI Business Audit</span><span>Workflow Automation</span><span>No Sponsorships</span>
+        <span>Real ROI</span><span>48-Hour Delivery</span><span>Tool Recommendations</span>
+        <span>Step-by-Step Roadmap</span><span>Free Starter Guide</span>
+    </div>
+</div>
+
+
+<!-- ══ WHAT YOU'LL RECEIVE ══ -->
+<section class="section receive-section">
+    <div class="container">
+
+        <div class="text-center reveal" style="max-width:580px;margin:0 auto">
+            <div class="section-label" style="justify-content:center">What You'll Receive</div>
+            <h2 class="section-title">A Report Built for Your Business</h2>
+            <p class="section-sub">Every audit is comprehensive, actionable, and tailored to how your business actually operates.</p>
+        </div>
+
+        <div class="receive-grid">
+
+            <div class="receive-card rc-1 reveal">
+                <span class="receive-icon">🔍</span>
+                <div class="receive-title">Business Workflow Analysis</div>
+                <div class="receive-desc">Deep dive into your current processes to expose hidden inefficiencies and manual bottlenecks slowing your team down.</div>
             </div>
 
-            <div>
-                <i class="bi bi-shield"></i>
-                Personalized to your business
+            <div class="receive-card rc-2 reveal reveal-delay-1">
+                <span class="receive-icon">⚡</span>
+                <div class="receive-title">Automation Opportunity Map</div>
+                <div class="receive-desc">A prioritised list of tasks you can automate today, ranked by time saved and implementation ease.</div>
             </div>
 
-            <div>
-                <i class="bi bi-people"></i>
-                No technical knowledge required
+            <div class="receive-card rc-3 reveal reveal-delay-2">
+                <span class="receive-icon">🤖</span>
+                <div class="receive-title">Curated AI Tool Stack</div>
+                <div class="receive-desc">5–10 hand-picked AI tools matched to your specific workflow — no bloat, no guesswork. Free and paid options included.</div>
+            </div>
+
+            <div class="receive-card rc-4 reveal">
+                <span class="receive-icon">🗺️</span>
+                <div class="receive-title">Step-by-Step Roadmap</div>
+                <div class="receive-desc">A clear 30–90 day implementation plan so you know exactly what to do first, second, and third.</div>
+            </div>
+
+            <div class="receive-card rc-5 reveal reveal-delay-1">
+                <span class="receive-icon">⏱️</span>
+                <div class="receive-title">Time &amp; Cost Savings Estimate</div>
+                <div class="receive-desc">Projected hours saved per week and cost comparisons between free and paid tooling for your use case.</div>
+            </div>
+
+            <div class="receive-card rc-6 reveal reveal-delay-2">
+                <span class="receive-icon">📊</span>
+                <div class="receive-title">KPI &amp; Success Metrics</div>
+                <div class="receive-desc">Clear metrics to track progress so you can measure the actual ROI of every AI implementation you make.</div>
             </div>
 
         </div>
+    </div>
+</section>
 
-        <!-- Price -->
-        <h3 class="audit-price reveal reveal-delay-5">Starting at just <div class="price">
-                {% if discount_percent > 0 %}
-                <span class="original-price">{{ symbol }}{{ original_price }}</span>
-                <span class="discounted-price">{{ symbol }}{{ price }}</span>
-                {% else %}
-                {{ symbol }}{{ price }}
-                {% endif %}
+
+<!-- ══ WHAT'S INSIDE ══ -->
+<section class="section inside-section">
+    <div class="container">
+
+        <div class="text-center reveal" style="max-width:540px;margin:0 auto">
+            <div class="section-label" style="justify-content:center">What's Inside</div>
+            <h2 class="section-title">Six Sections. One Complete Picture.</h2>
+        </div>
+
+        <div class="inside-grid">
+
+            <div class="inside-item reveal">
+                <div class="inside-num">01</div>
+                <div class="inside-text">Overview of your current business workflow</div>
             </div>
-        </h3>
-        <div class="d-flex justify-content-center my-3 reveal reveal-delay-5">
-            <select id="currency-select" class="form-select form-select-sm w-auto">
-                <option value="INR" {% if currency=='INR' %}selected{% endif %}>INR</option>
-                <option value="USD" {% if currency=='USD' %}selected{% endif %}>USD</option>
-                <option value="AED" {% if currency=='AED' %}selected{% endif %}>AED</option>
+
+            <div class="inside-item reveal reveal-delay-1">
+                <div class="inside-num">02</div>
+                <div class="inside-text">Identify high-impact automation opportunities</div>
+            </div>
+
+            <div class="inside-item reveal reveal-delay-2">
+                <div class="inside-num">03</div>
+                <div class="inside-text">List of 5–10 recommended AI tools for your stack</div>
+            </div>
+
+            <div class="inside-item reveal">
+                <div class="inside-num">04</div>
+                <div class="inside-text">Step-by-step implementation plan with priorities</div>
+            </div>
+
+            <div class="inside-item reveal reveal-delay-1">
+                <div class="inside-num">05</div>
+                <div class="inside-text">Estimated hours saved per week with AI in place</div>
+            </div>
+
+            <div class="inside-item reveal reveal-delay-2">
+                <div class="inside-num">06</div>
+                <div class="inside-text">Cost comparison: free vs paid AI tools for your budget</div>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+
+<!-- ══ WHO IT'S FOR ══ -->
+<section class="section who-section">
+    <div class="container">
+        <div class="text-center reveal" style="max-width:540px;margin:0 auto">
+            <div class="section-label" style="justify-content:center">Who It's For</div>
+            <h2 class="section-title">Built for Real Businesses</h2>
+            <p class="section-sub" style="color:rgba(255,255,255,.45);margin:0 auto">Our audit is designed for businesses ready to embrace AI — no matter the industry.</p>
+        </div>
+
+        <div class="who-grid" style="justify-content:center">
+            <div class="who-pill"><i class="bi bi-buildings"></i> Real Estate <span class="tick">✔</span></div>
+            <div class="who-pill"><i class="bi bi-megaphone"></i> Social Media Agencies <span class="tick">✔</span></div>
+            <div class="who-pill"><i class="bi bi-person-check"></i> HR Teams <span class="tick">✔</span></div>
+            <div class="who-pill"><i class="bi bi-bag"></i> Retail Shops <span class="tick">✔</span></div>
+            <div class="who-pill"><i class="bi bi-shop-window"></i> Small Businesses <span class="tick">✔</span></div>
+            <div class="who-pill"><i class="bi bi-camera-video"></i> Content Creators <span class="tick">✔</span></div>
+            <div class="who-pill"><i class="bi bi-code-slash"></i> Agencies &amp; Freelancers <span class="tick">✔</span></div>
+            <div class="who-pill"><i class="bi bi-graph-up"></i> E-Commerce Brands <span class="tick">✔</span></div>
+        </div>
+    </div>
+</section>
+
+
+<!-- ══ PRICING ══ -->
+<section class="section pricing-section" id="plans">
+    <div class="pricing-orb pricing-orb1"></div>
+    <div class="pricing-orb pricing-orb2"></div>
+    
+    <div class="container">
+
+        <div class="text-center reveal" style="max-width:560px;margin:0 auto 32px">
+            <div class="section-label" style="justify-content:center">AI Audit Pricing</div>
+            <h2 class="section-title">Choose the Right Plan</h2>
+            <p class="section-sub">Upgrade anytime as your automation needs grow.</p>
+        </div>
+
+        <div class="currency-bar reveal">
+            <span class="currency-label">Currency:</span>
+            <select id="currency-select" onchange="location='?currency='+this.value">
+                <option value="INR" {% if currency=='INR' %}selected{% endif %}>🇮🇳 INR</option>
+                <option value="USD" {% if currency=='USD' %}selected{% endif %}>🇺🇸 USD</option>
+                <option value="AED" {% if currency=='AED' %}selected{% endif %}>🇦🇪 AED</option>
             </select>
         </div>
-        <p class="audit-price-sub reveal reveal-delay-6">
-            *price may vary as per business size
+
+        <div class="pricing-grid">
+
+            {% for plan in plans %}
+            <div class="card-wrap reveal reveal-delay-{{ loop.index0 }}"
+                 data-card-bg="{{ plan.card_bg_color or '#111827' }}"
+                 data-badge-bg="{{ plan.badge_bg_color or '#3C83F6' }}"
+                 data-badge-text="{{ plan.badge_text_color or '#ffffff' }}"
+                 data-top-bar="{{ plan.top_bar_gradient or 'linear-gradient(90deg,#3C83F6,#6366f1)' }}">
+                
+                <span class="price-badge">
+                    {% if plan.is_active %}
+                        {{ plan.badge_text or 'Standard' }}
+                    {% else %}
+                        Coming Soon
+                    {% endif %}
+                </span>
+                
+                <div class="price-card">
+                    <div class="card-top-bar"></div>
+                    <div class="card-inner">
+                        <div class="price-name">{{ plan.plan_heading }}</div>
+                        <div class="price-sub">{{ plan.plan_subheading }}</div>
+                        
+                        <!-- Price Display -->
+                        <div>
+                            {% if not plan.is_active %}
+                            <div class="price-amount custom">Coming Soon</div>
+                            {% elif plan.original_price_display %}
+                            <div class="price-original">{{ symbol }}{{ plan.original_price_display }}</div>
+                            {% endif %}
+
+                            {% if plan.is_active and plan.price_display %}
+                            <div class="price-amount">{{ symbol }}{{ plan.price_display }}</div>
+                            {% elif plan.is_active and plan.price_inr == 0 %}
+                            <div class="price-amount free">Free</div>
+                            {% elif plan.is_active %}
+                            <div class="price-amount custom">Custom</div>
+                            {% endif %}
+                            
+                            {% if plan.price_note %}
+                            <div class="price-note">
+                                {{ plan.price_note }}
+                            </div>
+                            {% endif %}
+                        </div>
+                        
+                        <hr class="price-divider">
+                        
+                        <!-- Features Section 1 -->
+                        {% if plan.features_heading_1 %}
+                        <div class="price-group-label">{{ plan.features_heading_1 }}</div>
+                        <ul class="price-features">
+                            {% for feature in plan.features_list_1 %}
+                            <li>{{ feature }}</li>
+                            {% endfor %}
+                        </ul>
+                        {% endif %}
+                        
+                        <!-- Features Section 2 -->
+                        {% if plan.features_heading_2 %}
+                        <div class="price-group-label">{{ plan.features_heading_2 }}</div>
+                        <ul class="price-features">
+                            {% for feature in plan.features_list_2 %}
+                            <li>{{ feature }}</li>
+                            {% endfor %}
+                        </ul>
+                        {% endif %}
+                        
+                        <!-- Button Area -->
+                        <div class="price-btn-wrapper">
+                            {% if plan.is_active %}
+                            <a href="/plan-action/{{ plan.id }}" 
+                               class="price-btn {% if plan.is_popular %}price-btn-green{% else %}price-btn-outline{% endif %}">
+                                {{ plan.button_text }} <i class="bi bi-arrow-right"></i>
+                            </a>
+
+                            {% if plan.show_terms %}
+                            <p class="price-terms"><a href="/term-condition">*terms &amp; conditions apply</a></p>
+                            {% endif %}
+                            {% else %}
+                            <span class="price-btn price-btn-disabled">
+                                Coming Soon <i class="bi bi-hourglass-split"></i>
+                            </span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+
+        </div>
+
+        <p class="text-center reveal" style="margin-top:24px;font-size:12px;color:var(--muted2)">
+            *price may vary based on business size and complexity
         </p>
 
-        <!-- Capsule -->
-        <div class="audit-pill-orange reveal reveal-delay-7">
-            Limited Launch Offer
-        </div>
-
     </div>
+</section>
 
-</div>
 
-<div class="container mt-5 text-center">
+<!-- ══ COMING SOON ══ -->
+<section class="section coming-section">
+    <div class="container">
 
-    <h2 class="reveal">What You'll Receive</h2>
-    <p class="text-content reveal">
-        A comprehensive, actionable AI report tailored specifically to your business.
-    </p>
-
-    <div class="row g-4 mt-4">
-
-        <!-- CARD -->
-        <div class="col-md-4 reveal-left">
-            <div class="audit-card">
-                <i class="bi bi-graph-up"></i>
-                <h5>Business Workflow Analysis</h5>
-                <p>
-                    Deep dive into your current processes to uncover inefficiencies.
-                </p>
-            </div>
+        <div class="text-center reveal" style="max-width:520px;margin:0 auto">
+            <div class="section-label" style="justify-content:center">Coming Soon</div>
+            <h2 class="section-title">More Tools on the Way</h2>
+            <p class="section-sub">We're building more tools to help you scale with AI.</p>
         </div>
 
-        <div class="col-md-4 reveal-zoom">
-            <div class="audit-card">
-                <i class="bi bi-graph-up"></i>
-                <h5>Business Workflow Analysis</h5>
-                <p>
-                    Deep dive into your current processes to uncover inefficiencies.
-                </p>
-            </div>
-        </div>
+        <div class="coming-grid">
 
-        <div class="col-md-4 reveal-right">
-            <div class="audit-card">
-                <i class="bi bi-graph-up"></i>
-                <h5>Business Workflow Analysis</h5>
-                <p>
-                    Deep dive into your current processes to uncover inefficiencies.
-                </p>
+            <div class="coming-card reveal">
+                <div class="coming-icon">📦</div>
+                <div>
+                    <div class="coming-title">Software Automation Toolkit</div>
+                    <div class="coming-desc">Plug-and-play AI tools and templates for common business workflows. Built for non-technical teams who want results fast.</div>
+                    <div class="coming-pill">⏳ Under Progress</div>
+                </div>
             </div>
-        </div>
 
-        <div class="col-md-4 reveal-left">
-            <div class="audit-card">
-                <i class="bi bi-graph-up"></i>
-                <h5>Business Workflow Analysis</h5>
-                <p>
-                    Deep dive into your current processes to uncover inefficiencies.
-                </p>
+            <div class="coming-card reveal reveal-delay-1">
+                <div class="coming-icon">🧩</div>
+                <div>
+                    <div class="coming-title">AI Workflow Templates</div>
+                    <div class="coming-desc">Ready-to-use automation templates for everyday business processes — just plug in your tools and go. No setup headaches.</div>
+                    <div class="coming-pill">⏳ Under Progress</div>
+                </div>
             </div>
-        </div>
 
-        <div class="col-md-4 reveal-zoom">
-            <div class="audit-card">
-                <i class="bi bi-graph-up"></i>
-                <h5>Business Workflow Analysis</h5>
-                <p>
-                    Deep dive into your current processes to uncover inefficiencies.
-                </p>
+        </div>
+    </div>
+</section>
+
+<!-- ══ FINAL CTA ══ -->
+<section class="section final-cta-section">
+    <div class="container">
+        <div class="final-cta-inner reveal">
+            <div class="hero-pill" style="justify-content:center;margin-bottom:20px">
+                <span class="hero-pill-dot"></span>
+                Start Today
             </div>
-        </div>
-
-        <div class="col-md-4 reveal-right">
-            <div class="audit-card">
-                <i class="bi bi-graph-up"></i>
-                <h5>Business Workflow Analysis</h5>
-                <p>
-                    Deep dive into your current processes to uncover inefficiencies.
-                </p>
+            <h2>Start With Your AI Audit Today</h2>
+            <p>Get a personalised report showing exactly how AI can transform your business workflows — delivered within 48 hours.</p>
+            <div style="display:flex;justify-content:center;gap:12px;flex-wrap:wrap;">
+                <a href="#plans" class="btn-primary">Buy Now <i class="bi bi-arrow-right"></i></a>
+                <a href="/about#contact-section" class="btn-ghost-dark">Talk to Us First</a>
             </div>
         </div>
     </div>
-
-</div>
-
-
-<div class="container mt-5 text-center">
-
-    <h2 class="reveal">What's Inside</h2>
-
-    <div class="row g-3 mt-4">
-
-        <!-- ITEM -->
-        <div class="col-md-4">
-            <div class="inside-box reveal-left reveal-delay-1">
-                <div class="inside-num">1</div> Overview of your current business workflow
-            </div>
-        </div>
-
-        <div class="col-md-4">
-            <div class="inside-box reveal-zoom reveal-delay-1">
-                <div class="inside-num">2</div>
-                Identify automation opportunities
-            </div>
-        </div>
-
-        <div class="col-md-4">
-            <div class="inside-box reveal-right reveal-delay-1">
-                <div class="inside-num">3</div>
-                List of 5–10 recommended AI tools
-            </div>
-        </div>
-
-        <div class="col-md-4">
-            <div class="inside-box reveal-left reveal-delay-1">
-                <div class="inside-num">4</div>
-                Step-by-step implementation plan
-            </div>
-        </div>
-
-        <div class="col-md-4">
-            <div class="inside-box reveal-zoom reveal-delay-1">
-                <div class="inside-num">5</div>
-                Estimated hours saved per week
-            </div>
-        </div>
-
-        <div class="col-md-4">
-            <div class="inside-box reveal-right reveal-delay-1">
-                <div class="inside-num">6</div>
-                Cost comparison: free vs paid tools
-            </div>
-        </div>
-
-    </div>
-
-</div>
-
-<div class="container mt-5 text-center">
-
-    <h2 class="reveal">Who It's For</h2>
-
-    <p class="text-content reveal reveal-delay-1">
-        Our audit is designed for businesses ready to embrace AI — no matter the industry.
-    </p>
-
-    <div class="row mt-4 g-3">
-
-        <div class="col">
-            <div class="who-box reveal-left reveal-delay-2">
-                <i class="bi bi-buildings"></i>
-                Real Estate <span class="tick">✔</span>
-            </div>
-        </div>
-
-        <div class="col">
-            <div class="who-box reveal-left reveal-delay-2">
-                <i class="bi bi-megaphone"></i>
-                Social Media Agencies <span class="tick">✔</span>
-            </div>
-        </div>
-
-        <div class="col">
-            <div class="who-box reveal-zoom reveal-delay-2">
-                <i class="bi bi-person-check"></i>
-                HR Teams <span class="tick">✔</span>
-            </div>
-        </div>
-
-        <div class="col">
-            <div class="who-box reveal-right reveal-delay-2">
-                <i class="bi bi-bag"></i>
-                Retail Shops <span class="tick">✔</span>
-            </div>
-        </div>
-
-        <div class="col">
-            <div class="who-box reveal-right reveal-delay-2">
-                <i class="bi bi-shop-window"></i>
-                Small Businesses <span class="tick">✔</span>
-            </div>
-        </div>
-
-    </div>
-
-</div>
-
-
-<div id="plans" class="container mt-5 text-center pricing-section">
-
-    <h2 class="reveal">AI Audit Pricing</h2>
-
-    <p class="text-content reveal reveal-delay-1">
-        Choose the right AI audit plan for your business stage. Upgrade anytime as your automation needs grow.
-    </p>
-
-    <div class="row mt-5 g-4">
-
-        <!-- INSIGHT -->
-        <div class="col-lg-3 col-md-6">
-            <div class="pricing-card premium-card">
-                <div class="plan-badge">Starter</div>
-                <h3 class="plan-title">Budasai Insight</h3>
-                <p class="plan-subtitle">AI Opportunity Starter Kit</p>
-
-                <div class="price">{{ symbol }}0</div>
-
-                <div class="feature-group">
-                    <h6>AI Coverage</h6>
-                    <ul>
-                        <li>AI for Marketing overview</li>
-                        <li>AI for Sales basics</li>
-                        <li>AI for HR & Operations intro</li>
-                    </ul>
-                </div>
-
-                <div class="feature-group">
-                    <h6>Includes</h6>
-                    <ul>
-                        <li>3 Automation examples</li>
-                        <li>Beginner tool stack</li>
-                        <li>AI readiness checklist</li>
-                    </ul>
-                </div>
-
-                <a href="/download-guide" class="button-fill-square w-100 mt-3">
-                    Download Guide
-                </a>
-            </div>
-        </div>
-
-
-        <!-- BLUEPRINT -->
-        <div class="col-lg-3 col-md-6">
-            <div class="pricing-card premium-card highlighted">
-                <div class="plan-badge popular">Most Popular</div>
-                <h3 class="plan-title">Budasai Blueprint</h3>
-                <p class="plan-subtitle">Department-Wise AI Strategy</p>
-
-                <div class="price">
-                    {% if discount_percent > 0 %}
-                    <span class="original-price">{{ symbol }}{{ original_price }}</span>
-                    <span class="discounted-price">{{ symbol }}{{ price }}</span>
-                    {% else %}
-                    {{ symbol }}{{ price }}
-                    {% endif %}
-                </div>
-
-                <div class="feature-group">
-                    <h6>Department Systems</h6>
-                    <ul>
-                        <li>AI for Marketing system</li>
-                        <li>AI Sales funnel automation</li>
-                        <li>HR screening AI model</li>
-                        <li>Operations workflow design</li>
-                    </ul>
-                </div>
-
-                <div class="feature-group">
-                    <h6>Deliverables</h6>
-                    <ul>
-                        <li>Tool stack recommendations</li>
-                        <li>Workflow diagrams</li>
-                        <li>30-day roadmap</li>
-                    </ul>
-                </div>
-
-                <a href="about#contact-section" class="button-fill-square w-100 mt-3">Get Blueprint</a>
-                <br>
-                <br>
-                <a href="/term-condition" class="term mt-3">*terms and conditions apply click here</a>
-            </div>
-        </div>
-
-
-        <!-- GROWTH ENGINE -->
-        <div class="col-lg-3 col-md-6">
-            <div class="pricing-card premium-card pro-card">
-                <div class="plan-badge pro">Advanced</div>
-                <h3 class="plan-title">Budasai Growth Engine</h3>
-                <p class="plan-subtitle">Revenue + Automation Audit</p>
-
-                <div class="price">
-                    {% if discount_percent > 0 %}
-                    <span class="original-price">{{ symbol }}{{ original_adv_price }}</span>
-                    <span class="discounted-price">{{ symbol }}{{ adv_price }}</span>
-                    {% else %}
-                    {{ symbol }}{{ adv_price }}
-                    {% endif %}
-                </div>
-
-                <div class="feature-group">
-                    <h6>Business Analysis</h6>
-                    <ul>
-                        <li>Revenue leakage audit</li>
-                        <li>Process gap analysis</li>
-                        <li>Automation opportunities</li>
-                    </ul>
-                </div>
-
-                <div class="feature-group">
-                    <h6>Implementation Strategy</h6>
-                    <ul>
-                        <li>AI tech stack mapping</li>
-                        <li>KPI dashboard plan</li>
-                        <li>90-day execution strategy</li>
-                    </ul>
-                </div>
-
-                <a href="about#contact-section" class="button-fill-square w-100 mt-3">Book Audit</a>
-                <br>
-                <br>
-                <a href="/term-condition" class="term mt-3">*terms and conditions apply click here</a>
-
-            </div>
-        </div>
-
-
-        <!-- TRANSFORMATION -->
-        <div class="col-lg-3 col-md-6">
-            <div class="pricing-card premium-card enterprise-card">
-                <div class="plan-badge enterprise">Enterprise</div>
-                <h3 class="plan-title">Budasai Transformation Suite</h3>
-                <p class="plan-subtitle">Full AI Business Integration</p>
-
-                <div class="price">Custom</div>
-
-                <div class="feature-group">
-                    <h6>Full Systems</h6>
-                    <ul>
-                        <li>Marketing AI implementation</li>
-                        <li>Sales AI revenue engine</li>
-                        <li>HR automation systems</li>
-                        <li>Operations AI optimization</li>
-                    </ul>
-                </div>
-
-                <div class="feature-group">
-                    <h6>Premium Support</h6>
-                    <ul>
-                        <li>Advanced analytics</li>
-                        <li>Custom automation build</li>
-                        <li>Team AI training</li>
-                        <li>6–12 month partnership</li>
-                    </ul>
-                </div>
-
-                <a href="about#contact-section" class="button-fill-square w-100 mt-3">Contact Sales</a>
-                <br>
-                <br>
-                <a href="/term-condition" class="term mt-3">*terms and conditions apply click here</a>
-
-            </div>
-        </div>
-
-    </div>
-
-</div>
-
-
-
-
-<div class="container mt-5 text-center">
-
-    <h2 class="reveal">Coming Soon</h2>
-
-    <p class="text-content reveal reveal-delay-1">
-        We're building more tools to help you scale with AI.
-    </p>
-
-    <div class="row justify-content-center mt-4 g-4">
-
-        <div class="col-md-4">
-            <div class="coming-card reveal-left reveal-delay-2">
-
-                <i class="bi bi-box-seam"></i>
-
-                <h5>Software Automation Toolkit</h5>
-
-                <p>
-                    Plug-and-play AI tools and templates for common business workflows.
-                </p>
-
-                <div class="coming-pill">
-                    Launching Soon
-                </div>
-
-            </div>
-        </div>
-
-        <div class="col-md-4">
-            <div class="coming-card reveal-right reveal-delay-2">
-
-                <i class="bi bi-cpu"></i>
-
-                <h5>AI Workflow Templates</h5>
-
-                <p>
-                    Ready-to-use automation templates for everyday business processes.
-                </p>
-
-                <div class="coming-pill">
-                    Launching Soon
-                </div>
-
-            </div>
-        </div>
-
-    </div>
-
-</div>
-
-<div class="container mt-5">
-
-    <div class="final-cta text-center reveal reveal-delay-2">
-
-        <i class="bi bi-file-earmark-text doc-i"></i>
-
-        <h3>Start With Your AI Audit Today</h3>
-
-        <p>
-            Get a personalized report showing exactly how AI can transform your business workflows.
-        </p>
-
-        <br>
-        <!-- Button -->
-        <a href="#plans" class="button-fill-square" style="text-decoration: none;">
-            Buy Now <i class="bi bi-arrow-right-short"></i>
-        </a>
-        <!-- <a href="#plans" class="button-fill-square">
-            Buy Now – Start Your AI Audit Today <i class="bi bi-arrow-right-short"></i>
-        </a> -->
-        <br>
-        <!-- <p>
-            <div class="audit-pill-orange">
-                Limited Early Launch Pricing
-            </div>
-        </p> -->
-
-    </div>
-
-</div>
-
-
-
+</section>
+
+
+<script>
+    const observer = new IntersectionObserver(entries => {
+        entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); } });
+    }, { threshold: 0.1 });
+    document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+    // Apply DB-driven card and badge colors without inline Jinja CSS values.
+    document.querySelectorAll('.card-wrap').forEach((wrap) => {
+        const cardBg = wrap.dataset.cardBg;
+        const badgeBg = wrap.dataset.badgeBg;
+        const badgeText = wrap.dataset.badgeText;
+        const topBar = wrap.dataset.topBar;
+        
+        const badge = wrap.querySelector('.price-badge');
+        const card = wrap.querySelector('.price-card');
+        const cardTopBar = wrap.querySelector('.card-top-bar');
+        
+        if (badge) {
+            if (badgeBg) badge.style.backgroundColor = badgeBg;
+            if (badgeText) badge.style.color = badgeText;
+        }
+        if (card && cardBg) card.style.backgroundColor = cardBg;
+        if (cardTopBar && topBar) cardTopBar.style.background = topBar;
+    });
+</script>
 
 {% endblock %}

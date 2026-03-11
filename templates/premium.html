@@ -1,0 +1,448 @@
+{% extends "base.html" %}
+{% block title %}AI Workflow Guides — BUDASAI{% endblock %}
+{% block content %}
+<style>
+:root {
+    --blue:#3C83F6; --blue-dark:#2563eb; --blue-light:#eff6ff; --blue-border:#bfdbfe;
+    --green:#10b981; --amber:#f59e0b; --purple:#8b5cf6; --pink:#ec4899;
+    --text:#0f172a; --muted:#64748b; --muted2:#94a3b8;
+    --border:#e2e8f0; --bg:#f8fafc; --card:#ffffff;
+}
+
+/* HERO */
+.hero{background:linear-gradient(135deg,#0a0f1e 0%,#0d1f3c 100%);padding:72px 0 0;position:relative;overflow:hidden;}
+.hero::before{content:'';position:absolute;inset:0;pointer-events:none;background-image:linear-gradient(rgba(60,131,246,.06) 1px,transparent 1px),linear-gradient(90deg,rgba(60,131,246,.06) 1px,transparent 1px);background-size:44px 44px;}
+.hero-orb1{position:absolute;width:500px;height:500px;top:-200px;right:-100px;border-radius:50%;background:radial-gradient(circle,rgba(60,131,246,.12),transparent 70%);pointer-events:none;}
+.hero-orb2{position:absolute;width:300px;height:300px;bottom:0;left:-80px;border-radius:50%;background:radial-gradient(circle,rgba(139,92,246,.1),transparent 70%);pointer-events:none;}
+.hero-inner{max-width:1100px;margin:0 auto;padding:0 32px;position:relative;z-index:2;}
+.hero-eyebrow{display:inline-flex;align-items:center;gap:8px;background:rgba(245,158,11,.15);border:1px solid rgba(245,158,11,.3);color:#fcd34d;font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;padding:5px 16px;border-radius:20px;margin-bottom:24px;}
+.hero-eyebrow-dot{width:5px;height:5px;border-radius:50%;background:#f59e0b;box-shadow:0 0 8px #f59e0b;animation:blink 2s ease-in-out infinite;}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+.hero-title{font-size:clamp(2rem,5vw,3.4rem);font-weight:800;color:#fff;letter-spacing:-2px;line-height:1.05;margin-bottom:16px;}
+.hero-title em{font-style:normal;color:var(--blue);}
+.hero-sub{font-size:16px;color:rgba(255,255,255,.45);max-width:560px;line-height:1.8;margin-bottom:36px;}
+
+/* FAKE SELECTOR ROW */
+.selector-row{display:flex;align-items:center;gap:14px;margin-bottom:32px;flex-wrap:wrap;}
+.selector-label{font-size:12px;font-weight:700;color:rgba(255,255,255,.35);letter-spacing:.5px;}
+.fake-dropdown{display:inline-flex;align-items:center;gap:10px;padding:10px 18px;border-radius:12px;background:rgba(255,255,255,.06);border:1.5px solid rgba(255,255,255,.12);color:rgba(255,255,255,.5);font-size:14px;font-weight:700;min-width:200px;justify-content:space-between;position:relative;}
+.fake-dropdown::after{content:'🔒';font-size:14px;}
+
+/* TAB STRIP */
+.tab-strip{display:flex;gap:4px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;-ms-overflow-style:none;}
+.tab-strip::-webkit-scrollbar{width:0;height:0;display:none;background:transparent;}
+.compare-section-row{overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;-ms-overflow-style:none;}
+.compare-section-row::-webkit-scrollbar{width:0;height:0;display:none;background:transparent;}
+.tab-btn-fake{display:flex;align-items:center;gap:8px;padding:13px 24px;font-size:14px;font-weight:700;border-radius:12px 12px 0 0;border:1px solid rgba(255,255,255,.06);border-bottom:none;background:rgba(255,255,255,.06);color:rgba(255,255,255,.45);cursor:pointer;transition:all .2s;}
+.tab-btn-fake.fake-active{background:var(--bg);color:var(--text);border-color:var(--border);margin-bottom:-1px;}
+
+/* BODY */
+.body-wrap{border-top:1px solid var(--border);background:var(--bg);min-height:100vh;}
+.preview-tab-panel{display:none;}
+.preview-tab-panel.active{display:block;}
+.page-inner{max-width:1100px;margin:0 auto;padding:48px 32px 100px;}
+
+/* PANEL HEADER */
+.panel-header{display:flex;align-items:flex-start;justify-content:space-between;gap:24px;flex-wrap:wrap;margin-bottom:40px;padding:28px 32px;background:#fff;border:1px solid var(--border);border-radius:20px;box-shadow:0 1px 3px rgba(0,0,0,.04),0 8px 24px rgba(0,0,0,.03);}
+.ph-eyebrow{font-size:10px;font-weight:800;letter-spacing:2px;text-transform:uppercase;margin-bottom:8px;color:var(--blue);}
+.ph-title{font-size:22px;font-weight:800;color:var(--text);letter-spacing:-.8px;margin-bottom:8px;}
+.ph-desc{font-size:14px;color:var(--muted);line-height:1.75;max-width:540px;}
+.ph-stats{display:flex;gap:12px;flex-wrap:wrap;margin-top:18px;}
+.ph-stat{display:flex;align-items:center;gap:7px;font-size:12px;font-weight:600;color:var(--muted);background:var(--bg);border:1px solid var(--border);padding:6px 14px;border-radius:20px;}
+
+/* SECTION TITLE */
+.wf-section{margin-bottom:32px;}
+.wf-section-title{font-size:11px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--muted2);margin-bottom:16px;display:flex;align-items:center;gap:10px;}
+.wf-section-title::after{content:'';flex:1;height:1px;background:var(--border);}
+
+/* LOCKED STEP CARD */
+.step-card-locked{background:#fff;border:1px solid var(--border);border-radius:16px;overflow:hidden;margin-bottom:12px;box-shadow:0 1px 3px rgba(0,0,0,.04);position:relative;}
+.step-card-locked-head{display:grid;grid-template-columns:54px 1fr auto;align-items:center;}
+.step-num-col{display:flex;align-items:center;justify-content:center;padding:20px 0;border-right:1px solid var(--border);background:var(--bg);}
+.step-num{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#fff;}
+.step-info-locked{padding:18px 20px;flex:1;}
+.step-title-locked{height:14px;background:#e2e8f0;border-radius:4px;margin-bottom:10px;width:55%;animation:shimmer 2s ease-in-out infinite;}
+.step-meta-locked{display:flex;gap:8px;}
+.step-badge-locked{height:20px;width:90px;background:#f1f5f9;border-radius:20px;animation:shimmer 2s ease-in-out infinite;}
+.step-time-locked{height:20px;width:60px;background:#f1f5f9;border-radius:5px;animation:shimmer 2s ease-in-out infinite;}
+@keyframes shimmer{0%,100%{opacity:1}50%{opacity:.5}}
+.step-body-locked{display:block;padding:18px 20px 22px 74px;border-top:1px solid var(--border);background:#fafbfe;filter:blur(4px);user-select:none;pointer-events:none;}
+.fake-desc{height:13px;background:#e2e8f0;border-radius:4px;margin-bottom:8px;animation:shimmer 2s ease-in-out infinite;}
+.fake-desc.w80{width:80%;}
+.fake-desc.w60{width:60%;}
+.fake-desc.w70{width:70%;}
+.fake-prompt-block{background:#0f172a;border-radius:10px;overflow:hidden;margin-top:12px;}
+.fake-prompt-head{padding:8px 16px;background:rgba(255,255,255,.04);border-bottom:1px solid rgba(255,255,255,.07);display:flex;justify-content:space-between;}
+.fake-prompt-label{height:10px;width:120px;background:rgba(255,255,255,.1);border-radius:3px;}
+.fake-prompt-copy{height:10px;width:32px;background:rgba(255,255,255,.08);border-radius:3px;}
+.fake-prompt-lines{padding:14px 16px;display:flex;flex-direction:column;gap:7px;}
+.fake-prompt-line{height:11px;background:rgba(255,255,255,.08);border-radius:3px;}
+.fake-prompt-line.w100{width:100%;}
+.fake-prompt-line.w85{width:85%;}
+.fake-prompt-line.w60{width:60%;}
+.fake-prompt-line.w75{width:75%;}
+.fake-prompt-line.w45{width:45%;}
+.fake-output{margin-top:10px;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;padding:12px 14px;}
+.fake-output-label{height:10px;width:80px;background:#bbf7d0;border-radius:3px;margin-bottom:8px;}
+.fake-output-line{height:11px;background:#bbf7d0;border-radius:3px;}
+.step-lock-overlay{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(248,250,252,.6);backdrop-filter:blur(1px);z-index:5;cursor:pointer;}
+
+/* CTA BANNER */
+.cta-banner{background:linear-gradient(135deg,#0f172a 0%,#1e2d4a 100%);border-radius:24px;padding:48px 40px;margin-top:48px;position:relative;overflow:hidden;display:flex;align-items:center;justify-content:space-between;gap:32px;flex-wrap:wrap;}
+.cta-banner::before{content:'';position:absolute;inset:0;pointer-events:none;background-image:linear-gradient(rgba(60,131,246,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(60,131,246,.05) 1px,transparent 1px);background-size:36px 36px;}
+.cta-orb{position:absolute;width:300px;height:300px;top:-100px;right:-80px;border-radius:50%;background:radial-gradient(circle,rgba(60,131,246,.12),transparent 70%);pointer-events:none;}
+.cta-left{position:relative;z-index:2;}
+.cta-eyebrow{display:inline-flex;align-items:center;gap:6px;background:rgba(245,158,11,.15);border:1px solid rgba(245,158,11,.3);color:#fcd34d;font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;padding:4px 12px;border-radius:20px;margin-bottom:16px;}
+.cta-title{font-size:clamp(1.6rem,3vw,2.2rem);font-weight:800;color:#fff;letter-spacing:-1px;line-height:1.1;margin-bottom:12px;}
+.cta-title em{font-style:normal;color:var(--blue);}
+.cta-sub{font-size:14px;color:rgba(255,255,255,.45);line-height:1.75;max-width:480px;}
+.cta-right{position:relative;z-index:2;display:flex;flex-direction:column;gap:16px;align-items:flex-start;}
+.cta-price-box{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:16px;padding:20px 24px;min-width:220px;}
+.cta-price-label{font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,.3);margin-bottom:6px;}
+.cta-price{display:flex;align-items:baseline;gap:4px;}
+.cta-price-sym{font-size:18px;font-weight:700;color:rgba(255,255,255,.5);}
+.cta-price-num{font-size:40px;font-weight:700;color:#fff;line-height:1;}
+.cta-price-period{font-size:12px;color:rgba(255,255,255,.3);}
+.cta-price-orig{font-size:12px;color:rgba(255,255,255,.25);margin-top:4px;}
+.cta-price-orig.strike{text-decoration:line-through;}
+.btn-buy{display:inline-flex;align-items:center;gap:8px;background:var(--blue);color:#fff;font-size:15px;font-weight:800;padding:14px 28px;border-radius:12px;text-decoration:none;transition:all .25s;border:none;cursor:pointer;white-space:nowrap;}
+.btn-buy:hover{background:var(--blue-dark);transform:translateY(-2px);box-shadow:0 8px 24px rgba(60,131,246,.35);}
+
+/* WHAT'S INCLUDED */
+.includes-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px;margin:40px 0;}
+.include-card{background:#fff;border:1px solid var(--border);border-radius:14px;padding:20px;box-shadow:0 1px 3px rgba(0,0,0,.04);}
+.include-icon{font-size:28px;margin-bottom:12px;line-height:1;}
+.include-title{font-size:14px;font-weight:800;color:var(--text);margin-bottom:5px;}
+.include-desc{font-size:12.5px;color:var(--muted);line-height:1.6;}
+
+/* RESULT ROW */
+.result-row{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;background:linear-gradient(135deg,#0f172a,#1e3a5f);border-radius:16px;padding:24px 28px;margin-bottom:32px;position:relative;overflow:hidden;}
+.result-row::before{content:'';position:absolute;inset:0;background-image:linear-gradient(rgba(60,131,246,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(60,131,246,.05) 1px,transparent 1px);background-size:28px 28px;pointer-events:none;}
+.rr-item{position:relative;z-index:1;text-align:center;}
+.rr-num{font-size:28px;font-weight:700;line-height:1;margin-bottom:4px;}
+.rr-label{font-size:11px;color:rgba(255,255,255,.38);}
+
+.section-eyebrow{font-size:9px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--muted2);margin-bottom:10px;}
+.section-heading{font-size:22px;font-weight:800;color:var(--text);letter-spacing:-.5px;margin-bottom:8px;}
+.section-sub{font-size:14px;color:var(--muted);line-height:1.75;margin-bottom:28px;}
+
+/* COMPARE TAB */
+.compare-controls{background:#fff;border:1px solid var(--border);border-radius:16px;padding:20px 24px;margin-bottom:24px;display:flex;align-items:flex-start;gap:16px;flex-wrap:wrap;box-shadow:0 1px 3px rgba(0,0,0,.04);}
+.compare-controls-label{font-size:11px;font-weight:800;color:var(--muted2);letter-spacing:.5px;white-space:nowrap;padding-top:10px;}
+.compare-tool-pills{display:flex;gap:8px;flex-wrap:wrap;flex:1;}
+.cmp-pill{display:inline-flex;align-items:center;gap:7px;padding:8px 16px;border-radius:30px;cursor:pointer;font-size:13px;font-weight:700;user-select:none;background:var(--bg);border:1.5px solid var(--border);color:var(--muted);transition:all .2s;}
+.cmp-pill.sel{background:var(--blue);border-color:var(--blue);color:#fff;}
+.cmp-pill-icon{font-size:16px;}
+.cmp-pill-max-hint{font-size:11px;color:var(--muted2);align-self:center;margin-left:4px;}
+.compare-section-row{width:100%;border-top:1px solid var(--border);padding-top:14px;display:flex;gap:6px;flex-wrap:wrap;align-items:center;}
+.cmp-section-label{font-size:10px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--muted2);margin-right:4px;}
+.cmp-section-btn{font-size:12px;font-weight:700;padding:6px 14px;border-radius:20px;border:1.5px solid var(--border);background:var(--bg);color:var(--muted);}
+.compare-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}
+.compare-col{background:#fff;border:1.5px solid var(--border);border-radius:16px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.05);}
+.compare-col-head{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;background:linear-gradient(135deg,#0f172a,#1a2c4a);}
+.cch-icon{font-size:22px;width:42px;height:42px;border-radius:10px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.1);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.cch-info{flex:1;min-width:0;}
+.cch-name{font-size:15px;font-weight:800;color:#fff;}
+.cch-tagline{font-size:10px;color:rgba(255,255,255,.35);margin-top:2px;}
+.cch-score{text-align:center;flex-shrink:0;}
+.cch-score-num{font-size:20px;font-weight:700;color:#fff;line-height:1;}
+.cch-score-label{font-size:9px;color:rgba(255,255,255,.3);font-weight:600;letter-spacing:.5px;margin-top:2px;}
+.score-rows{padding:14px 18px;}
+.score-row{margin-bottom:12px;}
+.score-row-label{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;}
+.score-row-name{font-size:11.5px;font-weight:700;color:var(--text);}
+.score-row-val{font-size:11.5px;font-weight:700;}
+.score-bar-track{height:6px;background:var(--bg);border-radius:10px;border:1px solid var(--border);overflow:hidden;}
+.score-bar-fill{height:100%;border-radius:10px;}
+
+@media(max-width:768px){
+    .hero-inner,.page-inner{padding-left:20px;padding-right:20px;}
+    .hero{padding:48px 0 0;}
+    .cta-banner{padding:32px 24px;}
+    .result-row{grid-template-columns:1fr 1fr;}
+    .compare-grid{grid-template-columns:1fr !important;}
+}
+</style>
+
+<div class="hero">
+    <div class="hero-orb1"></div>
+    <div class="hero-orb2"></div>
+    <div class="hero-inner">
+        <div class="hero-eyebrow"><span class="hero-eyebrow-dot"></span>Budasai Tool Finder — Premium</div>
+        <h1 class="hero-title">Step-by-Step AI <em>Workflow Guides</em></h1>
+        <p class="hero-sub">Real prompts. Real tools. Real results. Unlock step-by-step workflows built for YouTube creators, content marketers and data analysts.</p>
+
+        <div class="selector-row">
+            <span class="selector-label">🛠 Select AI Tool</span>
+            <div class="fake-dropdown">
+                <span style="display:flex;align-items:center;gap:9px;color:rgba(255,255,255,.35);"><span style="font-size:18px;">🤖</span> Claude</span>
+            </div>
+        </div>
+
+        <div class="tab-strip">
+            <button class="tab-btn-fake fake-active" onclick="switchPreviewTab('youtube',this)"><span>🎬</span> YouTube Creator</button>
+            <button class="tab-btn-fake" onclick="switchPreviewTab('instagram',this)"><span>📸</span> Instagram Content</button>
+            <button class="tab-btn-fake" onclick="switchPreviewTab('analyst',this)"><span>📊</span> Data Analyst</button>
+            <button class="tab-btn-fake" onclick="switchPreviewTab('compare',this)"><span>⚖️</span> Compare Tools</button>
+        </div>
+    </div>
+</div>
+
+<div class="body-wrap">
+<div class="page-inner">
+
+    <div class="preview-tab-panel active" id="preview-youtube">
+        <div class="panel-header">
+            <div>
+                <div class="ph-eyebrow">🎬 YouTube Creator — Claude</div>
+                <div class="ph-title">Full Video Production Pipeline</div>
+                <div class="ph-desc">From blank page to published video with repurposed social content — entirely AI-assisted. Saves 8–12 hours per video.</div>
+                <div class="ph-stats"><span class="ph-stat">⏱ ~35 mins total</span><span class="ph-stat">📋 Real prompts included</span><span class="ph-stat">🔒 5 steps unlocked with plan</span></div>
+            </div>
+        </div>
+
+        <div class="result-row">
+            <div class="rr-item"><div class="rr-num" style="color:#10b981">~35</div><div class="rr-label">Minutes total workflow</div></div>
+            <div class="rr-item"><div class="rr-num" style="color:#3C83F6">8–12 hrs</div><div class="rr-label">Saved per video</div></div>
+            <div class="rr-item"><div class="rr-num" style="color:#f59e0b">4 tools</div><div class="rr-label">Used in workflow</div></div>
+        </div>
+
+        <div class="wf-section">
+            <div class="wf-section-title">Phase 1 — Pre-Production</div>
+            <div class="step-card-locked" style="cursor:default;">
+                <div class="step-card-locked-head">
+                    <div class="step-num-col"><div class="step-num" style="background:#ef4444">01</div></div>
+                    <div class="step-info-locked">
+                        <div style="font-size:14px;font-weight:700;color:var(--text);margin-bottom:6px;">Topic & Angle Research</div>
+                        <div class="step-meta-locked"><span style="display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px;background:#eff6ff;color:#1d4ed8;border:1px solid #bfdbfe;">🤖 Claude</span><span style="font-size:11px;color:var(--muted2);background:var(--bg);border:1px solid var(--border);padding:3px 10px;border-radius:5px;">⏱ 5 mins</span></div>
+                    </div>
+                    <div style="padding:0 20px;font-size:18px;color:var(--muted2);">▾</div>
+                </div>
+                <div class="step-body-locked"><div class="fake-desc w80"></div><div class="fake-desc w60"></div><div class="fake-prompt-block"><div class="fake-prompt-head"><div class="fake-prompt-label"></div><div class="fake-prompt-copy"></div></div><div class="fake-prompt-lines"><div class="fake-prompt-line w100"></div><div class="fake-prompt-line w85"></div><div class="fake-prompt-line w60"></div><div class="fake-prompt-line w75"></div><div class="fake-prompt-line w45"></div></div></div></div>
+                <div class="step-lock-overlay" onclick="document.getElementById('cta-anchor').scrollIntoView({behavior:'smooth'})"><div style="background:#fff;border:1.5px solid var(--border);border-radius:12px;padding:10px 20px;display:flex;align-items:center;gap:8px;box-shadow:0 4px 16px rgba(0,0,0,.1);font-size:13px;font-weight:700;color:var(--text);cursor:pointer;">🔒 Unlock this step</div></div>
+            </div>
+            <div class="step-card-locked" style="cursor:pointer;" onclick="document.getElementById('cta-anchor').scrollIntoView({behavior:'smooth'})"><div class="step-card-locked-head"><div class="step-num-col"><div class="step-num" style="background:#f97316">02</div></div><div class="step-info-locked"><div class="step-title-locked"></div><div class="step-meta-locked"><div class="step-badge-locked"></div><div class="step-time-locked"></div></div></div><div style="padding:0 20px;font-size:18px;color:var(--muted2);">🔒</div></div></div>
+            <div class="step-card-locked" style="cursor:pointer;" onclick="document.getElementById('cta-anchor').scrollIntoView({behavior:'smooth'})"><div class="step-card-locked-head"><div class="step-num-col"><div class="step-num" style="background:#f59e0b">03</div></div><div class="step-info-locked"><div class="step-title-locked" style="width:45%"></div><div class="step-meta-locked"><div class="step-badge-locked"></div><div class="step-time-locked"></div></div></div><div style="padding:0 20px;font-size:18px;color:var(--muted2);">🔒</div></div></div>
+        </div>
+
+        <div class="wf-section">
+            <div class="wf-section-title">Phase 2 — Post-Production & Repurposing</div>
+            <div class="step-card-locked" style="cursor:pointer;" onclick="document.getElementById('cta-anchor').scrollIntoView({behavior:'smooth'})"><div class="step-card-locked-head"><div class="step-num-col"><div class="step-num" style="background:#10b981">04</div></div><div class="step-info-locked"><div class="step-title-locked" style="width:50%"></div><div class="step-meta-locked"><div class="step-badge-locked"></div><div class="step-time-locked"></div></div></div><div style="padding:0 20px;font-size:18px;color:var(--muted2);">🔒</div></div></div>
+            <div class="step-card-locked" style="cursor:pointer;" onclick="document.getElementById('cta-anchor').scrollIntoView({behavior:'smooth'})"><div class="step-card-locked-head"><div class="step-num-col"><div class="step-num" style="background:#3C83F6">05</div></div><div class="step-info-locked"><div class="step-title-locked" style="width:62%"></div><div class="step-meta-locked"><div class="step-badge-locked"></div><div class="step-time-locked"></div></div></div><div style="padding:0 20px;font-size:18px;color:var(--muted2);">🔒</div></div></div>
+        </div>
+    </div>
+
+    <div class="preview-tab-panel" id="preview-instagram">
+        <div class="panel-header"><div><div class="ph-eyebrow" style="color:#ec4899">📸 Instagram Content — Claude</div><div class="ph-title">30-Day Content Calendar & Batch Writing</div><div class="ph-desc">Plan a full month of Instagram content, write carousels, Reel scripts and captions in one AI-powered session.</div><div class="ph-stats"><span class="ph-stat">⏱ ~30 mins total</span><span class="ph-stat">📋 Real prompts included</span><span class="ph-stat">🔒 4 steps unlocked with plan</span></div></div></div>
+        <div class="result-row"><div class="rr-item"><div class="rr-num" style="color:#ec4899">~30</div><div class="rr-label">Minutes total workflow</div></div><div class="rr-item"><div class="rr-num" style="color:#3C83F6">15+ hrs</div><div class="rr-label">Saved per month</div></div><div class="rr-item"><div class="rr-num" style="color:#f59e0b">2 tools</div><div class="rr-label">Used in workflow</div></div></div>
+        <div class="wf-section">
+            <div class="wf-section-title">Phase 1 — Strategy & Planning</div>
+            <div class="step-card-locked" style="cursor:default;"><div class="step-card-locked-head"><div class="step-num-col"><div class="step-num" style="background:#ec4899">01</div></div><div class="step-info-locked"><div style="font-size:14px;font-weight:700;color:var(--text);margin-bottom:6px;">30-Day Content Calendar</div><div class="step-meta-locked"><span style="display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px;background:#fdf2f8;color:#9d174d;border:1px solid #fbcfe8;">🤖 Claude</span><span style="font-size:11px;color:var(--muted2);background:var(--bg);border:1px solid var(--border);padding:3px 10px;border-radius:5px;">⏱ 5 mins</span></div></div><div style="padding:0 20px;font-size:18px;color:var(--muted2);">▾</div></div><div class="step-body-locked"><div class="fake-desc w80"></div><div class="fake-desc w60"></div><div class="fake-prompt-block"><div class="fake-prompt-head"><div class="fake-prompt-label"></div><div class="fake-prompt-copy"></div></div><div class="fake-prompt-lines"><div class="fake-prompt-line w100"></div><div class="fake-prompt-line w70"></div><div class="fake-prompt-line w85"></div><div class="fake-prompt-line w75"></div></div></div></div><div class="step-lock-overlay" onclick="document.getElementById('cta-anchor').scrollIntoView({behavior:'smooth'})"><div style="background:#fff;border:1.5px solid var(--border);border-radius:12px;padding:10px 20px;display:flex;align-items:center;gap:8px;box-shadow:0 4px 16px rgba(0,0,0,.1);font-size:13px;font-weight:700;color:var(--text);cursor:pointer;">🔒 Unlock this step</div></div></div>
+            <div class="step-card-locked" style="cursor:pointer;" onclick="document.getElementById('cta-anchor').scrollIntoView({behavior:'smooth'})"><div class="step-card-locked-head"><div class="step-num-col"><div class="step-num" style="background:#f97316">02</div></div><div class="step-info-locked"><div class="step-title-locked" style="width:52%"></div><div class="step-meta-locked"><div class="step-badge-locked"></div><div class="step-time-locked"></div></div></div><div style="padding:0 20px;font-size:18px;color:var(--muted2);">🔒</div></div></div>
+        </div>
+        <div class="wf-section"><div class="wf-section-title">Phase 2 — Content Creation</div><div class="step-card-locked" style="cursor:pointer;" onclick="document.getElementById('cta-anchor').scrollIntoView({behavior:'smooth'})"><div class="step-card-locked-head"><div class="step-num-col"><div class="step-num" style="background:#8b5cf6">03</div></div><div class="step-info-locked"><div class="step-title-locked" style="width:46%"></div><div class="step-meta-locked"><div class="step-badge-locked"></div><div class="step-time-locked"></div></div></div><div style="padding:0 20px;font-size:18px;color:var(--muted2);">🔒</div></div></div><div class="step-card-locked" style="cursor:pointer;" onclick="document.getElementById('cta-anchor').scrollIntoView({behavior:'smooth'})"><div class="step-card-locked-head"><div class="step-num-col"><div class="step-num" style="background:#3C83F6">04</div></div><div class="step-info-locked"><div class="step-title-locked" style="width:58%"></div><div class="step-meta-locked"><div class="step-badge-locked"></div><div class="step-time-locked"></div></div></div><div style="padding:0 20px;font-size:18px;color:var(--muted2);">🔒</div></div></div></div>
+    </div>
+
+    <div class="preview-tab-panel" id="preview-analyst">
+        <div class="panel-header"><div><div class="ph-eyebrow" style="color:#6366f1">📊 Data Analyst — Claude</div><div class="ph-title">Analyse Faster. Report Smarter.</div><div class="ph-desc">Clean data, write SQL or Python on demand, explain results in plain English and generate executive-ready reports — no data science degree needed.</div><div class="ph-stats"><span class="ph-stat">⏱ ~40 mins total</span><span class="ph-stat">📋 Real prompts included</span><span class="ph-stat">🔒 4 steps unlocked with plan</span></div></div></div>
+        <div class="result-row"><div class="rr-item"><div class="rr-num" style="color:#6366f1">~40</div><div class="rr-label">Minutes total workflow</div></div><div class="rr-item"><div class="rr-num" style="color:#10b981">3× faster</div><div class="rr-label">Reports vs manual</div></div><div class="rr-item"><div class="rr-num" style="color:#f59e0b">4 tools</div><div class="rr-label">Used in workflow</div></div></div>
+        <div class="wf-section"><div class="wf-section-title">Phase 1 — Data Preparation</div><div class="step-card-locked" style="cursor:default;"><div class="step-card-locked-head"><div class="step-num-col"><div class="step-num" style="background:#6366f1">01</div></div><div class="step-info-locked"><div style="font-size:14px;font-weight:700;color:var(--text);margin-bottom:6px;">Clean & Understand Your Dataset</div><div class="step-meta-locked"><span style="display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px;background:#f5f3ff;color:#5b21b6;border:1px solid #ddd6fe;">🤖 Claude</span><span style="font-size:11px;color:var(--muted2);background:var(--bg);border:1px solid var(--border);padding:3px 10px;border-radius:5px;">⏱ 5 mins</span></div></div><div style="padding:0 20px;font-size:18px;color:var(--muted2);">▾</div></div><div class="step-body-locked"><div class="fake-desc w80"></div><div class="fake-desc w60"></div><div class="fake-prompt-block"><div class="fake-prompt-head"><div class="fake-prompt-label"></div><div class="fake-prompt-copy"></div></div><div class="fake-prompt-lines"><div class="fake-prompt-line w100"></div><div class="fake-prompt-line w75"></div><div class="fake-prompt-line w60"></div><div class="fake-prompt-line w85"></div><div class="fake-prompt-line w45"></div></div></div><div class="fake-output"><div class="fake-output-label"></div><div class="fake-output-line" style="width:80%"></div></div></div><div class="step-lock-overlay" onclick="document.getElementById('cta-anchor').scrollIntoView({behavior:'smooth'})"><div style="background:#fff;border:1.5px solid var(--border);border-radius:12px;padding:10px 20px;display:flex;align-items:center;gap:8px;box-shadow:0 4px 16px rgba(0,0,0,.1);font-size:13px;font-weight:700;color:var(--text);cursor:pointer;">🔒 Unlock this step</div></div></div><div class="step-card-locked" style="cursor:pointer;" onclick="document.getElementById('cta-anchor').scrollIntoView({behavior:'smooth'})"><div class="step-card-locked-head"><div class="step-num-col"><div class="step-num" style="background:#8b5cf6">02</div></div><div class="step-info-locked"><div class="step-title-locked" style="width:48%"></div><div class="step-meta-locked"><div class="step-badge-locked"></div><div class="step-time-locked"></div></div></div><div style="padding:0 20px;font-size:18px;color:var(--muted2);">🔒</div></div></div></div>
+        <div class="wf-section"><div class="wf-section-title">Phase 2 — Insights & Reporting</div><div class="step-card-locked" style="cursor:pointer;" onclick="document.getElementById('cta-anchor').scrollIntoView({behavior:'smooth'})"><div class="step-card-locked-head"><div class="step-num-col"><div class="step-num" style="background:#10b981">03</div></div><div class="step-info-locked"><div class="step-title-locked" style="width:55%"></div><div class="step-meta-locked"><div class="step-badge-locked"></div><div class="step-time-locked"></div></div></div><div style="padding:0 20px;font-size:18px;color:var(--muted2);">🔒</div></div></div><div class="step-card-locked" style="cursor:pointer;" onclick="document.getElementById('cta-anchor').scrollIntoView({behavior:'smooth'})"><div class="step-card-locked-head"><div class="step-num-col"><div class="step-num" style="background:#3C83F6">04</div></div><div class="step-info-locked"><div class="step-title-locked" style="width:42%"></div><div class="step-meta-locked"><div class="step-badge-locked"></div><div class="step-time-locked"></div></div></div><div style="padding:0 20px;font-size:18px;color:var(--muted2);">🔒</div></div></div></div>
+    </div>
+
+    <div class="preview-tab-panel" id="preview-compare">
+        <div style="filter:blur(3px);pointer-events:none;user-select:none;">
+            <div class="compare-controls">
+                <span class="compare-controls-label">Tools:</span>
+                <div class="compare-tool-pills">
+                    <div class="cmp-pill sel"><span class="cmp-pill-icon">🤖</span> Claude</div>
+                    <div class="cmp-pill sel"><span class="cmp-pill-icon">💬</span> ChatGPT</div>
+                    <div class="cmp-pill sel"><span class="cmp-pill-icon">✨</span> Gemini</div>
+                    <div class="cmp-pill"><span class="cmp-pill-icon">🐙</span> Copilot</div>
+                    <div class="cmp-pill"><span class="cmp-pill-icon">🔍</span> Perplexity</div>
+                </div>
+                <div class="compare-section-row">
+                    <span class="cmp-section-label">View:</span>
+                    <button class="cmp-section-btn active">📊 Scores</button>
+                    <button class="cmp-section-btn">🧪 Benchmarks</button>
+                    <button class="cmp-section-btn">🏢 Details</button>
+                    <button class="cmp-section-btn">⚖️ Pros / Cons</button>
+                    <button class="cmp-section-btn">💰 Pricing</button>
+                    <button class="cmp-section-btn">🎯 Use Cases</button>
+                </div>
+            </div>
+
+            <div class="compare-grid">
+                <div class="compare-col">
+                    <div class="compare-col-head">
+                        <div class="cch-icon">🤖</div>
+                        <div class="cch-info">
+                            <div class="cch-name">Claude</div>
+                            <div class="cch-tagline">Built for thoughtful work</div>
+                        </div>
+                        <div class="cch-score">
+                            <div class="cch-score-num" style="color:#10b981">8.7</div>
+                            <div class="cch-score-label">Overall</div>
+                        </div>
+                    </div>
+                    <div class="score-rows">
+                        <div class="score-row">
+                            <div class="score-row-label"><span class="score-row-name">Output Quality</span><span class="score-row-val" style="color:#10b981">9.0</span></div>
+                            <div class="score-bar-track"><div class="score-bar-fill" style="width:90%;background:#10b981"></div></div>
+                        </div>
+                        <div class="score-row">
+                            <div class="score-row-label"><span class="score-row-name">Reasoning Depth</span><span class="score-row-val" style="color:#10b981">9.1</span></div>
+                            <div class="score-bar-track"><div class="score-bar-fill" style="width:91%;background:#10b981"></div></div>
+                        </div>
+                        <div class="score-row">
+                            <div class="score-row-label"><span class="score-row-name">Speed</span><span class="score-row-val" style="color:#3C83F6">8.0</span></div>
+                            <div class="score-bar-track"><div class="score-bar-fill" style="width:80%;background:#3C83F6"></div></div>
+                        </div>
+                        <div class="score-row">
+                            <div class="score-row-label"><span class="score-row-name">Code Help</span><span class="score-row-val" style="color:#3C83F6">8.3</span></div>
+                            <div class="score-bar-track"><div class="score-bar-fill" style="width:83%;background:#3C83F6"></div></div>
+                        </div>
+                        <div class="score-row" style="margin-bottom:0;">
+                            <div class="score-row-label"><span class="score-row-name">Value for Money</span><span class="score-row-val" style="color:#f59e0b">8.6</span></div>
+                            <div class="score-bar-track"><div class="score-bar-fill" style="width:86%;background:#f59e0b"></div></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="compare-col">
+                    <div class="compare-col-head">
+                        <div class="cch-icon">💬</div>
+                        <div class="cch-info">
+                            <div class="cch-name">ChatGPT</div>
+                            <div class="cch-tagline">Fast, versatile, integrated</div>
+                        </div>
+                        <div class="cch-score">
+                            <div class="cch-score-num" style="color:#3C83F6">8.4</div>
+                            <div class="cch-score-label">Overall</div>
+                        </div>
+                    </div>
+                    <div class="score-rows">
+                        <div class="score-row">
+                            <div class="score-row-label"><span class="score-row-name">Output Quality</span><span class="score-row-val" style="color:#3C83F6">8.6</span></div>
+                            <div class="score-bar-track"><div class="score-bar-fill" style="width:86%;background:#3C83F6"></div></div>
+                        </div>
+                        <div class="score-row">
+                            <div class="score-row-label"><span class="score-row-name">Ease of Use</span><span class="score-row-val" style="color:#10b981">9.2</span></div>
+                            <div class="score-bar-track"><div class="score-bar-fill" style="width:92%;background:#10b981"></div></div>
+                        </div>
+                        <div class="score-row">
+                            <div class="score-row-label"><span class="score-row-name">Speed</span><span class="score-row-val" style="color:#10b981">9.0</span></div>
+                            <div class="score-bar-track"><div class="score-bar-fill" style="width:90%;background:#10b981"></div></div>
+                        </div>
+                        <div class="score-row">
+                            <div class="score-row-label"><span class="score-row-name">Code Help</span><span class="score-row-val" style="color:#3C83F6">8.7</span></div>
+                            <div class="score-bar-track"><div class="score-bar-fill" style="width:87%;background:#3C83F6"></div></div>
+                        </div>
+                        <div class="score-row" style="margin-bottom:0;">
+                            <div class="score-row-label"><span class="score-row-name">Value for Money</span><span class="score-row-val" style="color:#f59e0b">8.1</span></div>
+                            <div class="score-bar-track"><div class="score-bar-fill" style="width:81%;background:#f59e0b"></div></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="compare-col">
+                    <div class="compare-col-head">
+                        <div class="cch-icon">✨</div>
+                        <div class="cch-info">
+                            <div class="cch-name">Gemini</div>
+                            <div class="cch-tagline">Google-powered, live search</div>
+                        </div>
+                        <div class="cch-score">
+                            <div class="cch-score-num" style="color:#3C83F6">8.1</div>
+                            <div class="cch-score-label">Overall</div>
+                        </div>
+                    </div>
+                    <div class="score-rows">
+                        <div class="score-row">
+                            <div class="score-row-label"><span class="score-row-name">Output Quality</span><span class="score-row-val" style="color:#3C83F6">8.2</span></div>
+                            <div class="score-bar-track"><div class="score-bar-fill" style="width:82%;background:#3C83F6"></div></div>
+                        </div>
+                        <div class="score-row">
+                            <div class="score-row-label"><span class="score-row-name">Research Reach</span><span class="score-row-val" style="color:#10b981">9.1</span></div>
+                            <div class="score-bar-track"><div class="score-bar-fill" style="width:91%;background:#10b981"></div></div>
+                        </div>
+                        <div class="score-row">
+                            <div class="score-row-label"><span class="score-row-name">Speed</span><span class="score-row-val" style="color:#3C83F6">8.9</span></div>
+                            <div class="score-bar-track"><div class="score-bar-fill" style="width:89%;background:#3C83F6"></div></div>
+                        </div>
+                        <div class="score-row">
+                            <div class="score-row-label"><span class="score-row-name">Code Help</span><span class="score-row-val" style="color:#3C83F6">7.9</span></div>
+                            <div class="score-bar-track"><div class="score-bar-fill" style="width:79%;background:#3C83F6"></div></div>
+                        </div>
+                        <div class="score-row" style="margin-bottom:0;">
+                            <div class="score-row-label"><span class="score-row-name">Value for Money</span><span class="score-row-val" style="color:#10b981">8.8</span></div>
+                            <div class="score-bar-track"><div class="score-bar-fill" style="width:88%;background:#10b981"></div></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div style="position:relative;margin-top:-320px;height:320px;display:flex;align-items:center;justify-content:center;background:linear-gradient(to top,rgba(248,250,252,1) 60%,rgba(248,250,252,0.7) 100%);z-index:10;border-radius:0 0 16px 16px;">
+            <div style="text-align:center;padding:32px;">
+                <div style="font-size:36px;margin-bottom:12px;">🔒</div>
+                <div style="font-size:20px;font-weight:800;color:var(--text);letter-spacing:-.5px;margin-bottom:8px;">Full Tool Comparison — Premium Only</div>
+                <div style="font-size:14px;color:var(--muted);line-height:1.75;max-width:420px;margin:0 auto 24px;">Compare Claude, ChatGPT, Gemini, Copilot & Perplexity side-by-side across scores, benchmarks, pricing, pros/cons and use cases.</div>
+                <a href="#cta-anchor" style="display:inline-flex;align-items:center;gap:8px;background:var(--blue);color:#fff;font-size:14px;font-weight:800;padding:13px 28px;border-radius:12px;text-decoration:none;transition:all .25s;box-shadow:0 4px 16px rgba(60,131,246,.3);">Unlock for {{ symbol }}{{ premium_price }}/month →</a>
+                <div style="margin-top:12px;font-size:12px;color:var(--muted2);">Cancel anytime · No contracts</div>
+            </div>
+        </div>
+    </div>
+
+    <div id="cta-anchor" style="padding-top:8px;">
+        <div class="section-eyebrow">What you get</div>
+        <div class="section-heading">Everything in this plan</div>
+        <div class="section-sub">Subscribe monthly. Cancel anytime. New workflows added every month.</div>
+        <div class="includes-grid">
+            <div class="include-card"><div class="include-icon">🎬</div><div class="include-title">YouTube Creator Workflow</div><div class="include-desc">5 step-by-step phases from topic research to repurposed social content.</div></div>
+            <div class="include-card"><div class="include-icon">📸</div><div class="include-title">Instagram Content Workflow</div><div class="include-desc">30-day content calendar, carousel scripts, Reel hooks and bulk captions.</div></div>
+            <div class="include-card"><div class="include-icon">📊</div><div class="include-title">Data Analyst Workflow</div><div class="include-desc">Dataset audit, SQL/Python generation, insights translation and executive reports.</div></div>
+            <div class="include-card"><div class="include-icon">🤖</div><div class="include-title">3 AI Tools Covered</div><div class="include-desc">Claude, ChatGPT and Gemini — each with their own tailored workflow and prompts.</div></div>
+            <div class="include-card"><div class="include-icon">📋</div><div class="include-title">Copy-Paste Prompts</div><div class="include-desc">Every step includes the exact prompt to paste into the AI. No guesswork.</div></div>
+            <div class="include-card"><div class="include-icon">♾️</div><div class="include-title">New Workflows Monthly</div><div class="include-desc">Fresh workflows and prompts added every month. Always included in your subscription.</div></div>
+        </div>
+    </div>
+
+    <div class="cta-banner">
+        <div class="cta-orb"></div>
+        <div class="cta-left">
+            <div class="cta-eyebrow">🔒 Premium Access</div>
+            <h2 class="cta-title">Unlock Every Workflow,<br>Every <em>Prompt</em>, Every Tool.</h2>
+            <p class="cta-sub">Stop wasting hours figuring out AI. Get the exact workflows and prompts that save 8–15 hours every week — for less than a coffee.</p>
+        </div>
+        <div class="cta-right">
+            <div class="cta-price-box">
+                <div class="cta-price-label">{{ premium_plan_name }}</div>
+                <div class="cta-price">
+                    <span class="cta-price-sym">{{ symbol }}</span>
+                    <span class="cta-price-num">{{ premium_price }}</span>
+                    <span class="cta-price-period">/month</span>
+                </div>
+                {% if premium_discount_percent > 0 and premium_original_price %}
+                <div class="cta-price-orig strike">{{ symbol }}{{ premium_original_price }} /month</div>
+                <div class="cta-price-orig">{{ premium_discount_percent|int }}% off active</div>
+                {% else %}
+                <div class="cta-price-orig">Cancel anytime · No contracts</div>
+                {% endif %}
+            </div>
+            <a href="{{ premium_checkout_url }}" class="btn-buy" id="premium-buy-btn" data-plan-id="{{ premium_plan_id }}">Get Instant Access →</a>
+        </div>
+    </div>
+
+</div>
+</div>
+
+<script>
+function switchPreviewTab(id, btn) {
+    document.querySelectorAll('.preview-tab-panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.tab-btn-fake').forEach(b => b.classList.remove('fake-active'));
+    document.getElementById('preview-' + id).classList.add('active');
+    btn.classList.add('fake-active');
+}
+</script>
+{% endblock %}

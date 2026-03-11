@@ -6,7 +6,7 @@ BASE_PRICE_INR = 4999
 ADVANCE_PLAN_PRICE = 14999
 
 # percentage discount to apply before any currency conversion
-DISCOUNT_PERCENT = 0
+DISCOUNT_PERCENT = 10
 # markup for international customers (in percent)
 INTERNATIONAL_MARKUP = 30
 

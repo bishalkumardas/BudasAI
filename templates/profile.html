@@ -1,0 +1,1037 @@
+{% extends "base.html" %}
+{% block title %}My Profile | BUDASAI{% endblock %}
+
+{% block content %}
+<style>
+    .profile-page {
+        --blue: #3c83f6;
+        --blue-dark: #2563eb;
+        --blue-light: #eff6ff;
+        --blue-border: #bfdbfe;
+        --green: #10b981;
+        --amber: #f59e0b;
+        --red: #ef4444;
+        --text: #0f172a;
+        --muted: #64748b;
+        --muted2: #94a3b8;
+        --border: #e2e8f0;
+        --bg: #f8fafc;
+        --card: #ffffff;
+        background: var(--bg);
+        color: var(--text);
+        min-height: calc(100vh - 72px);
+        padding: 40px 16px 90px;
+    }
+
+    .profile-wrap {
+        max-width: 960px;
+        margin: 0 auto;
+    }
+
+    .profile-hero {
+        background: linear-gradient(135deg, #0a0f1e 0%, #0d1f3c 100%);
+        border-radius: 24px;
+        padding: 36px 40px;
+        margin-bottom: 28px;
+        position: relative;
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        gap: 28px;
+    }
+
+    .profile-hero::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        background-image: linear-gradient(rgba(60, 131, 246, 0.06) 1px, transparent 1px), linear-gradient(90deg, rgba(60, 131, 246, 0.06) 1px, transparent 1px);
+        background-size: 40px 40px;
+    }
+
+    .profile-orb {
+        position: absolute;
+        width: 300px;
+        height: 300px;
+        top: -100px;
+        right: -60px;
+        border-radius: 50%;
+        background: radial-gradient(circle, rgba(60, 131, 246, 0.12), transparent 70%);
+        pointer-events: none;
+    }
+
+    .profile-avatar-lg {
+        position: relative;
+        z-index: 2;
+        width: 72px;
+        height: 72px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #3c83f6, #6366f1);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 800;
+        font-size: 26px;
+        color: #fff;
+        flex-shrink: 0;
+        border: 3px solid rgba(255, 255, 255, 0.15);
+    }
+
+    .profile-info {
+        position: relative;
+        z-index: 2;
+        flex: 1;
+    }
+
+    .profile-name {
+        font-size: 26px;
+        line-height: 1.2;
+        font-weight: 800;
+        color: #fff;
+        letter-spacing: -0.4px;
+        margin-bottom: 4px;
+    }
+
+    .profile-email {
+        font-size: 13px;
+        color: rgba(255, 255, 255, 0.5);
+        margin-bottom: 14px;
+    }
+
+    .profile-badges {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+    }
+
+    .badge-plan {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background: linear-gradient(135deg, #f59e0b, #f97316);
+        color: #fff;
+        font-size: 11px;
+        font-weight: 800;
+        letter-spacing: 0.5px;
+        padding: 5px 14px;
+        border-radius: 20px;
+        text-transform: uppercase;
+    }
+
+    .badge-member {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        color: rgba(255, 255, 255, 0.7);
+        font-size: 11px;
+        font-weight: 600;
+        padding: 5px 12px;
+        border-radius: 20px;
+    }
+
+    .profile-tabs {
+        display: flex;
+        gap: 4px;
+        margin-bottom: 24px;
+        background: #fff;
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        padding: 5px;
+    }
+
+    .ptab {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 7px;
+        padding: 10px;
+        font-size: 13px;
+        font-weight: 700;
+        color: var(--muted);
+        border-radius: 10px;
+        border: none;
+        background: transparent;
+        text-align: center;
+    }
+
+    .ptab:hover {
+        color: var(--text);
+        background: var(--bg);
+    }
+
+    .ptab.active {
+        background: var(--blue);
+        color: #fff;
+        box-shadow: 0 2px 8px rgba(60, 131, 246, 0.3);
+    }
+
+    .tab-pane {
+        display: none;
+    }
+
+    .tab-pane.active {
+        display: block;
+    }
+
+    .profile-card {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+    }
+
+    .profile-card + .profile-card {
+        margin-top: 16px;
+    }
+
+    .profile-card-head {
+        padding: 20px 24px;
+        border-bottom: 1px solid var(--border);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+    }
+
+    .profile-card-title {
+        font-size: 16px;
+        font-weight: 800;
+    }
+
+    .profile-card-body {
+        padding: 24px;
+    }
+
+    .plan-card {
+        border-radius: 14px;
+        overflow: hidden;
+        margin-bottom: 20px;
+    }
+
+    .plan-card-top {
+        padding: 20px 22px;
+        background: linear-gradient(135deg, #0f172a, #1e3a5f);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        flex-wrap: wrap;
+    }
+
+    .plan-card-name {
+        font-size: 18px;
+        font-weight: 800;
+        color: #fff;
+    }
+
+    .plan-card-sub {
+        font-size: 13px;
+        color: rgba(255, 255, 255, 0.4);
+        margin-top: 3px;
+    }
+
+    .plan-card-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        background: transparent;
+        border: none;
+        color: #10b981;
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        padding: 0;
+    }
+
+    .plan-card-price {
+        font-size: 22px;
+        font-weight: 700;
+        color: #fff;
+        margin-top: 10px;
+    }
+
+    .plan-card-bottom {
+        padding: 18px 22px;
+        background: #fff;
+        border: 1px solid var(--border);
+        border-top: none;
+        border-radius: 0 0 14px 14px;
+    }
+
+    .plan-meta {
+        font-size: 12.5px;
+        color: var(--muted);
+    }
+
+    .sub-status-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+        margin-bottom: 20px;
+    }
+
+    .sub-stat {
+        background: var(--bg);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 16px 18px;
+    }
+
+    .sub-stat-label {
+        font-size: 10px;
+        font-weight: 800;
+        letter-spacing: 1.5px;
+        text-transform: uppercase;
+        color: var(--muted2);
+        margin-bottom: 6px;
+    }
+
+    .sub-stat-value {
+        font-size: 17px;
+        font-weight: 700;
+        color: var(--text);
+    }
+
+    .sub-stat-value.status-active {
+        color: var(--green);
+        background: transparent !important;
+    }
+
+    .sub-stat-value.status-free,
+    .sub-stat-value.status-expired {
+        color: var(--amber);
+        background: transparent !important;
+    }
+
+    .access-links {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+        margin-top: 16px;
+    }
+
+    .access-link {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 14px 16px;
+        background: var(--bg);
+        border: 1.5px solid var(--border);
+        border-radius: 12px;
+        text-decoration: none;
+        color: var(--text);
+        font-size: 13px;
+        font-weight: 700;
+    }
+
+    .access-link:hover {
+        border-color: var(--blue-border);
+        background: var(--blue-light);
+        color: var(--blue);
+    }
+
+    .history-table-wrap {
+        overflow-x: auto;
+    }
+
+    .history-table {
+        width: 100%;
+        border-collapse: collapse;
+        min-width: 640px;
+    }
+
+    .history-table th {
+        text-align: left;
+        font-size: 10px;
+        font-weight: 800;
+        letter-spacing: 1.5px;
+        text-transform: uppercase;
+        color: var(--muted2);
+        padding: 10px 16px;
+        border-bottom: 1px solid var(--border);
+        background: var(--bg);
+    }
+
+    .history-table td {
+        padding: 14px 16px;
+        border-bottom: 1px solid var(--border);
+        font-size: 13px;
+        color: var(--text);
+    }
+
+    .history-table tr:last-child td {
+        border-bottom: none;
+    }
+
+    .status-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        font-size: 10px;
+        font-weight: 800;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+        color: #10b981;
+        background: transparent;
+        border: none;
+        padding: 0;
+    }
+
+    .pill-success {
+        color: #10b981;
+    }
+
+    .pill-pending {
+        color: #10b981;
+    }
+
+    .pill-failed {
+        color: #10b981;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 40px 20px;
+    }
+
+    .empty-title {
+        font-size: 17px;
+        font-weight: 800;
+        margin-bottom: 6px;
+    }
+
+    .empty-sub {
+        font-size: 13px;
+        color: var(--muted);
+    }
+
+    .form-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+        margin-bottom: 20px;
+    }
+
+    .form-grid.full {
+        grid-template-columns: 1fr;
+    }
+
+    .form-group label {
+        display: block;
+        font-size: 11px;
+        font-weight: 800;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        color: var(--muted2);
+        margin-bottom: 6px;
+    }
+
+    .form-input {
+        width: 100%;
+        padding: 10px 14px;
+        border: 1.5px solid var(--border);
+        border-radius: 10px;
+        font-size: 14px;
+        color: var(--text);
+        background: #fff;
+        outline: none;
+    }
+
+    .form-input:focus {
+        border-color: var(--blue);
+        box-shadow: 0 0 0 3px rgba(60, 131, 246, 0.1);
+    }
+
+    .form-input:disabled {
+        background: var(--bg);
+        color: var(--muted);
+    }
+
+    .form-input-hint {
+        font-size: 11px;
+        color: var(--muted2);
+        margin-top: 5px;
+    }
+
+    .profile-actions {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .btn-cancel {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: var(--bg);
+        color: var(--muted);
+        font-size: 14px;
+        font-weight: 700;
+        padding: 12px 20px;
+        border-radius: 10px;
+        border: 1.5px solid var(--border);
+        cursor: pointer;
+    }
+
+    .btn-cancel:hover {
+        color: var(--text);
+        border-color: #cbd5e1;
+    }
+
+    .btn-save {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: var(--blue);
+        color: #fff;
+        font-size: 14px;
+        font-weight: 800;
+        padding: 12px 24px;
+        border-radius: 10px;
+        border: none;
+        cursor: pointer;
+    }
+
+    .btn-save:hover {
+        background: var(--blue-dark);
+    }
+
+    .edit-btn {
+        font-size: 12px;
+        font-weight: 700;
+        color: var(--blue);
+        background: var(--blue-light);
+        border: 1.5px solid var(--blue-border);
+        border-radius: 8px;
+        padding: 7px 14px;
+        cursor: pointer;
+    }
+
+    .edit-btn:hover {
+        background: var(--blue);
+        color: #fff;
+    }
+
+    .profile-msg {
+        margin-top: 10px;
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--muted);
+    }
+
+    .profile-msg.success {
+        color: #10b981;
+    }
+
+    .profile-msg.error {
+        color: #ef4444;
+    }
+
+    .danger-zone {
+        border: 1.5px solid #fecaca;
+        border-radius: 14px;
+        padding: 20px 24px;
+        margin-top: 16px;
+    }
+
+    .danger-title {
+        font-size: 14px;
+        font-weight: 800;
+        color: var(--red);
+        margin-bottom: 6px;
+    }
+
+    .danger-desc {
+        font-size: 13px;
+        color: var(--muted);
+        margin-bottom: 14px;
+        line-height: 1.6;
+    }
+
+    .btn-danger-outline {
+        font-size: 13px;
+        font-weight: 700;
+        color: var(--red);
+        background: #fef2f2;
+        border: 1.5px solid #fecaca;
+        border-radius: 8px;
+        padding: 9px 18px;
+        cursor: pointer;
+    }
+
+    .btn-danger-outline:hover {
+        background: var(--red);
+        color: #fff;
+    }
+
+    .upgrade-strip {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        flex-wrap: wrap;
+        background: linear-gradient(135deg, #fffbeb, #fef3c7);
+        border: 1.5px solid #fde68a;
+        border-radius: 14px;
+        padding: 16px 20px;
+    }
+
+    .upgrade-strip + .upgrade-strip {
+        margin-top: 12px;
+    }
+
+    .upgrade-strip-text {
+        font-size: 13px;
+        color: #92400e;
+        line-height: 1.5;
+    }
+
+    .btn-upgrade {
+        font-size: 12px;
+        font-weight: 800;
+        color: #fff;
+        background: linear-gradient(135deg, #f59e0b, #f97316);
+        border: none;
+        border-radius: 8px;
+        padding: 8px 16px;
+        text-decoration: none;
+        white-space: nowrap;
+    }
+
+    .btn-upgrade:hover {
+        opacity: 0.92;
+    }
+
+    @media (max-width: 768px) {
+        .profile-page {
+            padding: 24px 12px 70px;
+        }
+
+        .profile-hero {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 16px;
+            padding: 24px;
+        }
+
+        .profile-tabs {
+            flex-wrap: wrap;
+        }
+
+        .sub-status-grid,
+        .form-grid,
+        .access-links {
+            grid-template-columns: 1fr;
+        }
+
+        .profile-card-head,
+        .profile-card-body {
+            padding: 18px;
+        }
+    }
+</style>
+
+<section class="profile-page">
+    <div class="profile-wrap">
+        <div class="profile-hero">
+            <div class="profile-orb"></div>
+            <div class="profile-avatar-lg">{{ profile.initial }}</div>
+            <div class="profile-info">
+                <div class="profile-name">{{ profile.full_name }}</div>
+                <div class="profile-email">{{ profile.email }}</div>
+                <div class="profile-badges">
+                    <span class="badge-plan">
+                        <i class="bi bi-gem"></i>
+                        {{ profile.active_plan_name }}
+                    </span>
+                    <span class="badge-member">
+                        <i class="bi bi-calendar-event"></i>
+                        Member since {{ profile.member_since }}
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <div class="profile-tabs">
+            <button class="ptab active" type="button" onclick="switchPTab('subscription', this)">
+                <i class="bi bi-credit-card"></i> My Subscription
+            </button>
+            <button class="ptab" type="button" onclick="switchPTab('history', this)">
+                <i class="bi bi-receipt"></i> Billing History
+            </button>
+            <button class="ptab" type="button" onclick="switchPTab('personal', this)">
+                <i class="bi bi-person"></i> Personal Info
+            </button>
+        </div>
+
+        <div class="tab-pane active" id="pane-subscription">
+            <div class="profile-card">
+                <div class="profile-card-head">
+                    <div class="profile-card-title">Active Plan</div>
+                    <a href="/products" class="btn-upgrade">Upgrade Plan</a>
+                </div>
+                <div class="profile-card-body">
+                    <div class="plan-card">
+                        <div class="plan-card-top">
+                            <div>
+                                <div class="plan-card-name">{{ profile.active_plan_name }}</div>
+                                <div class="plan-card-sub">Plan access and billing overview</div>
+                            </div>
+                            <div>
+                                <div class="plan-card-badge">
+                                    <i class="bi bi-check-circle"></i>
+                                    {% if profile.has_premium %}Active{% else %}Free{% endif %}
+                                </div>
+                                <div class="plan-card-price">{{ profile.active_plan_price }}</div>
+                            </div>
+                        </div>
+                        <div class="plan-card-bottom">
+                            <div class="plan-meta">
+                                {% if profile.has_premium %}
+                                You currently have premium access enabled.
+                                {% else %}
+                                You are on the free access level. Upgrade to unlock premium workflows.
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="sub-status-grid">
+                        <div class="sub-stat">
+                            <div class="sub-stat-label">Status</div>
+                            <div class="sub-stat-value {% if profile.subscription_state == 'active' %}status-active{% elif profile.subscription_state == 'expired' %}status-expired{% else %}status-free{% endif %}">
+                                {% if profile.subscription_state == 'active' %}Active{% elif profile.subscription_state == 'expired' %}Expired{% else %}Free{% endif %}
+                            </div>
+                        </div>
+                        <div class="sub-stat">
+                            <div class="sub-stat-label">Plan Name</div>
+                            <div class="sub-stat-value">{{ profile.active_plan_name }}</div>
+                        </div>
+                        <div class="sub-stat">
+                            <div class="sub-stat-label">Member Since</div>
+                            <div class="sub-stat-value">{{ profile.member_since }}</div>
+                        </div>
+                        <div class="sub-stat">
+                            <div class="sub-stat-label">Billing Records</div>
+                            <div class="sub-stat-value">{{ profile.billing_history|length }}</div>
+                        </div>
+                    </div>
+
+                    <div class="access-links">
+                        <a class="access-link" href="/premium">
+                            <i class="bi bi-gem"></i>
+                            Open Premium Workspace
+                        </a>
+                        <a class="access-link" href="/products">
+                            <i class="bi bi-grid"></i>
+                            Explore Plans
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="profile-card">
+                <div class="profile-card-head">
+                    <div class="profile-card-title">Available Upgrades</div>
+                </div>
+                <div class="profile-card-body">
+                    {% if available_upgrades %}
+                        {% for plan in available_upgrades %}
+                        <div class="upgrade-strip">
+                            <div class="upgrade-strip-text">
+                                <strong>{{ plan.name }}</strong><br>
+                                {{ plan.subheading }}
+                                {% if plan.original_price_display %}
+                                <div style="font-size:11px;color:#b45309;margin-top:5px;">
+                                    <span style="text-decoration:line-through;opacity:.8;">{{ symbol }}{{ plan.original_price_display }}</span>
+                                    <span style="margin-left:8px;font-weight:800;color:#92400e;">{{ plan.price_label }}</span>
+                                </div>
+                                {% elif plan.price_label %}
+                                <div style="font-size:11px;color:#92400e;margin-top:5px;font-weight:800;">{{ plan.price_label }}</div>
+                                {% endif %}
+                            </div>
+                            <a href="{{ plan.href }}" class="btn-upgrade">{{ plan.button_text }}</a>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="empty-state" style="padding:20px 8px;">
+                            <div class="empty-title">No more active upgrades available</div>
+                            <div class="empty-sub">You already have access to all currently active plans.</div>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="tab-pane" id="pane-history">
+            <div class="profile-card">
+                <div class="profile-card-head">
+                    <div class="profile-card-title">Billing History</div>
+                    <span style="font-size:12px;color:var(--muted);">{{ profile.billing_history|length }} transactions</span>
+                </div>
+                {% if profile.billing_history %}
+                <div class="profile-card-body" style="padding: 0;">
+                    <div class="history-table-wrap">
+                        <table class="history-table">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Plan</th>
+                                    <th>Amount</th>
+                                    <th>Method</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for txn in profile.billing_history %}
+                                <tr>
+                                    <td>
+                                        <div style="font-weight:700;">{{ txn.date }}</div>
+                                        <div style="font-size:11px;color:var(--muted2);">{{ txn.txn }}</div>
+                                    </td>
+                                    <td>{{ txn.plan_name }}</td>
+                                    <td style="font-weight:700;">{{ txn.amount }}</td>
+                                    <td>{{ txn.method }}</td>
+                                    <td>
+                                        <span class="status-pill {{ txn.status_class }}">{{ txn.status_label }}</span>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                {% else %}
+                <div class="profile-card-body">
+                    <div class="empty-state">
+                        <div class="empty-title">No transactions yet</div>
+                        <div class="empty-sub">Your billing history will appear here after your first purchase.</div>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="tab-pane" id="pane-personal">
+            <div class="profile-card">
+                <div class="profile-card-head">
+                    <div class="profile-card-title">Personal Details</div>
+                    <button id="profile-edit-btn" class="edit-btn" type="button" onclick="enableProfileEdit()">Edit</button>
+                </div>
+                <div class="profile-card-body">
+                    <form id="profile-form">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>First Name</label>
+                            <input id="first_name" name="first_name" class="form-input profile-editable" type="text" value="{{ profile.first_name }}" disabled>
+                        </div>
+                        <div class="form-group">
+                            <label>Last Name</label>
+                            <input id="last_name" name="last_name" class="form-input profile-editable" type="text" value="{{ profile.last_name }}" disabled>
+                        </div>
+                        <div class="form-group">
+                            <label>Email Address</label>
+                            <input id="email_readonly" class="form-input" type="email" value="{{ profile.email }}" disabled>
+                            <div class="form-input-hint">Email cannot be changed from this page.</div>
+                        </div>
+                        <div class="form-group">
+                            <label>Phone</label>
+                            <input id="phone" name="phone" class="form-input profile-editable" type="text" value="{{ profile.phone }}" disabled>
+                        </div>
+                        <div class="form-group">
+                            <label>Date of Birth</label>
+                            <input id="date_of_birth" name="date_of_birth" class="form-input profile-editable" type="date" value="{{ profile.date_of_birth }}" disabled>
+                        </div>
+                    </div>
+                    <div class="form-grid full">
+                        <div class="form-group">
+                            <label>Role</label>
+                            <select id="role" name="role" class="form-input profile-editable" disabled>
+                                <option {% if profile.role == 'YouTube Creator' %}selected{% endif %}>YouTube Creator</option>
+                                <option {% if profile.role == 'Content Marketer' %}selected{% endif %}>Content Marketer</option>
+                                <option {% if profile.role == 'Data Analyst' %}selected{% endif %}>Data Analyst</option>
+                                <option {% if profile.role == 'Freelancer' %}selected{% endif %}>Freelancer</option>
+                                <option {% if profile.role == 'Business Owner' %}selected{% endif %}>Business Owner</option>
+                                <option {% if profile.role == 'Student' %}selected{% endif %}>Student</option>
+                                <option {% if profile.role == 'Other' %}selected{% endif %}>Other</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div id="profile-msg" class="profile-msg" style="display:none;"></div>
+
+                    <div class="profile-actions">
+                        <button id="profile-cancel-btn" class="btn-cancel" type="button" onclick="cancelProfileEdit()" disabled>Cancel</button>
+                        <button id="profile-save-btn" class="btn-save" type="button" onclick="saveProfileChanges()" disabled>Save Changes</button>
+                    </div>
+                    </form>
+
+                    <div class="danger-zone">
+                        <div class="danger-title">Danger Zone</div>
+                        <div class="danger-desc">
+                            Deleting your account is permanent and cannot be undone.
+                        </div>
+                        <button type="button" class="btn-danger-outline" onclick="openDeleteAccountModal()">Delete My Account</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<div class="modal fade" id="deleteAccountModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Confirm Account Deletion</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p style="font-size:13px; color:#64748b;">
+                    Type <strong>I want to delete my account</strong> to continue.
+                </p>
+                <input id="delete-confirm-input" type="text" class="form-input" placeholder="I want to delete my account">
+                <div id="delete-msg" class="profile-msg" style="display:none;"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn-cancel" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn-danger-outline" onclick="submitDeleteAccount()">Submit Delete</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    var profileOriginal = {};
+
+    function switchPTab(id, btn) {
+        document.querySelectorAll('.tab-pane').forEach(function (pane) {
+            pane.classList.remove('active');
+        });
+        document.querySelectorAll('.ptab').forEach(function (tab) {
+            tab.classList.remove('active');
+        });
+        document.getElementById('pane-' + id).classList.add('active');
+        btn.classList.add('active');
+    }
+
+    function getProfileFields() {
+        return {
+            first_name: document.getElementById('first_name').value.trim(),
+            last_name: document.getElementById('last_name').value.trim(),
+            phone: document.getElementById('phone').value.trim(),
+            date_of_birth: document.getElementById('date_of_birth').value,
+            role: document.getElementById('role').value.trim()
+        };
+    }
+
+    function setProfileMessage(text, kind) {
+        var el = document.getElementById('profile-msg');
+        el.classList.remove('success', 'error');
+        if (kind) {
+            el.classList.add(kind);
+        }
+        el.textContent = text;
+        el.style.display = text ? 'block' : 'none';
+    }
+
+    function toggleProfileEditable(enabled) {
+        document.querySelectorAll('.profile-editable').forEach(function (input) {
+            input.disabled = !enabled;
+        });
+        document.getElementById('profile-save-btn').disabled = !enabled;
+        document.getElementById('profile-cancel-btn').disabled = !enabled;
+        document.getElementById('profile-edit-btn').style.display = enabled ? 'none' : 'inline-flex';
+    }
+
+    function enableProfileEdit() {
+        profileOriginal = getProfileFields();
+        toggleProfileEditable(true);
+        setProfileMessage('', '');
+    }
+
+    function cancelProfileEdit() {
+        document.getElementById('first_name').value = profileOriginal.first_name || '';
+        document.getElementById('last_name').value = profileOriginal.last_name || '';
+        document.getElementById('phone').value = profileOriginal.phone || '';
+        document.getElementById('date_of_birth').value = profileOriginal.date_of_birth || '';
+        document.getElementById('role').value = profileOriginal.role || 'Data Analyst';
+        toggleProfileEditable(false);
+        setProfileMessage('', '');
+    }
+
+    async function saveProfileChanges() {
+        var payload = getProfileFields();
+        if (!payload.first_name) {
+            setProfileMessage('First name is required.', 'error');
+            return;
+        }
+
+        try {
+            var response = await fetch('/profile/update', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            var data = await response.json();
+            if (!response.ok || !data.success) {
+                setProfileMessage(data.message || 'Unable to save profile.', 'error');
+                return;
+            }
+            setProfileMessage('Profile updated successfully.', 'success');
+            toggleProfileEditable(false);
+            setTimeout(function () {
+                window.location.reload();
+            }, 600);
+        } catch (error) {
+            setProfileMessage('Something went wrong while updating profile.', 'error');
+        }
+    }
+
+    function openDeleteAccountModal() {
+        document.getElementById('delete-confirm-input').value = '';
+        var msg = document.getElementById('delete-msg');
+        msg.style.display = 'none';
+        msg.textContent = '';
+        msg.classList.remove('success', 'error');
+        var modal = new bootstrap.Modal(document.getElementById('deleteAccountModal'));
+        modal.show();
+    }
+
+    function setDeleteMessage(text, kind) {
+        var el = document.getElementById('delete-msg');
+        el.classList.remove('success', 'error');
+        if (kind) {
+            el.classList.add(kind);
+        }
+        el.textContent = text;
+        el.style.display = text ? 'block' : 'none';
+    }
+
+    async function submitDeleteAccount() {
+        var confirmText = document.getElementById('delete-confirm-input').value.trim();
+        try {
+            var response = await fetch('/profile/delete-account', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ confirm_text: confirmText })
+            });
+            var data = await response.json();
+            if (!response.ok || !data.success) {
+                setDeleteMessage(data.message || 'Unable to delete account.', 'error');
+                return;
+            }
+            setDeleteMessage('Account deleted. Redirecting...', 'success');
+            setTimeout(function () {
+                window.location.href = '/';
+            }, 900);
+        } catch (error) {
+            setDeleteMessage('Something went wrong while deleting account.', 'error');
+        }
+    }
+</script>
+{% endblock %}
