@@ -153,7 +153,16 @@ app.add_middleware(
 
 # Trusted hosts middleware
 print("🔵 [MAIN] Adding TrustedHost middleware...")
-trusted_hosts = _parse_csv_env("TRUSTED_HOSTS", "localhost,127.0.0.1")
+railway_domain = (os.getenv("RAILWAY_PUBLIC_DOMAIN") or "").strip()
+default_trusted_hosts = "localhost,127.0.0.1"
+
+# In hosted environments, include common Railway host patterns by default.
+if os.getenv("RAILWAY_ENVIRONMENT"):
+    default_trusted_hosts = "localhost,127.0.0.1,.up.railway.app"
+
+trusted_hosts = _parse_csv_env("TRUSTED_HOSTS", default_trusted_hosts)
+if railway_domain and railway_domain not in trusted_hosts:
+    trusted_hosts.append(railway_domain)
 app.add_middleware(
     TrustedHostMiddleware,
     allowed_hosts=trusted_hosts
