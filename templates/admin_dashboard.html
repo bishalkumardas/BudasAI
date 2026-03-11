@@ -179,6 +179,66 @@
             line-height: 1.2;
         }
 
+        /* ── WORKFLOW LIVE PREVIEW (frontend-match) ── */
+        .wfv-wrap { background: var(--bg); border: 1px solid var(--border); border-radius: 14px; padding: 18px; }
+        .wfv-panel-header {
+            display: flex; align-items: flex-start; justify-content: space-between; gap: 24px; flex-wrap: wrap;
+            margin-bottom: 22px; padding: 20px; background: #fff; border: 1px solid var(--border); border-radius: 16px;
+            box-shadow: 0 1px 3px rgba(0,0,0,.04), 0 8px 24px rgba(0,0,0,.03);
+        }
+        .wfv-ph-eyebrow { font-size: 10px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 8px; }
+        .wfv-ph-title { font-size: 22px; font-weight: 800; color: var(--text); letter-spacing: -.8px; margin-bottom: 8px; line-height: 1.2; }
+        .wfv-ph-desc { font-size: 14px; color: var(--muted); line-height: 1.75; max-width: 560px; }
+        .wfv-ph-stats { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 14px; }
+        .wfv-ph-stat { display: inline-flex; align-items: center; gap: 7px; font-size: 12px; font-weight: 600; color: var(--muted); background: var(--bg); border: 1px solid var(--border); padding: 6px 12px; border-radius: 20px; }
+
+        .wfv-result-row {
+            display: grid; grid-template-columns: repeat(3,1fr); gap: 14px;
+            background: linear-gradient(135deg,#0f172a,#1e3a5f); border-radius: 14px; padding: 18px 20px;
+            margin-bottom: 18px; position: relative; overflow: hidden;
+        }
+        .wfv-result-row::before {
+            content: ''; position: absolute; inset: 0;
+            background-image: linear-gradient(rgba(60,131,246,.05) 1px,transparent 1px), linear-gradient(90deg,rgba(60,131,246,.05) 1px,transparent 1px);
+            background-size: 28px 28px; pointer-events: none;
+        }
+        .wfv-rr-item { position: relative; z-index: 1; text-align: center; }
+        .wfv-rr-num { font-size: 26px; font-weight: 700; line-height: 1; margin-bottom: 4px; }
+        .wfv-rr-label { font-size: 11px; color: rgba(255,255,255,.42); }
+
+        .wfv-section { margin-bottom: 20px; }
+        .wfv-section-title { font-size: 11px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; color: var(--muted2); margin-bottom: 12px; display: flex; align-items: center; gap: 10px; }
+        .wfv-section-title::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+        .wfv-step-card { background: #fff; border: 1px solid var(--border); border-radius: 14px; overflow: hidden; margin-bottom: 10px; box-shadow: 0 1px 3px rgba(0,0,0,.04); }
+        .wfv-step-card-head { display: grid; grid-template-columns: 54px 1fr auto; align-items: center; }
+        .wfv-step-num-col { display: flex; align-items: center; justify-content: center; padding: 18px 0; border-right: 1px solid var(--border); background: var(--bg); }
+        .wfv-step-num { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; color: #fff; }
+        .wfv-step-info { padding: 16px 18px; }
+        .wfv-step-title { font-size: 15px; font-weight: 700; color: var(--text); margin-bottom: 5px; }
+        .wfv-step-meta { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+        .wfv-step-tool-badge { display: inline-flex; align-items: center; gap: 5px; font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 20px; }
+        .wfv-step-time { font-size: 11px; color: var(--muted2); background: var(--bg); border: 1px solid var(--border); padding: 3px 10px; border-radius: 5px; font-family: monospace; }
+        .wfv-step-toggle { padding: 0 20px; font-size: 18px; color: var(--muted2); }
+        .wfv-step-body { padding: 0 20px 18px 74px; border-top: 1px solid var(--border); background: #fafbfe; }
+        .wfv-step-desc { font-size: 13.5px; color: var(--muted); line-height: 1.85; padding-top: 14px; margin-bottom: 10px; }
+
+        .wfv-prompt-block { background: #0f172a; border-radius: 10px; overflow: hidden; margin-top: 8px; }
+        .wfv-prompt-head { display: flex; align-items: center; justify-content: space-between; padding: 8px 14px; background: rgba(255,255,255,.04); border-bottom: 1px solid rgba(255,255,255,.07); }
+        .wfv-prompt-label { font-size: 10px; font-weight: 600; letter-spacing: 1px; color: rgba(255,255,255,.35); text-transform: uppercase; font-family: monospace; }
+        .wfv-prompt-copy { font-size: 10px; color: rgba(255,255,255,.35); font-family: monospace; }
+        .wfv-prompt-text { padding: 14px; font-family: monospace; font-size: 12px; color: rgba(255,255,255,.75); line-height: 1.7; white-space: pre-wrap; }
+
+        .wfv-output-box { margin-top: 10px; background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 10px; padding: 12px 14px; }
+        .wfv-output-label { font-size: 10px; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase; color: #065f46; margin-bottom: 6px; }
+        .wfv-output-text { font-size: 12.5px; color: #065f46; line-height: 1.7; }
+
+        .wfv-pro-tip { display: flex; align-items: flex-start; gap: 10px; margin-top: 10px; background: #fffbeb; border: 1px solid #fde68a; border-radius: 10px; padding: 10px 12px; }
+        .wfv-pro-tip-text { font-size: 12px; color: #92400e; line-height: 1.7; }
+
+        .wfv-tools-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; margin-bottom: 14px; }
+        .wfv-tool-chip { display: inline-flex; align-items: center; gap: 6px; background: #fff; border: 1px solid var(--border); border-radius: 8px; padding: 7px 12px; font-size: 12px; font-weight: 600; color: var(--text); }
+
         .topbar-breadcrumb {
             font-size: 12px;
             color: var(--muted2);
@@ -993,6 +1053,9 @@
         </button>
         <button class="nav-item" onclick="goPage('pricing')">
             <i class="bi bi-cash-stack"></i> Pricing Plans
+        </button>
+        <button class="nav-item" onclick="goPage('workflow')">
+            <i class="bi bi-diagram-3"></i> Premium Workflow Builder
         </button>
         <div class="nav-section-label">Users</div>
         <button class="nav-item" onclick="goPage('users')">
@@ -2643,6 +2706,107 @@
             </div>
         </div>
 
+        <!-- ══════════ PREMIUM WORKFLOW BUILDER PAGE ══════════ -->
+        <div id="page-workflow" class="page">
+            <div class="page-header">
+                <div>
+                    <h2>⚙️ Workflow Content Builder</h2>
+                    <p>🤖 Claude · 🎬 YouTube Creator -> workflow builder form</p>
+                </div>
+            </div>
+
+            <div class="card" style="margin-bottom:14px;">
+                <div class="card-body" style="display:flex;gap:12px;align-items:end;flex-wrap:wrap;">
+                    <div class="form-group" style="min-width:220px;">
+                        <label>AI Tool <span class="req">*</span></label>
+                        <select class="form-select" id="wf-sel-tool" onchange="wfOnContextChange()">
+                            <option value="claude">🤖 Claude</option>
+                            <option value="chatgpt">💬 ChatGPT</option>
+                            <option value="gemini">✨ Gemini</option>
+                            <option value="copilot">🐙 Copilot</option>
+                            <option value="canva">🎨 Canva AI</option>
+                        </select>
+                    </div>
+                    <div class="form-group" style="min-width:240px;">
+                        <label>Use Case / Tab <span class="req">*</span></label>
+                        <select class="form-select" id="wf-sel-tab" onchange="wfOnContextChange()">
+                            <option value="youtube">🎬 YouTube Creator</option>
+                            <option value="instagram">📸 Instagram Content</option>
+                            <option value="analyst">📊 Data Analyst</option>
+                        </select>
+                    </div>
+                    <div class="form-group" style="min-width:160px;">
+                        <label>Difficulty</label>
+                        <select class="form-select" id="wf-sel-difficulty">
+                            <option>Beginner</option>
+                            <option>Intermediate</option>
+                            <option selected>Advanced</option>
+                        </select>
+                    </div>
+                    <div style="margin-left:auto;display:flex;gap:10px;align-items:center;">
+                        <span class="badge badge-blue" id="wf-current-context-badge">🤖 Claude · 🎬 YouTube Creator</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header"><h3><i class="bi bi-layout-text-window-reverse"></i> Panel Header</h3></div>
+                <div class="card-body">
+                    <div class="form-grid-2">
+                        <div class="form-group">
+                            <label>Eyebrow Text <span class="req">*</span></label>
+                            <input class="form-control" id="wf-ph-eyebrow" placeholder="e.g. 🎬 YouTube Creator Workflow">
+                        </div>
+                        <div class="form-group">
+                            <label>Panel Title <span class="req">*</span></label>
+                            <input class="form-control" id="wf-ph-title" placeholder="e.g. Full Video Production Pipeline">
+                        </div>
+                        <div class="form-group form-full">
+                            <label>Sub-heading / Description <span class="req">*</span></label>
+                            <textarea class="form-control" id="wf-ph-desc" rows="2"></textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card" style="margin-top:14px;">
+                <div class="card-header"><h3><i class="bi bi-layers"></i> Phases &amp; Steps</h3></div>
+                <div class="card-body">
+                    <div id="wf-phases-list"></div>
+                    <button class="btn-secondary" type="button" onclick="wfAddPhase()"><i class="bi bi-plus-square"></i> Add Phase</button>
+                </div>
+            </div>
+
+            <div class="card" style="margin-top:14px;">
+                <div class="card-header"><h3><i class="bi bi-tools"></i> Tools Used in This Workflow</h3></div>
+                <div class="card-body">
+                    <div id="wf-tool-chips-list"></div>
+                    <button class="btn-secondary" type="button" onclick="wfAddToolChip()"><i class="bi bi-plus-circle"></i> Add Tool Chip</button>
+                </div>
+            </div>
+
+            <div class="card" style="margin-top:14px;">
+                <div class="card-header"><h3><i class="bi bi-bar-chart-fill"></i> Result Summary</h3></div>
+                <div class="card-body">
+                    <div id="wf-rs-builder" class="form-grid-2"></div>
+                </div>
+            </div>
+
+            <div class="card" style="margin-top:14px;">
+                <div class="card-header"><h3><i class="bi bi-eye"></i> Live Preview</h3></div>
+                <div class="card-body">
+                    <div id="wf-preview" class="wfv-wrap"></div>
+                </div>
+            </div>
+
+            <div class="card" style="margin-top:14px;">
+                <div class="card-body" style="display:flex;justify-content:flex-end;gap:10px;">
+                    <button class="btn-secondary" type="button" onclick="wfLoadExisting()"><i class="bi bi-cloud-download"></i> Load Existing</button>
+                    <button class="btn-primary" type="button" onclick="wfSaveWorkflow()"><i class="bi bi-cloud-upload"></i> Save to DB</button>
+                </div>
+            </div>
+        </div>
+
         <!-- ══════════ MANAGE USERS PAGE ══════════ -->
         <div id="page-users" class="page">
             <div class="page-header">
@@ -3013,6 +3177,7 @@ const PAGE_META = {
     aitools:  { title: 'AI Tools Rating',crumb: 'budasai / admin / ai-tools' },
     aitoolsinfo: { title: 'AI Tools Info', crumb: 'budasai / admin / ai-tools-info' },
     pricing:  { title: 'Pricing Plans',  crumb: 'budasai / admin / pricing' },
+    workflow: { title: 'Workflow Content Builder', crumb: 'budasai / admin / workflow-builder' },
     users:    { title: 'Manage Users',   crumb: 'budasai / admin / users' },
     settings: { title: 'Site Settings',  crumb: 'budasai / admin / settings' },
 };
@@ -3610,6 +3775,324 @@ function rebuildPricingRows(arr) {
     arr.forEach(item => addPricingRow(item.tier || '', item.value || ''));
 }
 
+let wfPhaseCount = 0;
+let wfStepCounters = {};
+let wfChipCount = 0;
+
+function wfOnContextChange() {
+    const tool = document.getElementById('wf-sel-tool')?.selectedOptions?.[0]?.textContent?.trim() || 'Tool';
+    const tab = document.getElementById('wf-sel-tab')?.selectedOptions?.[0]?.textContent?.trim() || 'Tab';
+    const badge = document.getElementById('wf-current-context-badge');
+    if (badge) badge.textContent = `${tool} · ${tab}`;
+    wfUpdatePreview();
+}
+
+function wfAddToolChip(val = '', emoji = '') {
+    const id = ++wfChipCount;
+    const row = document.createElement('div');
+    row.id = `wf-tc-row-${id}`;
+    row.style.cssText = 'display:grid;grid-template-columns:80px 1fr 40px;gap:8px;margin-bottom:8px;';
+    row.innerHTML = `
+        <input class="form-control" id="wf-tc-emoji-${id}" placeholder="🤖" maxlength="4" value="${emoji}">
+        <input class="form-control" id="wf-tc-name-${id}" placeholder="Claude" value="${val}">
+        <button class="btn-secondary" type="button" onclick="document.getElementById('wf-tc-row-${id}').remove()"><i class="bi bi-x"></i></button>`;
+    document.getElementById('wf-tool-chips-list').appendChild(row);
+    wfUpdatePreview();
+}
+
+function wfAddPhase(phaseName = '') {
+    const pid = ++wfPhaseCount;
+    wfStepCounters[pid] = 0;
+    const div = document.createElement('div');
+    div.id = `wf-phase-${pid}`;
+    div.className = 'card';
+    div.style.marginTop = '10px';
+    div.innerHTML = `
+        <div class="card-body">
+            <div style="display:flex;gap:10px;align-items:center;">
+                <span style="font-weight:700;">Phase ${pid}</span>
+                <input class="form-control" id="wf-pname-${pid}" placeholder="Phase name" value="${phaseName}">
+                <button class="btn-secondary" type="button" onclick="wfRemovePhase(${pid})"><i class="bi bi-trash3"></i></button>
+            </div>
+            <div id="wf-psteps-${pid}" style="margin-top:10px;"></div>
+            <button class="btn-secondary" type="button" onclick="wfAddStep(${pid})" style="margin-top:10px;"><i class="bi bi-plus-circle"></i> Add Step</button>
+        </div>`;
+    document.getElementById('wf-phases-list').appendChild(div);
+    wfAddStep(pid);
+    wfUpdatePreview();
+}
+
+function wfRemovePhase(pid) {
+    document.getElementById(`wf-phase-${pid}`)?.remove();
+    delete wfStepCounters[pid];
+    wfUpdatePreview();
+}
+
+function wfAddStep(pid, data = {}) {
+    const sid = ++wfStepCounters[pid];
+    const wrap = document.createElement('div');
+    wrap.id = `wf-step-${pid}-${sid}`;
+    wrap.style.cssText = 'border:1px solid var(--border);border-radius:10px;padding:12px;margin-bottom:10px;';
+    wrap.innerHTML = `
+        <div class="form-grid-2">
+            <div class="form-group"><label>Step Title</label><input class="form-control" id="wf-st-title-${pid}-${sid}" value="${data.title || ''}"></div>
+            <div class="form-group"><label>Tool Badge Label</label><input class="form-control" id="wf-st-tools-${pid}-${sid}" value="${data.tools_used || ''}"></div>
+            <div class="form-group"><label>Time Estimate</label><input class="form-control" id="wf-st-time-${pid}-${sid}" value="${data.time_estimate || ''}"></div>
+            <div class="form-group"><label>Remove</label><button class="btn-secondary" type="button" onclick="document.getElementById('wf-step-${pid}-${sid}').remove()"><i class="bi bi-x"></i></button></div>
+            <div class="form-group form-full"><label>Description</label><textarea class="form-control" id="wf-st-desc-${pid}-${sid}" rows="2">${data.description || ''}</textarea></div>
+            <div class="form-group form-full"><label>Prompt</label><textarea class="form-control" id="wf-st-prompt-${pid}-${sid}" rows="5">${data.prompt || ''}</textarea></div>
+            <div class="form-group form-full"><label>Expected Output</label><textarea class="form-control" id="wf-st-output-${pid}-${sid}" rows="2">${data.expected_output || ''}</textarea></div>
+            <div class="form-group form-full"><label>Pro Tip</label><textarea class="form-control" id="wf-st-tip-${pid}-${sid}" rows="2">${data.pro_tip || ''}</textarea></div>
+        </div>`;
+    document.getElementById(`wf-psteps-${pid}`).appendChild(wrap);
+    wfUpdatePreview();
+}
+
+function wfBuildRsSummary() {
+    const wrap = document.getElementById('wf-rs-builder');
+    if (!wrap) return;
+    wrap.innerHTML = [0,1,2].map(i => `
+        <div class="form-group">
+            <label>Stat ${i+1}</label>
+            <input class="form-control" id="wf-rs-val-${i}" placeholder="Value">
+            <input class="form-control" id="wf-rs-lbl-${i}" placeholder="Label" style="margin-top:6px;">
+        </div>
+    `).join('');
+    wfUpdatePreview();
+}
+
+function wfUpdatePreview() {
+    const payload = wfCollectPayload();
+    const wrap = document.getElementById('wf-preview');
+    if (!wrap) return;
+
+    const esc = (v) => String(v || '')
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;')
+        .replaceAll("'", '&#39;');
+
+    const tab = payload.tab || 'youtube';
+    const tabColorMap = { youtube: '#ef4444', instagram: '#ec4899', analyst: '#6366f1' };
+    const tabColor = tabColorMap[tab] || '#3C83F6';
+    const tabLabelMap = { youtube: '🎬 YouTube Creator Workflow', instagram: '📸 Instagram Content Workflow', analyst: '📊 Data Analyst Workflow' };
+    const eye = esc(payload.eyebrow_text || tabLabelMap[tab] || 'Workflow');
+    const title = esc(payload.panel_title || 'Full Workflow Pipeline');
+    const desc = esc(payload.description || 'Configure your workflow to preview exactly how users will see it on the premium page.');
+
+    const toolsCount = (payload.tool_chips || []).filter(c => (c?.name || '').trim()).length;
+    const totalSteps = (payload.phases || []).reduce((acc, p) => acc + ((p.steps || []).length), 0);
+
+    const rs = (payload.result_summary || []).slice(0, 3);
+    const rsColors = ['#10b981', '#3C83F6', '#f59e0b'];
+    const resultHtml = rs.map((item, idx) => `
+        <div class="wfv-rr-item">
+            <div class="wfv-rr-num" style="color:${rsColors[idx]};">${esc(item.value || '-')}</div>
+            <div class="wfv-rr-label">${esc(item.label || 'Metric')}</div>
+        </div>
+    `).join('');
+
+    const toolChipsHtml = (payload.tool_chips || [])
+        .filter(chip => (chip?.name || '').trim())
+        .map(chip => `<span class="wfv-tool-chip">${esc(chip.emoji || '🛠️')} ${esc(chip.name || '')}</span>`)
+        .join('');
+
+    let stepGlobal = 1;
+    const phaseHtml = (payload.phases || []).map((phase, phaseIndex) => {
+        const stepsHtml = (phase.steps || []).map((step, stepIndex) => {
+            const stepNumber = String(stepGlobal++).padStart(2, '0');
+            const badgeText = esc(step.tools_used || 'Tool');
+            const timeText = esc(step.time_estimate || 'N/A');
+            const titleText = esc(step.title || 'Untitled Step');
+            const stepDesc = esc(step.description || 'Step description goes here.');
+            const promptText = esc(step.prompt || 'Prompt will appear here.');
+            const outputText = esc(step.expected_output || 'Expected output will appear here.');
+            const tipText = esc(step.pro_tip || 'Add a practical pro tip for best results.');
+
+            return `
+                <div class="wfv-step-card">
+                    <div class="wfv-step-card-head">
+                        <div class="wfv-step-num-col"><div class="wfv-step-num" style="background:${tabColor};">${stepNumber}</div></div>
+                        <div class="wfv-step-info">
+                            <div class="wfv-step-title">${titleText}</div>
+                            <div class="wfv-step-meta">
+                                <span class="wfv-step-tool-badge" style="background:#eff6ff;color:#1d4ed8;border:1px solid #bfdbfe;">${badgeText}</span>
+                                <span class="wfv-step-time">⏱ ${timeText}</span>
+                            </div>
+                        </div>
+                        <div class="wfv-step-toggle">▾</div>
+                    </div>
+                    <div class="wfv-step-body">
+                        <p class="wfv-step-desc">${stepDesc}</p>
+                        <div class="wfv-prompt-block">
+                            <div class="wfv-prompt-head"><span class="wfv-prompt-label">Prompt — copy & paste into AI</span><span class="wfv-prompt-copy">Copy</span></div>
+                            <div class="wfv-prompt-text">${promptText}</div>
+                        </div>
+                        <div class="wfv-output-box">
+                            <div class="wfv-output-label">Expected Output</div>
+                            <div class="wfv-output-text">${outputText}</div>
+                        </div>
+                        <div class="wfv-pro-tip"><span>💡</span><span class="wfv-pro-tip-text"><strong>Pro tip:</strong> ${tipText}</span></div>
+                    </div>
+                </div>
+            `;
+        }).join('');
+
+        return `
+            <div class="wfv-section">
+                <div class="wfv-section-title">Phase ${phaseIndex + 1} — ${esc(phase.phase_name || 'Workflow Phase')}</div>
+                ${stepsHtml || '<div class="wfv-step-card"><div class="wfv-step-info" style="padding:14px 18px;">No steps yet.</div></div>'}
+            </div>
+        `;
+    }).join('');
+
+    wrap.innerHTML = `
+        <div class="wfv-panel-header">
+            <div>
+                <div class="wfv-ph-eyebrow" style="color:${tabColor};">${eye}</div>
+                <div class="wfv-ph-title">${title}</div>
+                <div class="wfv-ph-desc">${desc}</div>
+                <div class="wfv-ph-stats">
+                    <span class="wfv-ph-stat">⏱ ${totalSteps || 0} step workflow</span>
+                    <span class="wfv-ph-stat">🧩 ${toolsCount} tools used</span>
+                    <span class="wfv-ph-stat">📋 Premium format preview</span>
+                </div>
+            </div>
+        </div>
+        <div class="wfv-result-row">${resultHtml || `
+            <div class="wfv-rr-item"><div class="wfv-rr-num" style="color:#10b981;">-</div><div class="wfv-rr-label">Metric 1</div></div>
+            <div class="wfv-rr-item"><div class="wfv-rr-num" style="color:#3C83F6;">-</div><div class="wfv-rr-label">Metric 2</div></div>
+            <div class="wfv-rr-item"><div class="wfv-rr-num" style="color:#f59e0b;">-</div><div class="wfv-rr-label">Metric 3</div></div>
+        `}</div>
+        <div class="wfv-tools-row">${toolChipsHtml || '<span class="wfv-tool-chip">🛠️ Add tools to preview</span>'}</div>
+        ${phaseHtml || '<div class="wfv-section"><div class="wfv-section-title">Phase 1 — Workflow Phase</div><div class="wfv-step-card"><div class="wfv-step-info" style="padding:14px 18px;">Add phases and steps to preview.</div></div></div>'}
+    `;
+}
+
+function wfCollectPayload() {
+    const phases = [];
+    document.querySelectorAll('[id^="wf-phase-"]').forEach(phEl => {
+        const pid = phEl.id.replace('wf-phase-','');
+        if (isNaN(pid)) return;
+        const phase = { phase_name: document.getElementById(`wf-pname-${pid}`)?.value?.trim() || '', steps: [] };
+        document.querySelectorAll(`[id^="wf-step-${pid}-"]`).forEach(stEl => {
+            const sid = stEl.id.split('-')[3];
+            phase.steps.push({
+                title: document.getElementById(`wf-st-title-${pid}-${sid}`)?.value?.trim() || '',
+                tools_used: document.getElementById(`wf-st-tools-${pid}-${sid}`)?.value?.trim() || '',
+                time_estimate: document.getElementById(`wf-st-time-${pid}-${sid}`)?.value?.trim() || '',
+                description: document.getElementById(`wf-st-desc-${pid}-${sid}`)?.value?.trim() || '',
+                prompt: document.getElementById(`wf-st-prompt-${pid}-${sid}`)?.value?.trim() || '',
+                expected_output: document.getElementById(`wf-st-output-${pid}-${sid}`)?.value?.trim() || '',
+                pro_tip: document.getElementById(`wf-st-tip-${pid}-${sid}`)?.value?.trim() || ''
+            });
+        });
+        phases.push(phase);
+    });
+
+    const tool_chips = [];
+    document.querySelectorAll('[id^="wf-tc-name-"]').forEach(inp => {
+        const id = inp.id.replace('wf-tc-name-','');
+        const emoji = document.getElementById(`wf-tc-emoji-${id}`)?.value?.trim() || '';
+        if (inp.value.trim()) tool_chips.push({ emoji, name: inp.value.trim() });
+    });
+
+    const result_summary = [0,1,2].map(i => ({
+        value: document.getElementById(`wf-rs-val-${i}`)?.value?.trim() || '',
+        label: document.getElementById(`wf-rs-lbl-${i}`)?.value?.trim() || '',
+        color: '#ffffff'
+    }));
+
+    return {
+        tool: document.getElementById('wf-sel-tool').value,
+        tab: document.getElementById('wf-sel-tab').value,
+        difficulty: document.getElementById('wf-sel-difficulty').value,
+        eyebrow_text: document.getElementById('wf-ph-eyebrow').value?.trim(),
+        eyebrow_color: '#ef4444',
+        panel_title: document.getElementById('wf-ph-title').value?.trim(),
+        description: document.getElementById('wf-ph-desc').value?.trim(),
+        stat_pills: [],
+        phases,
+        tool_chips,
+        result_summary
+    };
+}
+
+function wfSaveWorkflow() {
+    const payload = wfCollectPayload();
+    if (!payload.eyebrow_text) { showAlert('Eyebrow text is required', 'error', 0); return; }
+    if (!payload.panel_title) { showAlert('Panel title is required', 'error', 0); return; }
+    if (payload.phases.length === 0) { showAlert('Add at least one phase', 'error', 0); return; }
+
+    fetch('/admin/workflow/save', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.success) showAlert('Workflow saved to database', 'success');
+        else showAlert(data.error || 'Failed to save workflow', 'error', 0);
+    })
+    .catch(() => showAlert('Connect backend route /admin/workflow/save to enable saving', 'error', 0));
+}
+
+function wfLoadExisting() {
+    const tool = document.getElementById('wf-sel-tool').value;
+    const tab = document.getElementById('wf-sel-tab').value;
+    fetch(`/admin/workflow/load?tool=${tool}&tab=${tab}`)
+        .then(r => r.json())
+        .then(data => {
+            if (!data.success || !data.workflow) { showAlert('No saved workflow found for this combination', 'error', 0); return; }
+            const wf = data.workflow;
+            if (wf.difficulty) document.getElementById('wf-sel-difficulty').value = wf.difficulty;
+            document.getElementById('wf-ph-eyebrow').value = wf.eyebrow_text || '';
+            document.getElementById('wf-ph-title').value = wf.panel_title || '';
+            document.getElementById('wf-ph-desc').value = wf.description || '';
+
+            document.getElementById('wf-tool-chips-list').innerHTML = '';
+            wfChipCount = 0;
+            (wf.tool_chips || []).forEach(tc => wfAddToolChip(tc.name || '', tc.emoji || ''));
+
+            document.getElementById('wf-phases-list').innerHTML = '';
+            wfPhaseCount = 0;
+            wfStepCounters = {};
+            (wf.phases || []).forEach(ph => {
+                wfAddPhase(ph.phase_name || '');
+                const pid = wfPhaseCount;
+                document.getElementById(`wf-psteps-${pid}`).innerHTML = '';
+                wfStepCounters[pid] = 0;
+                (ph.steps || []).forEach(st => wfAddStep(pid, st));
+            });
+
+            wfBuildRsSummary();
+            (wf.result_summary || []).forEach((rs, i) => {
+                const v = document.getElementById(`wf-rs-val-${i}`);
+                const l = document.getElementById(`wf-rs-lbl-${i}`);
+                if (v) v.value = rs.value || '';
+                if (l) l.value = rs.label || '';
+            });
+            wfOnContextChange();
+            wfUpdatePreview();
+            showAlert('Workflow loaded for editing', 'success');
+        })
+        .catch(() => showAlert('Connect backend route /admin/workflow/load to enable loading', 'error', 0));
+}
+
+function initWorkflowBuilder() {
+    const mount = document.getElementById('page-workflow');
+    if (!mount || mount.dataset.initialized === '1') return;
+    wfBuildRsSummary();
+    wfAddPhase();
+    wfAddToolChip();
+    mount.addEventListener('input', wfUpdatePreview);
+    mount.addEventListener('change', wfUpdatePreview);
+    wfOnContextChange();
+    wfUpdatePreview();
+    mount.dataset.initialized = '1';
+}
+
 // Init with one empty pricing row on page load
 if (document.getElementById('pricing-rows')) {
     addPricingRow();
@@ -4157,6 +4640,7 @@ function updatePricingPreview(formPrefix, previewId) {
 // Attach listeners for CREATE form
 document.addEventListener('DOMContentLoaded', () => {
     const createForm = document.getElementById('pricing-create-form');
+    initWorkflowBuilder();
     if (createForm) {
         // Update preview on any input change
         createForm.addEventListener('input', () => updatePricingPreview('', 'create-preview-card'));

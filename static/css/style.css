@@ -536,13 +536,23 @@ body {
     transform: translateY(-50%);
 }
 
+/* Desktop spacer links for logo centering: only visible at full-nav breakpoint */
+.navbar-spacer {
+    display: none !important;
+}
+@media (min-width: 1150px) {
+    .navbar-spacer {
+        display: block !important;
+    }
+}
+
 /* Add left padding so center menu doesn't sit behind logo */
 .custom-navbar .navbar-collapse {
     padding-left: 220px;
     /* space for logo */
 }
 
-@media (max-width: 992px) {
+@media (max-width: 1149.98px) {
     .custom-navbar .navbar-collapse {
         padding-left: 0;
     }
@@ -553,7 +563,7 @@ body {
     margin-left: auto;
 }
 
-@media (max-width: 992px) {
+@media (max-width: 1149.98px) {
 
     /* on tablet/phone, return login into normal flow so it doesn't cover hamburger */
     .navbar-login {
@@ -573,6 +583,21 @@ body {
         padding-left: 0;
         padding-right: 0;
         z-index: 2;
+    }
+}
+
+/* Force hamburger between Bootstrap lg (992px) and our custom 1150px breakpoint */
+@media (min-width: 992px) and (max-width: 1149.98px) {
+    .custom-navbar .navbar-toggler {
+        display: flex !important;
+        align-items: center;
+        justify-content: center;
+    }
+    .custom-navbar.navbar-expand-lg {
+        flex-wrap: wrap !important;
+    }
+    .custom-navbar .navbar-collapse:not(.show):not(.collapsing) {
+        display: none !important;
     }
 }
 
@@ -1108,8 +1133,8 @@ body {
 
 }
 
-/* Remove extra navbar padding on mobile */
-@media (max-width: 991px) {
+/* Remove extra navbar padding on mobile / hamburger breakpoint */
+@media (max-width: 1149.98px) {
     .custom-navbar {
         height: 70px;
         /* fixed navbar height */
@@ -2693,8 +2718,11 @@ html {
 
 
     /* Premium button full width */
+    /* Premium button centered, half-width on mobile */
     .premium-btn {
+        display: flex !important;
         width: 50%;
+        margin: 0 auto;
         justify-content: center;
     }
 

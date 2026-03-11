@@ -221,8 +221,12 @@ async def admin_dashboard(
         settings_res = supabase.table("site_settings").select("key,value").execute()
         site_settings = {row["key"]: row["value"] for row in (settings_res.data or [])}
     except Exception as e:
-        print(f"❌ Error fetching site settings: {str(e)}")
-        site_settings = {}
+        err_text = str(e)
+        if "PGRST205" in err_text and "site_settings" in err_text:
+            site_settings = {}
+        else:
+            print(f"❌ Error fetching site settings: {err_text}")
+            site_settings = {}
     free_pdf_filename = site_settings.get("free_pdf_filename", "BudasAI Insight Feb 2026.pdf")
 
     try:
@@ -276,6 +280,277 @@ async def admin_dashboard(
             **ctx
         }
     )
+
+
+@router.get("/admin/workflows", response_class=HTMLResponse)
+async def admin_workflow_builder(request: Request):
+    try:
+        check_auth(request)
+    except HTTPException:
+        return RedirectResponse(url="/admin/login", status_code=302)
+
+    return RedirectResponse(url="/admin/dashboard", status_code=302)
+
+
+@router.post("/admin/workflow/save")
+async def save_admin_workflow(request: Request, auth=Depends(check_auth)):
+    try:
+        payload = await request.json()
+    except Exception:
+        return JSONResponse(status_code=400, content={"success": False, "error": "Invalid JSON payload"})
+
+    tool = (payload.get("tool") or "").strip()
+    tab = (payload.get("tab") or "").strip()
+    if not tool or not tab:
+        return JSONResponse(status_code=400, content={"success": False, "error": "tool and tab are required"})
+
+    try:
+        workflow_row = {
+            "tool": tool,
+            "tab": tab,
+            "difficulty": payload.get("difficulty") or "Beginner",
+            "eyebrow_text": payload.get("eyebrow_text") or "",
+            "eyebrow_color": payload.get("eyebrow_color") or "#ef4444",
+            "panel_title": payload.get("panel_title") or "",
+            "description": payload.get("description") or "",
+            "stat_pills": payload.get("stat_pills") or [],
+            "tool_chips": payload.get("tool_chips") or [],
+            "result_summary": payload.get("result_summary") or [],
+            "updated_at": datetime.now().isoformat(),
+        }
+
+        existing = (
+            supabase
+            .table("premium_workflows")
+            .select("id")
+            .eq("tool", tool)
+            .eq("tab", tab)
+            .limit(1)
+            .execute()
+        )
+        existing_rows = existing.data or []
+
+        if existing_rows:
+            workflow_id = existing_rows[0]["id"]
+            supabase.table("premium_workflows").update(workflow_row).eq("id", workflow_id).execute()
+        else:
+            inserted = supabase.table("premium_workflows").insert(workflow_row).execute()
+            workflow_id = (inserted.data or [{}])[0].get("id")
+
+        if not workflow_id:
+            return JSONResponse(status_code=500, content={"success": False, "error": "Unable to create workflow row"})
+
+        supabase.table("premium_workflow_steps").delete().eq("workflow_id", workflow_id).execute()
+        supabase.table("premium_workflow_results").delete().eq("workflow_id", workflow_id).execute()
+
+        steps_to_insert = []
+        for phase_index, phase in enumerate(payload.get("phases") or [], start=1):
+            phase_name = phase.get("phase_name") or f"Phase {phase_index}"
+            for step_index, step in enumerate(phase.get("steps") or [], start=1):
+                steps_to_insert.append({
+                    "workflow_id": workflow_id,
+                    "phase_number": phase_index,
+                    "phase_name": phase_name,
+                    "step_number": step_index,
+                    "title": step.get("title") or "",
+                    "tools_used": step.get("tools_used") or "",
+                    "badge_color": step.get("badge_color") or None,
+                    "step_num_color": step.get("step_num_color") or None,
+                    "time_estimate": step.get("time_estimate") or "",
+                    "description": step.get("description") or "",
+                    "prompt": step.get("prompt") or "",
+                    "expected_output": step.get("expected_output") or "",
+                    "pro_tip": step.get("pro_tip") or "",
+                })
+
+        if steps_to_insert:
+            supabase.table("premium_workflow_steps").insert(steps_to_insert).execute()
+
+        results_to_insert = []
+        for stat_number, stat in enumerate(payload.get("result_summary") or [], start=1):
+            results_to_insert.append({
+                "workflow_id": workflow_id,
+                "stat_number": stat_number,
+                "value": stat.get("value") or "",
+                "label": stat.get("label") or "",
+                "color": stat.get("color") or "#ffffff",
+            })
+        if results_to_insert:
+            supabase.table("premium_workflow_results").insert(results_to_insert).execute()
+
+        return {"success": True, "workflow_id": workflow_id}
+    except Exception as e:
+        print(f"❌ Error saving admin workflow: {str(e)}")
+        traceback.print_exc()
+        return JSONResponse(status_code=500, content={"success": False, "error": str(e)})
+
+
+@router.get("/admin/workflow/load")
+async def load_admin_workflow(tool: str = "", tab: str = "", auth=Depends(check_auth)):
+    tool = (tool or "").strip()
+    tab = (tab or "").strip()
+    if not tool or not tab:
+        return JSONResponse(status_code=400, content={"success": False, "error": "tool and tab are required"})
+
+    try:
+        workflow_result = (
+            supabase
+            .table("premium_workflows")
+            .select("*")
+            .eq("tool", tool)
+            .eq("tab", tab)
+            .limit(1)
+            .execute()
+        )
+        workflow_rows = workflow_result.data or []
+        if not workflow_rows:
+            return {"success": True, "workflow": None}
+
+        workflow = workflow_rows[0]
+        workflow_id = workflow["id"]
+
+        steps_result = (
+            supabase
+            .table("premium_workflow_steps")
+            .select("*")
+            .eq("workflow_id", workflow_id)
+            .order("phase_number")
+            .order("step_number")
+            .execute()
+        )
+        steps_rows = steps_result.data or []
+
+        phases_map = {}
+        for row in steps_rows:
+            phase_number = row.get("phase_number")
+            if phase_number not in phases_map:
+                phases_map[phase_number] = {
+                    "phase_name": row.get("phase_name") or "",
+                    "steps": [],
+                }
+            phases_map[phase_number]["steps"].append({
+                "title": row.get("title") or "",
+                "tools_used": row.get("tools_used") or "",
+                "badge_color": row.get("badge_color") or "",
+                "step_num_color": row.get("step_num_color") or "",
+                "time_estimate": row.get("time_estimate") or "",
+                "description": row.get("description") or "",
+                "prompt": row.get("prompt") or "",
+                "expected_output": row.get("expected_output") or "",
+                "pro_tip": row.get("pro_tip") or "",
+            })
+        phases = [phases_map[k] for k in sorted(phases_map.keys())]
+
+        results_result = (
+            supabase
+            .table("premium_workflow_results")
+            .select("*")
+            .eq("workflow_id", workflow_id)
+            .order("stat_number")
+            .execute()
+        )
+        results_rows = results_result.data or []
+        result_summary = [
+            {
+                "value": row.get("value") or "",
+                "label": row.get("label") or "",
+                "color": row.get("color") or "#ffffff",
+            }
+            for row in results_rows
+        ]
+
+        return {
+            "success": True,
+            "workflow": {
+                "id": workflow_id,
+                "tool": workflow.get("tool") or "",
+                "tab": workflow.get("tab") or "",
+                "difficulty": workflow.get("difficulty") or "Beginner",
+                "eyebrow_text": workflow.get("eyebrow_text") or "",
+                "eyebrow_color": workflow.get("eyebrow_color") or "#ef4444",
+                "panel_title": workflow.get("panel_title") or "",
+                "description": workflow.get("description") or "",
+                "stat_pills": workflow.get("stat_pills") or [],
+                "tool_chips": workflow.get("tool_chips") or [],
+                "result_summary": result_summary if result_summary else (workflow.get("result_summary") or []),
+                "phases": phases,
+            },
+        }
+    except Exception as e:
+        print(f"❌ Error loading admin workflow: {str(e)}")
+        traceback.print_exc()
+        return JSONResponse(status_code=500, content={"success": False, "error": str(e)})
+
+
+@router.get("/admin/api/pricing-plan/{plan_id}")
+async def get_pricing_plan(plan_id: str, auth=Depends(check_auth)):
+    try:
+        result = (
+            supabase
+            .table("pricing_plans")
+            .select("*")
+            .eq("id", plan_id)
+            .limit(1)
+            .execute()
+        )
+        rows = result.data or []
+        return {"success": len(rows) > 0, "plan": rows[0] if rows else None}
+    except Exception as e:
+        print(f"❌ Error loading pricing plan {plan_id}: {str(e)}")
+        traceback.print_exc()
+        return JSONResponse(status_code=500, content={"success": False, "error": str(e)})
+
+
+@router.post("/admin/api/pricing-plan/update")
+async def update_pricing_plan(request: Request, auth=Depends(check_auth)):
+    try:
+        payload = await request.json()
+    except Exception:
+        return JSONResponse(status_code=400, content={"success": False, "error": "Invalid JSON payload"})
+
+    plan_id = payload.get("id")
+    if not plan_id:
+        return JSONResponse(status_code=400, content={"success": False, "error": "Missing plan id"})
+
+    try:
+        update_payload = {
+            "plan_name": payload.get("plan_name"),
+            "plan_heading": payload.get("plan_heading"),
+            "plan_subheading": payload.get("plan_subheading"),
+            "price_inr": payload.get("price_inr"),
+            "discount_percent": payload.get("discount_percent"),
+            "features_heading_1": payload.get("features_heading_1"),
+            "features_list_1": payload.get("features_list_1") or [],
+            "features_heading_2": payload.get("features_heading_2"),
+            "features_list_2": payload.get("features_list_2") or [],
+            "button_text": payload.get("button_text"),
+            "button_action": payload.get("button_action"),
+            "button_url": payload.get("button_url"),
+            "show_terms": bool(payload.get("show_terms", False)),
+            "is_popular": bool(payload.get("is_popular", False)),
+            "display_order": payload.get("display_order"),
+            "is_active": bool(payload.get("is_active", False)),
+            "card_bg_color": payload.get("card_bg_color"),
+            "badge_bg_color": payload.get("badge_bg_color"),
+            "badge_text_color": payload.get("badge_text_color"),
+            "badge_text": payload.get("badge_text"),
+            "price_note": payload.get("price_note"),
+            "updated_at": datetime.now().isoformat(),
+        }
+
+        result = (
+            supabase
+            .table("pricing_plans")
+            .update(update_payload)
+            .eq("id", plan_id)
+            .execute()
+        )
+
+        return {"success": True, "updated": len(result.data or []), "plan_id": plan_id}
+    except Exception as e:
+        print(f"❌ Error updating pricing plan {plan_id}: {str(e)}")
+        traceback.print_exc()
+        return JSONResponse(status_code=500, content={"success": False, "error": str(e)})
 
 
 def admin_redirect(status: str, message: str) -> RedirectResponse:
@@ -1425,7 +1700,13 @@ async def update_site_settings(
         ).execute()
         return admin_json_response("success", f"PDF filename updated to: {filename}")
     except Exception as e:
-        print(f"❌ Error updating site settings: {str(e)}")
+        err_text = str(e)
+        if "PGRST205" in err_text and "site_settings" in err_text:
+            return admin_json_response(
+                "error",
+                "site_settings table is missing in DB. Create it first to use Site Settings."
+            )
+        print(f"❌ Error updating site settings: {err_text}")
         traceback.print_exc()
         return admin_json_response("error", "Failed to update settings.")
 
