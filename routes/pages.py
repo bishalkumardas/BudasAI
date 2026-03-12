@@ -630,60 +630,6 @@ async def premium_page(request: Request):
                     "tabs": {tab["key"]: workflow_lookup.get((slug, tab["key"])) for tab in premium_tabs},
                 })
 
-            baseline_tools = ["Claude", "ChatGPT", "Gemini", "GitHub Copilot", "Perplexity"]
-            existing_slugs = {tool["slug"] for tool in premium_tools}
-            for name in baseline_tools:
-                slug = slugify_tool_name(name)
-                if slug in existing_slugs:
-                    continue
-                premium_tools.append({
-                    "id": None,
-                    "name": name,
-                    "slug": slug,
-                    "icon": infer_tool_icon(name),
-                    "image_url": "",
-                    "best_for": "",
-                    "overall": 0,
-                    "tabs": {tab["key"]: workflow_lookup.get((slug, tab["key"])) for tab in premium_tabs},
-                })
-                compare_tools_data.setdefault(slug, {
-                    "name": name,
-                    "slug": slug,
-                    "icon": infer_tool_icon(name),
-                    "image_url": "",
-                    "tagline": "Data not updated yet",
-                    "overall": 0,
-                    "scores": {
-                        "Output Quality": 0,
-                        "Ease of Use": 0,
-                        "Accuracy": 0,
-                        "Speed": 0,
-                        "Value for Money": 0,
-                        "Creativity": 0,
-                        "Integration": 0,
-                        "Consistency": 0,
-                        "Support & Updates": 0,
-                        "Time Saved": 0,
-                    },
-                    "benchmarks": {
-                        "MMLU": None,
-                        "HumanEval": None,
-                        "GSM8K": None,
-                        "HellaSwag": None,
-                        "TruthfulQA": None,
-                    },
-                    "details": {
-                        "Company": "Data not updated yet",
-                        "Founded": "Data not updated yet",
-                        "Headquarters": "Data not updated yet",
-                        "Website": "Data not updated yet",
-                        "Best For": "Data not updated yet",
-                    },
-                    "pros": ["Data not updated yet"],
-                    "cons": ["Data not updated yet"],
-                    "pricing": [{"name": "Plan", "price": "Data not updated yet", "desc": "Data not updated yet"}],
-                    "usecases": [{"icon": "📌", "title": "Use Case", "desc": "Data not updated yet"}],
-                })
         except Exception as e:
             print(f"Error loading premium workflow content: {e}")
 
@@ -784,10 +730,6 @@ async def premium_page(request: Request):
             })
     except Exception as e:
         print(f"Error loading preview tools for premium page: {e}")
-
-    if not preview_tools:
-        for name in ["Claude", "ChatGPT", "Gemini", "GitHub Copilot", "Perplexity"]:
-            preview_tools.append({"name": name, "icon": infer_tool_icon(name)})
 
     return templates.TemplateResponse(
         "premium.html",
