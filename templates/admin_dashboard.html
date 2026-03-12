@@ -2715,17 +2715,24 @@
                 </div>
             </div>
 
+            <select id="wf-tool-options-template" style="display:none;">
+                {% if ai_tools %}
+                {% for tool in ai_tools %}
+                <option value="{{ tool.name | e }}" data-image="{{ tool.image_url or '' }}">{{ tool.name }}</option>
+                {% endfor %}
+                {% else %}
+                <option value="Claude" data-image="">Claude</option>
+                {% endif %}
+            </select>
+
             <div class="card" style="margin-bottom:14px;">
                 <div class="card-body" style="display:flex;gap:12px;align-items:end;flex-wrap:wrap;">
                     <div class="form-group" style="min-width:220px;">
                         <label>AI Tool <span class="req">*</span></label>
-                        <select class="form-select" id="wf-sel-tool" onchange="wfOnContextChange()">
-                            <option value="claude">🤖 Claude</option>
-                            <option value="chatgpt">💬 ChatGPT</option>
-                            <option value="gemini">✨ Gemini</option>
-                            <option value="copilot">🐙 Copilot</option>
-                            <option value="canva">🎨 Canva AI</option>
-                        </select>
+                        <div style="display:flex;gap:8px;align-items:center;">
+                            <img id="wf-sel-tool-img" src="" alt="" style="width:30px;height:30px;border-radius:8px;object-fit:cover;border:1px solid var(--border);display:none;">
+                            <select class="form-select" id="wf-sel-tool" onchange="wfOnContextChange()" style="flex:1;"></select>
+                        </div>
                     </div>
                     <div class="form-group" style="min-width:240px;">
                         <label>Use Case / Tab <span class="req">*</span></label>
@@ -3780,23 +3787,84 @@ let wfStepCounters = {};
 let wfChipCount = 0;
 
 function wfOnContextChange() {
-    const tool = document.getElementById('wf-sel-tool')?.selectedOptions?.[0]?.textContent?.trim() || 'Tool';
+    const toolSel = document.getElementById('wf-sel-tool');
+    const selectedTool = toolSel?.selectedOptions?.[0];
+    const tool = selectedTool?.textContent?.trim() || 'Tool';
     const tab = document.getElementById('wf-sel-tab')?.selectedOptions?.[0]?.textContent?.trim() || 'Tab';
     const badge = document.getElementById('wf-current-context-badge');
     if (badge) badge.textContent = `${tool} · ${tab}`;
+
+    const img = document.getElementById('wf-sel-tool-img');
+    const src = selectedTool?.dataset?.image || '';
+    if (img) {
+        if (src) {
+            img.src = src;
+            img.style.display = 'inline-block';
+        } else {
+            img.removeAttribute('src');
+            img.style.display = 'none';
+        }
+    }
+
+    document.querySelectorAll('.wf-tool-preview').forEach(el => {
+        const row = el.closest('.wf-tool-row');
+        if (!row) return;
+        const select = row.querySelector('.wf-ai-tool-select');
+        const opt = select?.selectedOptions?.[0];
+        const rowSrc = opt?.dataset?.image || '';
+        if (rowSrc) {
+            el.src = rowSrc;
+            el.style.display = 'inline-block';
+        } else {
+            el.removeAttribute('src');
+            el.style.display = 'none';
+        }
+    });
+
     wfUpdatePreview();
 }
 
-function wfAddToolChip(val = '', emoji = '') {
+function wfGetToolOptionsHtml() {
+    const tpl = document.getElementById('wf-tool-options-template');
+    return tpl ? tpl.innerHTML : '';
+}
+
+function wfBuildToolSelect(selectedName = '') {
+    const optionsHtml = wfGetToolOptionsHtml();
+    const sel = document.createElement('select');
+    sel.className = 'form-select wf-ai-tool-select';
+    sel.innerHTML = optionsHtml;
+
+    if (selectedName) {
+        const target = Array.from(sel.options).find(o => o.value === selectedName || o.text === selectedName);
+        if (target) target.selected = true;
+    }
+    return sel;
+}
+
+function wfAddToolChip(val = '', emoji = '', image = '') {
     const id = ++wfChipCount;
     const row = document.createElement('div');
     row.id = `wf-tc-row-${id}`;
-    row.style.cssText = 'display:grid;grid-template-columns:80px 1fr 40px;gap:8px;margin-bottom:8px;';
+    row.className = 'wf-tool-row';
+    row.style.cssText = 'display:grid;grid-template-columns:34px 1fr 40px;gap:8px;margin-bottom:8px;align-items:center;';
     row.innerHTML = `
-        <input class="form-control" id="wf-tc-emoji-${id}" placeholder="🤖" maxlength="4" value="${emoji}">
-        <input class="form-control" id="wf-tc-name-${id}" placeholder="Claude" value="${val}">
-        <button class="btn-secondary" type="button" onclick="document.getElementById('wf-tc-row-${id}').remove()"><i class="bi bi-x"></i></button>`;
+        <img class="wf-tool-preview" src="${image || ''}" alt="" style="width:30px;height:30px;border-radius:8px;object-fit:cover;border:1px solid var(--border);${image ? '' : 'display:none;'}">
+        <div id="wf-chip-select-wrap-${id}"></div>
+        <button class="btn-secondary" type="button" onclick="document.getElementById('wf-tc-row-${id}').remove();wfUpdatePreview();"><i class="bi bi-x"></i></button>`;
     document.getElementById('wf-tool-chips-list').appendChild(row);
+    const select = wfBuildToolSelect(val);
+    select.id = `wf-tc-name-${id}`;
+    select.onchange = wfOnContextChange;
+    document.getElementById(`wf-chip-select-wrap-${id}`).appendChild(select);
+
+    const emojiInput = document.createElement('input');
+    emojiInput.type = 'hidden';
+    emojiInput.id = `wf-tc-emoji-${id}`;
+    emojiInput.value = emoji || '';
+    row.appendChild(emojiInput);
+
+    wfOnContextChange();
     wfUpdatePreview();
 }
 
@@ -3836,28 +3904,78 @@ function wfAddStep(pid, data = {}) {
     wrap.innerHTML = `
         <div class="form-grid-2">
             <div class="form-group"><label>Step Title</label><input class="form-control" id="wf-st-title-${pid}-${sid}" value="${data.title || ''}"></div>
-            <div class="form-group"><label>Tool Badge Label</label><input class="form-control" id="wf-st-tools-${pid}-${sid}" value="${data.tools_used || ''}"></div>
+            <div class="form-group">
+                <label>Tool Badge Label</label>
+                <div class="wf-tool-row" style="display:grid;grid-template-columns:30px 1fr;gap:8px;align-items:center;">
+                    <img class="wf-tool-preview" id="wf-st-tool-img-${pid}-${sid}" src="" alt="" style="width:28px;height:28px;border-radius:7px;object-fit:cover;border:1px solid var(--border);display:none;">
+                    <div id="wf-st-tool-wrap-${pid}-${sid}"></div>
+                </div>
+            </div>
             <div class="form-group"><label>Time Estimate</label><input class="form-control" id="wf-st-time-${pid}-${sid}" value="${data.time_estimate || ''}"></div>
-            <div class="form-group"><label>Remove</label><button class="btn-secondary" type="button" onclick="document.getElementById('wf-step-${pid}-${sid}').remove()"><i class="bi bi-x"></i></button></div>
+            <div class="form-group"><label>&nbsp;</label><div></div></div>
             <div class="form-group form-full"><label>Description</label><textarea class="form-control" id="wf-st-desc-${pid}-${sid}" rows="2">${data.description || ''}</textarea></div>
             <div class="form-group form-full"><label>Prompt</label><textarea class="form-control" id="wf-st-prompt-${pid}-${sid}" rows="5">${data.prompt || ''}</textarea></div>
             <div class="form-group form-full"><label>Expected Output</label><textarea class="form-control" id="wf-st-output-${pid}-${sid}" rows="2">${data.expected_output || ''}</textarea></div>
             <div class="form-group form-full"><label>Pro Tip</label><textarea class="form-control" id="wf-st-tip-${pid}-${sid}" rows="2">${data.pro_tip || ''}</textarea></div>
+            <div class="form-group form-full" style="display:flex;justify-content:flex-end;">
+                <button class="btn-secondary" type="button" onclick="document.getElementById('wf-step-${pid}-${sid}').remove();wfUpdatePreview();"><i class="bi bi-x"></i> Remove Step</button>
+            </div>
         </div>`;
     document.getElementById(`wf-psteps-${pid}`).appendChild(wrap);
+
+    const stepToolSelect = wfBuildToolSelect(data.tools_used || '');
+    stepToolSelect.id = `wf-st-tools-${pid}-${sid}`;
+    stepToolSelect.onchange = wfOnContextChange;
+    document.getElementById(`wf-st-tool-wrap-${pid}-${sid}`).appendChild(stepToolSelect);
+
+    if (data.tool_image) {
+        const img = document.getElementById(`wf-st-tool-img-${pid}-${sid}`);
+        if (img) {
+            img.src = data.tool_image;
+            img.style.display = 'inline-block';
+        }
+    }
+
+    wfOnContextChange();
     wfUpdatePreview();
+}
+
+function wfEstimateTotalMinutes(phases = []) {
+    let total = 0;
+    phases.forEach(phase => {
+        (phase.steps || []).forEach(step => {
+            const raw = String(step.time_estimate || '').toLowerCase();
+            const match = raw.match(/(\d+(?:\.\d+)?)/);
+            if (!match) return;
+            const val = parseFloat(match[1]);
+            if (Number.isNaN(val)) return;
+            if (raw.includes('hour') || raw.includes('hr')) total += val * 60;
+            else if (raw.includes('sec')) total += val / 60;
+            else total += val;
+        });
+    });
+    return total;
 }
 
 function wfBuildRsSummary() {
     const wrap = document.getElementById('wf-rs-builder');
     if (!wrap) return;
-    wrap.innerHTML = [0,1,2].map(i => `
+    wrap.innerHTML = `
         <div class="form-group">
-            <label>Stat ${i+1}</label>
-            <input class="form-control" id="wf-rs-val-${i}" placeholder="Value">
-            <input class="form-control" id="wf-rs-lbl-${i}" placeholder="Label" style="margin-top:6px;">
+            <label>Stat 1 (Auto from Time Estimate)</label>
+            <input class="form-control" id="wf-rs-val-0" placeholder="~0 mins" readonly>
+            <input class="form-control" id="wf-rs-lbl-0" value="Minutes total workflow" style="margin-top:6px;" readonly>
         </div>
-    `).join('');
+        <div class="form-group">
+            <label>Stat 2 (Custom)</label>
+            <input class="form-control" id="wf-rs-val-1" placeholder="Value">
+            <input class="form-control" id="wf-rs-lbl-1" placeholder="Label" style="margin-top:6px;">
+        </div>
+        <div class="form-group">
+            <label>Stat 3 (Auto from Tools Used)</label>
+            <input class="form-control" id="wf-rs-val-2" placeholder="0 tools" readonly>
+            <input class="form-control" id="wf-rs-lbl-2" value="Used in workflow" style="margin-top:6px;" readonly>
+        </div>`;
     wfUpdatePreview();
 }
 
@@ -4004,6 +4122,24 @@ function wfCollectPayload() {
         color: '#ffffff'
     }));
 
+    const estimatedMinutes = wfEstimateTotalMinutes(phases);
+    const stat1Value = estimatedMinutes > 0
+        ? (estimatedMinutes >= 60 ? `~${(estimatedMinutes / 60).toFixed(1)} hrs` : `~${Math.round(estimatedMinutes)} mins`)
+        : '~0 mins';
+    const toolsUsedCount = tool_chips.filter(c => (c.name || '').trim()).length;
+
+    result_summary[0] = { value: stat1Value, label: 'Minutes total workflow', color: '#ffffff' };
+    result_summary[2] = { value: `${toolsUsedCount} tools`, label: 'Used in workflow', color: '#ffffff' };
+
+    const rs0 = document.getElementById('wf-rs-val-0');
+    const rs0l = document.getElementById('wf-rs-lbl-0');
+    const rs2 = document.getElementById('wf-rs-val-2');
+    const rs2l = document.getElementById('wf-rs-lbl-2');
+    if (rs0) rs0.value = result_summary[0].value;
+    if (rs0l) rs0l.value = result_summary[0].label;
+    if (rs2) rs2.value = result_summary[2].value;
+    if (rs2l) rs2l.value = result_summary[2].label;
+
     return {
         tool: document.getElementById('wf-sel-tool').value,
         tab: document.getElementById('wf-sel-tab').value,
@@ -4047,6 +4183,13 @@ function wfLoadExisting() {
             if (!data.success || !data.workflow) { showAlert('No saved workflow found for this combination', 'error', 0); return; }
             const wf = data.workflow;
             if (wf.difficulty) document.getElementById('wf-sel-difficulty').value = wf.difficulty;
+            if (wf.tool) {
+                const wfToolSel = document.getElementById('wf-sel-tool');
+                if (wfToolSel) {
+                    const opt = Array.from(wfToolSel.options).find(o => o.value === wf.tool || o.text === wf.tool);
+                    if (opt) opt.selected = true;
+                }
+            }
             document.getElementById('wf-ph-eyebrow').value = wf.eyebrow_text || '';
             document.getElementById('wf-ph-title').value = wf.panel_title || '';
             document.getElementById('wf-ph-desc').value = wf.description || '';
@@ -4068,6 +4211,7 @@ function wfLoadExisting() {
 
             wfBuildRsSummary();
             (wf.result_summary || []).forEach((rs, i) => {
+                if (i === 0 || i === 2) return;
                 const v = document.getElementById(`wf-rs-val-${i}`);
                 const l = document.getElementById(`wf-rs-lbl-${i}`);
                 if (v) v.value = rs.value || '';
@@ -4083,6 +4227,12 @@ function wfLoadExisting() {
 function initWorkflowBuilder() {
     const mount = document.getElementById('page-workflow');
     if (!mount || mount.dataset.initialized === '1') return;
+
+    const wfToolSelect = document.getElementById('wf-sel-tool');
+    if (wfToolSelect) {
+        wfToolSelect.innerHTML = wfGetToolOptionsHtml();
+    }
+
     wfBuildRsSummary();
     wfAddPhase();
     wfAddToolChip();

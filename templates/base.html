@@ -120,7 +120,7 @@
                     <a class="nav-item nav-link {% if request.url.path == '/about' %}active{% endif %}"
                         href="/about">About</a>
                     <a id="premium-nav-link"
-                        class="nav-item nav-link {% if request.url.path == '/premium' %}active{% endif %} d-none"
+                        class="nav-item nav-link is-muted {% if request.url.path == '/premium' %}active{% endif %}"
                         href="/premium"
                         style="background: linear-gradient(135deg, #f59e0b, #f97316); -webkit-background-clip: text; background-clip: text; color: transparent; font-weight: 800;">
                         <i class="bi bi-gem me-1"></i>Premium
@@ -289,7 +289,6 @@
             if (data.user) {
                 const premiumTab = document.getElementById('premium-nav-link');
                 if (premiumTab) {
-                    premiumTab.classList.remove('d-none');
                     if (data.has_premium) {
                         // Premium user: match login button style
                         premiumTab.innerHTML = '<i class="bi bi-gem me-1"></i>Premium';
@@ -325,7 +324,10 @@
             } else {
                 const premiumTab = document.getElementById('premium-nav-link');
                 if (premiumTab) {
-                    premiumTab.classList.add('d-none');
+                    premiumTab.innerHTML = '<i class="bi bi-gem me-1"></i>Premium';
+                    premiumTab.classList.remove('premium-btn', 'is-premium');
+                    premiumTab.classList.add('is-muted');
+                    premiumTab.style.cssText = '';
                 }
             }
         }

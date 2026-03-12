@@ -43,6 +43,23 @@ def slugify_tool_name(name: str) -> str:
     return text.strip("-")
 
 
+def infer_tool_icon(name: str) -> str:
+    text = (name or "").strip().lower()
+    if "claude" in text:
+        return "🤖"
+    if "chatgpt" in text or "openai" in text:
+        return "💬"
+    if "gemini" in text:
+        return "✨"
+    if "copilot" in text:
+        return "🐙"
+    if "perplexity" in text:
+        return "🔍"
+    if "canva" in text:
+        return "🎨"
+    return "🤖"
+
+
 def _parse_plan_ids(raw_value) -> list:
     if isinstance(raw_value, list):
         return raw_value
@@ -421,11 +438,17 @@ async def premium_page(request: Request):
     # ── If premium user, fetch AI tools for dropdown and show content page ──
     if has_premium:
         ai_tools_dropdown = []
+        compare_tools_data = {}
+        premium_tabs = [
+            {"key": "youtube", "label": "YouTube Creator", "icon": "🎬", "color": "#ef4444"},
+            {"key": "instagram", "label": "Instagram Content", "icon": "📸", "color": "#ec4899"},
+            {"key": "analyst", "label": "Data Analyst", "icon": "📊", "color": "#6366f1"},
+        ]
+        premium_tools = []
         try:
             tools_res = (
                 supabase.table("ai_tools")
                 .select("id, name, image_url, best_for, quality_score, ease_score, accuracy_score, speed_score, value_score, creativity_score, integration_score, consistency_score, support_score, time_saved_score")
-                .eq("is_active", True)
                 .order("display_order", desc=False)
                 .execute()
             )
@@ -434,6 +457,8 @@ async def premium_page(request: Request):
                 except: return 0.0
 
             for t in (tools_res.data or []):
+                tool_name = t.get("name") or "Untitled"
+                tool_slug = slugify_tool_name(tool_name)
                 scores = [
                     _safe_float(t.get("quality_score")), _safe_float(t.get("ease_score")),
                     _safe_float(t.get("accuracy_score")), _safe_float(t.get("speed_score")),
@@ -444,19 +469,275 @@ async def premium_page(request: Request):
                 overall = round(sum(scores) / len(scores), 1) if scores else 0.0
                 ai_tools_dropdown.append({
                     "id": t.get("id"),
-                    "name": t.get("name") or "Untitled",
+                    "name": tool_name,
+                    "slug": tool_slug,
+                    "icon": infer_tool_icon(tool_name),
                     "image_url": t.get("image_url") or "",
                     "best_for": t.get("best_for") or "",
                     "overall": overall,
                 })
+                compare_tools_data[tool_slug] = {
+                    "name": tool_name,
+                    "slug": tool_slug,
+                    "icon": infer_tool_icon(tool_name),
+                    "image_url": t.get("image_url") or "",
+                    "tagline": (t.get("best_for") or "Data not updated yet"),
+                    "overall": overall,
+                    "scores": {
+                        "Output Quality": _safe_float(t.get("quality_score")),
+                        "Ease of Use": _safe_float(t.get("ease_score")),
+                        "Accuracy": _safe_float(t.get("accuracy_score")),
+                        "Speed": _safe_float(t.get("speed_score")),
+                        "Value for Money": _safe_float(t.get("value_score")),
+                        "Creativity": _safe_float(t.get("creativity_score")),
+                        "Integration": _safe_float(t.get("integration_score")),
+                        "Consistency": _safe_float(t.get("consistency_score")),
+                        "Support & Updates": _safe_float(t.get("support_score")),
+                        "Time Saved": _safe_float(t.get("time_saved_score")),
+                    },
+                    "benchmarks": {
+                        "MMLU": None,
+                        "HumanEval": None,
+                        "GSM8K": None,
+                        "HellaSwag": None,
+                        "TruthfulQA": None,
+                    },
+                    "details": {
+                        "Company": "Data not updated yet",
+                        "Founded": "Data not updated yet",
+                        "Headquarters": "Data not updated yet",
+                        "Website": "Data not updated yet",
+                        "Best For": (t.get("best_for") or "Data not updated yet"),
+                    },
+                    "pros": ["Data not updated yet"],
+                    "cons": ["Data not updated yet"],
+                    "pricing": [{"name": "Plan", "price": "Data not updated yet", "desc": "Data not updated yet"}],
+                    "usecases": [{"icon": "📌", "title": "Use Case", "desc": "Data not updated yet"}],
+                }
         except Exception as e:
             print(f"Error loading AI tools for premium content: {e}")
+
+        try:
+            workflows_res = (
+                supabase.table("premium_workflows")
+                .select("id, tool, tab, difficulty, eyebrow_text, eyebrow_color, panel_title, description, stat_pills, tool_chips, result_summary")
+                .order("tool")
+                .order("tab")
+                .execute()
+            )
+            workflow_rows = workflows_res.data or []
+            workflow_ids = [row.get("id") for row in workflow_rows if row.get("id")]
+
+            steps_by_workflow = {}
+            results_by_workflow = {}
+
+            if workflow_ids:
+                steps_res = (
+                    supabase.table("premium_workflow_steps")
+                    .select("workflow_id, phase_number, phase_name, step_number, title, tools_used, badge_color, step_num_color, time_estimate, description, prompt, expected_output, pro_tip")
+                    .in_("workflow_id", workflow_ids)
+                    .order("workflow_id")
+                    .order("phase_number")
+                    .order("step_number")
+                    .execute()
+                )
+                for row in (steps_res.data or []):
+                    steps_by_workflow.setdefault(row.get("workflow_id"), []).append(row)
+
+                results_res = (
+                    supabase.table("premium_workflow_results")
+                    .select("workflow_id, stat_number, value, label, color")
+                    .in_("workflow_id", workflow_ids)
+                    .order("workflow_id")
+                    .order("stat_number")
+                    .execute()
+                )
+                for row in (results_res.data or []):
+                    results_by_workflow.setdefault(row.get("workflow_id"), []).append({
+                        "value": row.get("value") or "",
+                        "label": row.get("label") or "",
+                        "color": row.get("color") or "#ffffff",
+                    })
+
+            workflow_lookup = {}
+            workflow_name_lookup = {}
+            for row in workflow_rows:
+                workflow_id = row.get("id")
+                tool_name = (row.get("tool") or "Untitled Tool").strip() or "Untitled Tool"
+                tool_slug = slugify_tool_name(tool_name)
+                tab_key = (row.get("tab") or "").strip().lower()
+                phases_map = {}
+                for step in steps_by_workflow.get(workflow_id, []):
+                    phase_number = step.get("phase_number") or 0
+                    if phase_number not in phases_map:
+                        phases_map[phase_number] = {
+                            "phase_name": step.get("phase_name") or f"Phase {phase_number}",
+                            "steps": [],
+                        }
+                    phases_map[phase_number]["steps"].append({
+                        "title": step.get("title") or "",
+                        "tools_used": step.get("tools_used") or "",
+                        "badge_color": step.get("badge_color") or "",
+                        "step_num_color": step.get("step_num_color") or "",
+                        "time_estimate": step.get("time_estimate") or "",
+                        "description": step.get("description") or "",
+                        "prompt": step.get("prompt") or "",
+                        "expected_output": step.get("expected_output") or "",
+                        "pro_tip": step.get("pro_tip") or "",
+                    })
+
+                phases = [phases_map[k] for k in sorted(phases_map.keys())]
+                result_summary = results_by_workflow.get(workflow_id) or (row.get("result_summary") or [])
+                tool_chips = row.get("tool_chips") or []
+                step_count = sum(len(phase.get("steps") or []) for phase in phases)
+                workflow_lookup[(tool_slug, tab_key)] = {
+                    "id": workflow_id,
+                    "tool": tool_name,
+                    "tab": tab_key,
+                    "difficulty": row.get("difficulty") or "Beginner",
+                    "eyebrow_text": row.get("eyebrow_text") or "",
+                    "eyebrow_color": row.get("eyebrow_color") or "",
+                    "panel_title": row.get("panel_title") or "",
+                    "description": row.get("description") or "",
+                    "tool_chips": tool_chips,
+                    "result_summary": result_summary,
+                    "phases": phases,
+                    "phase_count": len(phases),
+                    "step_count": step_count,
+                    "tools_count": len(tool_chips),
+                    "estimated_time": (result_summary[0].get("value") if result_summary else ""),
+                }
+                workflow_name_lookup[tool_slug] = tool_name
+
+            for tool in ai_tools_dropdown:
+                tool_tabs = {tab["key"]: workflow_lookup.get((tool["slug"], tab["key"])) for tab in premium_tabs}
+                premium_tools.append({
+                    **tool,
+                    "tabs": tool_tabs,
+                })
+
+            existing_slugs = {tool["slug"] for tool in premium_tools}
+            extra_slugs = {slug for (slug, _tab) in workflow_lookup.keys() if slug not in existing_slugs}
+            for slug in sorted(extra_slugs):
+                premium_tools.append({
+                    "id": None,
+                    "name": workflow_name_lookup.get(slug, slug.replace("-", " ").title()),
+                    "slug": slug,
+                    "icon": infer_tool_icon(workflow_name_lookup.get(slug, slug)),
+                    "image_url": "",
+                    "best_for": "",
+                    "overall": 0,
+                    "tabs": {tab["key"]: workflow_lookup.get((slug, tab["key"])) for tab in premium_tabs},
+                })
+
+            baseline_tools = ["Claude", "ChatGPT", "Gemini", "GitHub Copilot", "Perplexity"]
+            existing_slugs = {tool["slug"] for tool in premium_tools}
+            for name in baseline_tools:
+                slug = slugify_tool_name(name)
+                if slug in existing_slugs:
+                    continue
+                premium_tools.append({
+                    "id": None,
+                    "name": name,
+                    "slug": slug,
+                    "icon": infer_tool_icon(name),
+                    "image_url": "",
+                    "best_for": "",
+                    "overall": 0,
+                    "tabs": {tab["key"]: workflow_lookup.get((slug, tab["key"])) for tab in premium_tabs},
+                })
+                compare_tools_data.setdefault(slug, {
+                    "name": name,
+                    "slug": slug,
+                    "icon": infer_tool_icon(name),
+                    "image_url": "",
+                    "tagline": "Data not updated yet",
+                    "overall": 0,
+                    "scores": {
+                        "Output Quality": 0,
+                        "Ease of Use": 0,
+                        "Accuracy": 0,
+                        "Speed": 0,
+                        "Value for Money": 0,
+                        "Creativity": 0,
+                        "Integration": 0,
+                        "Consistency": 0,
+                        "Support & Updates": 0,
+                        "Time Saved": 0,
+                    },
+                    "benchmarks": {
+                        "MMLU": None,
+                        "HumanEval": None,
+                        "GSM8K": None,
+                        "HellaSwag": None,
+                        "TruthfulQA": None,
+                    },
+                    "details": {
+                        "Company": "Data not updated yet",
+                        "Founded": "Data not updated yet",
+                        "Headquarters": "Data not updated yet",
+                        "Website": "Data not updated yet",
+                        "Best For": "Data not updated yet",
+                    },
+                    "pros": ["Data not updated yet"],
+                    "cons": ["Data not updated yet"],
+                    "pricing": [{"name": "Plan", "price": "Data not updated yet", "desc": "Data not updated yet"}],
+                    "usecases": [{"icon": "📌", "title": "Use Case", "desc": "Data not updated yet"}],
+                })
+        except Exception as e:
+            print(f"Error loading premium workflow content: {e}")
+
+        initial_premium_tool = premium_tools[0] if premium_tools else {
+            "slug": "claude",
+            "name": "Claude",
+            "icon": "🤖",
+        }
+        compare_tools = [compare_tools_data[tool["slug"]] for tool in premium_tools if tool.get("slug") in compare_tools_data]
+        if not compare_tools:
+            compare_tools = [{
+                "name": "Claude",
+                "slug": "claude",
+                "icon": "🤖",
+                "image_url": "",
+                "tagline": "Data not updated yet",
+                "overall": 0,
+                "scores": {
+                    "Output Quality": 0,
+                    "Ease of Use": 0,
+                    "Accuracy": 0,
+                    "Speed": 0,
+                    "Value for Money": 0,
+                    "Creativity": 0,
+                    "Integration": 0,
+                    "Consistency": 0,
+                    "Support & Updates": 0,
+                    "Time Saved": 0,
+                },
+                "benchmarks": {"MMLU": None, "HumanEval": None, "GSM8K": None, "HellaSwag": None, "TruthfulQA": None},
+                "details": {"Company": "Data not updated yet", "Founded": "Data not updated yet", "Headquarters": "Data not updated yet", "Website": "Data not updated yet", "Best For": "Data not updated yet"},
+                "pros": ["Data not updated yet"],
+                "cons": ["Data not updated yet"],
+                "pricing": [{"name": "Plan", "price": "Data not updated yet", "desc": "Data not updated yet"}],
+                "usecases": [{"icon": "📌", "title": "Use Case", "desc": "Data not updated yet"}],
+            }]
+        compare_default_slugs = [tool.get("slug") for tool in compare_tools[:3] if tool.get("slug")]
+        if not compare_default_slugs and compare_tools:
+            compare_default_slugs = [compare_tools[0].get("slug")]
+        compare_tools_json = {tool.get("slug"): tool for tool in compare_tools if tool.get("slug")}
 
         return templates.TemplateResponse(
             "premium_content.html",
             {
                 "request": request,
                 "ai_tools": ai_tools_dropdown,
+                "premium_tools": premium_tools,
+                "premium_tabs": premium_tabs,
+                "initial_premium_tool_slug": initial_premium_tool.get("slug", "claude"),
+                "initial_premium_tool_name": initial_premium_tool.get("name", "Claude"),
+                "initial_premium_tool_icon": initial_premium_tool.get("icon", "🤖"),
+                "compare_tools": compare_tools,
+                "compare_default_slugs": compare_default_slugs,
+                "compare_tools_json": json.dumps(compare_tools_json),
                 **ctx,
             },
         )
@@ -484,6 +765,30 @@ async def premium_page(request: Request):
     except Exception as e:
         print(f"Error loading premium plan pricing: {e}")
 
+    preview_tools = []
+    try:
+        tools_res = (
+            supabase.table("ai_tools")
+            .select("name")
+            .eq("is_active", True)
+            .order("display_order", desc=False)
+            .execute()
+        )
+        for row in (tools_res.data or []):
+            name = (row.get("name") or "").strip()
+            if not name:
+                continue
+            preview_tools.append({
+                "name": name,
+                "icon": infer_tool_icon(name),
+            })
+    except Exception as e:
+        print(f"Error loading preview tools for premium page: {e}")
+
+    if not preview_tools:
+        for name in ["Claude", "ChatGPT", "Gemini", "GitHub Copilot", "Perplexity"]:
+            preview_tools.append({"name": name, "icon": infer_tool_icon(name)})
+
     return templates.TemplateResponse(
         "premium.html",
         {
@@ -494,6 +799,7 @@ async def premium_page(request: Request):
             "premium_price": premium_price,
             "premium_original_price": premium_original_price,
             "premium_discount_percent": premium_discount_percent,
+            "preview_tools": preview_tools,
             **ctx,
         },
     )
@@ -1682,8 +1988,9 @@ async def set_auth_token(request: Request):
     await ensure_user_profile_exists(access_token)
 
     response = JSONResponse({"success": True})
-    response.set_cookie("sb-access-token", access_token, httponly=True, max_age=3600)
-    response.set_cookie("sb-refresh-token", refresh_token, httponly=True, max_age=604800)
+    one_month_seconds = 60 * 60 * 24 * 30
+    response.set_cookie("sb-access-token", access_token, httponly=True, max_age=one_month_seconds)
+    response.set_cookie("sb-refresh-token", refresh_token, httponly=True, max_age=one_month_seconds)
     return response
 
 
