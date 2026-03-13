@@ -679,6 +679,10 @@ body {
         margin-top: 10px;
         text-align: center;
     }
+
+    .nav-center .pbw {
+        align-self: center;
+    }
 }
 
 

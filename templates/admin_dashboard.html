@@ -1022,7 +1022,12 @@
 
         /* ── RESPONSIVE ── */
         @media (max-width: 900px) {
-            .sidebar { transform: translateX(-100%); }
+            .sidebar {
+                position: relative;
+                width: 100%;
+                min-height: auto;
+                transform: translateX(0);
+            }
             .main-wrap { margin-left: 0; }
             .form-grid-2, .score-grid { grid-template-columns: 1fr; }
         }
