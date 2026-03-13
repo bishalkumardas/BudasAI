@@ -36,6 +36,103 @@ templates.env.globals["base_url"] = BASE_URL
 templates.env.globals["supabase_public_url"] = SUPABASE_PUBLIC_URL
 templates.env.globals["supabase_anon_key"] = SUPABASE_ANON_KEY
 
+ONE_MONTH_SECONDS = 60 * 60 * 24 * 30
+COOKIE_SECURE = BASE_URL.startswith("https://")
+
+
+def _set_auth_cookies(response: Response, access_token: str, refresh_token: str | None) -> None:
+    response.set_cookie(
+        "sb-access-token",
+        access_token,
+        httponly=True,
+        max_age=ONE_MONTH_SECONDS,
+        path="/",
+        samesite="lax",
+        secure=COOKIE_SECURE,
+    )
+    if refresh_token:
+        response.set_cookie(
+            "sb-refresh-token",
+            refresh_token,
+            httponly=True,
+            max_age=ONE_MONTH_SECONDS,
+            path="/",
+            samesite="lax",
+            secure=COOKIE_SECURE,
+        )
+
+
+def _extract_session_tokens(refresh_result) -> tuple[str | None, str | None, object | None]:
+    session_obj = getattr(refresh_result, "session", None)
+    user_obj = getattr(refresh_result, "user", None)
+
+    if isinstance(refresh_result, dict):
+        session_obj = session_obj or refresh_result.get("session") or refresh_result
+        user_obj = user_obj or refresh_result.get("user")
+
+    access_token = None
+    refresh_token = None
+
+    if isinstance(session_obj, dict):
+        access_token = session_obj.get("access_token")
+        refresh_token = session_obj.get("refresh_token")
+        user_obj = user_obj or session_obj.get("user")
+    elif session_obj is not None:
+        access_token = getattr(session_obj, "access_token", None)
+        refresh_token = getattr(session_obj, "refresh_token", None)
+        user_obj = user_obj or getattr(session_obj, "user", None)
+
+    return access_token, refresh_token, user_obj
+
+
+def resolve_auth_from_cookies(request: Request) -> dict:
+    access_token = request.cookies.get("sb-access-token")
+    refresh_token = request.cookies.get("sb-refresh-token")
+    user = None
+    refreshed = False
+
+    if access_token:
+        try:
+            auth_user = supabase.auth.get_user(access_token)
+            user = auth_user.user if auth_user and auth_user.user else None
+        except Exception:
+            user = None
+
+    if user:
+        return {
+            "user": user,
+            "access_token": access_token,
+            "refresh_token": refresh_token,
+            "refreshed": False,
+        }
+
+    if refresh_token:
+        try:
+            refresh_result = supabase.auth.refresh_session(refresh_token)
+            new_access_token, new_refresh_token, refresh_user = _extract_session_tokens(refresh_result)
+
+            if new_access_token:
+                access_token = new_access_token
+                refresh_token = new_refresh_token or refresh_token
+                refreshed = True
+
+                try:
+                    auth_user = supabase.auth.get_user(access_token)
+                    user = auth_user.user if auth_user and auth_user.user else None
+                except Exception:
+                    user = None
+
+                user = user or refresh_user
+        except Exception:
+            pass
+
+    return {
+        "user": user,
+        "access_token": access_token,
+        "refresh_token": refresh_token,
+        "refreshed": refreshed,
+    }
+
 
 def slugify_tool_name(name: str) -> str:
     text = (name or "").strip().lower()
@@ -432,7 +529,8 @@ async def premium_page(request: Request):
     premium_discount_percent = 0
     premium_plan_name = "Premium Workflow Vault"
 
-    entitlement = await get_entitlement_state(request.cookies.get("sb-access-token"))
+    auth_state = resolve_auth_from_cookies(request)
+    entitlement = await get_entitlement_state(auth_state.get("access_token"))
     has_premium = entitlement.get("has_premium", False)
 
     # ── If premium user, fetch AI tools for dropdown and show content page ──
@@ -671,7 +769,7 @@ async def premium_page(request: Request):
             compare_default_slugs = [compare_tools[0].get("slug")]
         compare_tools_json = {tool.get("slug"): tool for tool in compare_tools if tool.get("slug")}
 
-        return templates.TemplateResponse(
+        response = templates.TemplateResponse(
             "premium_content.html",
             {
                 "request": request,
@@ -687,6 +785,9 @@ async def premium_page(request: Request):
                 **ctx,
             },
         )
+        if auth_state.get("refreshed") and auth_state.get("access_token"):
+            _set_auth_cookies(response, auth_state.get("access_token"), auth_state.get("refresh_token"))
+        return response
 
     # ── Non-premium: show pricing/sales page ──
     try:
@@ -731,7 +832,7 @@ async def premium_page(request: Request):
     except Exception as e:
         print(f"Error loading preview tools for premium page: {e}")
 
-    return templates.TemplateResponse(
+    response = templates.TemplateResponse(
         "premium.html",
         {
             "request": request,
@@ -745,22 +846,22 @@ async def premium_page(request: Request):
             **ctx,
         },
     )
+    if auth_state.get("refreshed") and auth_state.get("access_token"):
+        _set_auth_cookies(response, auth_state.get("access_token"), auth_state.get("refresh_token"))
+    return response
 
 
 @router.get("/profile", response_class=HTMLResponse)
 async def profile_page(request: Request):
     ctx = await get_price_context(request)
 
-    token = request.cookies.get("sb-access-token")
+    auth_state = resolve_auth_from_cookies(request)
+    token = auth_state.get("access_token")
     if not token:
         return RedirectResponse(url="/?login=required", status_code=303)
 
-    try:
-        auth_user = supabase.auth.get_user(token)
-        user = auth_user.user if auth_user and auth_user.user else None
-        if not user:
-            return RedirectResponse(url="/?login=required", status_code=303)
-    except Exception:
+    user = auth_state.get("user")
+    if not user:
         return RedirectResponse(url="/?login=required", status_code=303)
 
     premium_plan_id = "bdb81597-0b54-4f0e-acea-b88fecf1cb14"
@@ -1107,7 +1208,7 @@ async def profile_page(request: Request):
         "billing_history": billing_history,
     }
 
-    return templates.TemplateResponse(
+    response = templates.TemplateResponse(
         "profile.html",
         {
             "request": request,
@@ -1116,19 +1217,19 @@ async def profile_page(request: Request):
             **ctx,
         },
     )
+    if auth_state.get("refreshed") and auth_state.get("access_token"):
+        _set_auth_cookies(response, auth_state.get("access_token"), auth_state.get("refresh_token"))
+    return response
 
 
 @router.post("/profile/update")
 async def profile_update(request: Request):
-    token = request.cookies.get("sb-access-token")
+    auth_state = resolve_auth_from_cookies(request)
+    token = auth_state.get("access_token")
     if not token:
         return JSONResponse({"success": False, "message": "Login required"}, status_code=401)
 
-    try:
-        auth_user = supabase.auth.get_user(token)
-        user = auth_user.user if auth_user and auth_user.user else None
-    except Exception:
-        user = None
+    user = auth_state.get("user")
 
     if not user or not user.email:
         return JSONResponse({"success": False, "message": "Login required"}, status_code=401)
@@ -1171,7 +1272,7 @@ async def profile_update(request: Request):
         except Exception as e:
             return JSONResponse({"success": False, "message": f"Unable to update profile: {e}"}, status_code=500)
 
-    return JSONResponse(
+    response = JSONResponse(
         {
             "success": True,
             "message": "Profile updated",
@@ -1184,19 +1285,19 @@ async def profile_update(request: Request):
             },
         }
     )
+    if auth_state.get("refreshed") and auth_state.get("access_token"):
+        _set_auth_cookies(response, auth_state.get("access_token"), auth_state.get("refresh_token"))
+    return response
 
 
 @router.post("/profile/delete-account")
 async def profile_delete_account(request: Request):
-    token = request.cookies.get("sb-access-token")
+    auth_state = resolve_auth_from_cookies(request)
+    token = auth_state.get("access_token")
     if not token:
         return JSONResponse({"success": False, "message": "Login required"}, status_code=401)
 
-    try:
-        auth_user = supabase.auth.get_user(token)
-        user = auth_user.user if auth_user and auth_user.user else None
-    except Exception:
-        user = None
+    user = auth_state.get("user")
 
     if not user or not user.email:
         return JSONResponse({"success": False, "message": "Login required"}, status_code=401)
@@ -1232,22 +1333,20 @@ async def profile_delete_account(request: Request):
         pass
 
     response = JSONResponse({"success": True, "message": "Account data deleted"})
-    response.delete_cookie("sb-access-token")
-    response.delete_cookie("sb-refresh-token")
+    response.delete_cookie("sb-access-token", path="/")
+    response.delete_cookie("sb-refresh-token", path="/")
     return response
 
 
 @router.get("/plan-action/{plan_id}")
 async def plan_action(request: Request, plan_id: str):
-    token = request.cookies.get("sb-access-token")
+    auth_state = resolve_auth_from_cookies(request)
+    token = auth_state.get("access_token")
     if not token:
         return RedirectResponse(url="/products?login=required", status_code=303)
 
-    try:
-        auth_user = supabase.auth.get_user(token)
-        user_id = auth_user.user.id if auth_user and auth_user.user else None
-        user_email = auth_user.user.email if auth_user and auth_user.user else None
-    except Exception:
+    user = auth_state.get("user")
+    if not user:
         return RedirectResponse(url="/products?login=required", status_code=303)
 
     try:
@@ -1266,8 +1365,14 @@ async def plan_action(request: Request, plan_id: str):
 
         target_url = (plan.get("button_url") or "/products").strip()
         if target_url == "/download-guide":
-            return RedirectResponse(url="/download-guide", status_code=303)
-        return RedirectResponse(url=target_url, status_code=303)
+            response = RedirectResponse(url="/download-guide", status_code=303)
+            if auth_state.get("refreshed") and auth_state.get("access_token"):
+                _set_auth_cookies(response, auth_state.get("access_token"), auth_state.get("refresh_token"))
+            return response
+        response = RedirectResponse(url=target_url, status_code=303)
+        if auth_state.get("refreshed") and auth_state.get("access_token"):
+            _set_auth_cookies(response, auth_state.get("access_token"), auth_state.get("refresh_token"))
+        return response
     except Exception as e:
         print(f"Error in /plan-action/{plan_id}: {e}")
         return RedirectResponse(url="/products", status_code=303)
@@ -1316,8 +1421,8 @@ async def about(request:Request):
 
 @router.get("/download-guide")
 async def download_guide(request: Request):
-    token = request.cookies.get("sb-access-token")
-    if not token:
+    auth_state = resolve_auth_from_cookies(request)
+    if not auth_state.get("user"):
         return RedirectResponse(url="/products?login=required", status_code=303)
 
     try:
@@ -1331,7 +1436,10 @@ async def download_guide(request: Request):
             pass  # use fallback filename
 
         res = supabase.storage.from_("PDFs").create_signed_url(pdf_filename, 60)
-        return RedirectResponse(url=res["signedURL"], status_code=303)
+        response = RedirectResponse(url=res["signedURL"], status_code=303)
+        if auth_state.get("refreshed") and auth_state.get("access_token"):
+            _set_auth_cookies(response, auth_state.get("access_token"), auth_state.get("refresh_token"))
+        return response
     except Exception as e:
         return HTMLResponse(f"Error: {e}")
 
@@ -1906,18 +2014,22 @@ async def auth_callback():
 @router.get("/get-user")
 async def get_user(request: Request):
     try:
-        token = request.cookies.get("sb-access-token")
+        auth_state = resolve_auth_from_cookies(request)
+        token = auth_state.get("access_token")
         if not token:
-            return {"user": None, "has_premium": False}
+            return JSONResponse({"user": None, "has_premium": False})
         entitlement = await get_entitlement_state(token)
         user = entitlement.get("user")
         if not user:
-            return {"user": None, "has_premium": False}
+            return JSONResponse({"user": None, "has_premium": False})
 
-        return {"user": user, "has_premium": bool(entitlement.get("has_premium"))}
+        response = JSONResponse({"user": user, "has_premium": bool(entitlement.get("has_premium"))})
+        if auth_state.get("refreshed") and auth_state.get("access_token"):
+            _set_auth_cookies(response, auth_state.get("access_token"), auth_state.get("refresh_token"))
+        return response
     except Exception as e:
         print(f"Error in get-user route: {e}")
-        return {"user": None, "has_premium": False}
+        return JSONResponse({"user": None, "has_premium": False})
 
 
 @router.post("/set-auth-token")
@@ -1930,17 +2042,15 @@ async def set_auth_token(request: Request):
     await ensure_user_profile_exists(access_token)
 
     response = JSONResponse({"success": True})
-    one_month_seconds = 60 * 60 * 24 * 30
-    response.set_cookie("sb-access-token", access_token, httponly=True, max_age=one_month_seconds)
-    response.set_cookie("sb-refresh-token", refresh_token, httponly=True, max_age=one_month_seconds)
+    _set_auth_cookies(response, access_token, refresh_token)
     return response
 
 
 @router.get("/logout")
 async def logout():
     response = RedirectResponse(url="/")
-    response.delete_cookie("sb-access-token")
-    response.delete_cookie("sb-refresh-token")
+    response.delete_cookie("sb-access-token", path="/")
+    response.delete_cookie("sb-refresh-token", path="/")
     return response
 
 
