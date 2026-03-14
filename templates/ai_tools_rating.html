@@ -4,39 +4,6 @@
 
 {% block content %}
 <style>
-  .ai-tools-btn-wrap {
-    position: relative;
-    display: inline-block;
-  }
-
-  .ai-tools-premium-badge {
-    position: absolute;
-    top: -10px;
-    right: -10px;
-    background: linear-gradient(135deg, #f59e0b, #f97316);
-    color: #fff;
-    font-size: 9px;
-    font-weight: 800;
-    letter-spacing: 0.8px;
-    text-transform: uppercase;
-    padding: 3px 7px 3px 5px;
-    border-radius: 20px;
-    display: flex;
-    align-items: center;
-    gap: 3px;
-    white-space: nowrap;
-    box-shadow: 0 2px 8px rgba(249, 115, 22, 0.4);
-    pointer-events: none;
-    z-index: 2;
-  }
-
-  .ai-tools-premium-badge svg {
-    width: 9px;
-    height: 9px;
-    fill: #fff;
-    flex-shrink: 0;
-  }
-
   /* Clickable table rows */
   #comparisonTable tbody tr {
     cursor: pointer;
@@ -97,13 +64,6 @@
               <option value="asc" selected>Low to High</option>
               <option value="desc">High to Low</option>
             </select>
-          </div>
-          <div class="ai-tools-btn-wrap">
-            <button class="ai-tools-btn" type="button" onclick="exportCSV()" disabled aria-disabled="true" title="Available for paid users">Export CSV</button>
-            <span class="ai-tools-premium-badge">
-              <svg viewBox="0 0 24 24"><path d="M2 8l4 8h12l4-8-5 3-5-7-5 7-5-3z"/></svg>
-              Premium
-            </span>
           </div>
         </div>
       </div>
@@ -318,42 +278,6 @@
           }).join('')}
         </tbody>
       `;
-    }
-
-    function exportCSV() {
-      const sorted = [...AI_TOOLS]
-        .map(t => ({ ...t, overall: toolOverall(t) }))
-        .sort((a, b) => b.overall - a.overall);
-
-      const headers = [
-        'Rank', 'AI Tool', 'Quality', 'Ease', 'Accuracy', 'Speed', 'Value', 'Creativity',
-        'Integration', 'Consistency', 'Support', 'Time Saved', 'Overall', 'Best For'
-      ];
-      const rows = sorted.map((tool, i) => [
-        i + 1,
-        tool.name || '',
-        Number(tool.quality || 0),
-        Number(tool.ease || 0),
-        Number(tool.accuracy || 0),
-        Number(tool.speed || 0),
-        Number(tool.value || 0),
-        Number(tool.creativity || 0),
-        Number(tool.integration || 0),
-        Number(tool.consistency || 0),
-        Number(tool.support || 0),
-        Number(tool.time_saved || 0),
-        tool.overall,
-        tool.best || ''
-      ]);
-
-      const csv = [headers, ...rows]
-        .map(row => row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(','))
-        .join('\n');
-
-      const link = document.createElement('a');
-      link.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8;' }));
-      link.download = 'budasai-ai-tools-rating.csv';
-      link.click();
     }
 
     document.getElementById('sortBy').addEventListener('change', buildTable);

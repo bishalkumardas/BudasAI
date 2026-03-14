@@ -1,44 +1,100 @@
 {% extends "base.html" %}
 
+{% block title %}BUDASAI — AI Systems & Implementation Platform{% endblock %}
+
 {% block content %}
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- HERO SECTION                                               -->
+<!-- ═══════════════════════════════════════════════════════════ -->
 <div class="hero-section">
     <div class="container text-center">
-        <div class="intro-tab reveal reveal-delay-1">Simplify AI in Life</div>
-        <div class="heading-w reveal reveal-delay-2">Human Intelligence.</div>
-        <div class="heading-b reveal reveal-delay-3">AI Brilliance.</div>
-        <div class="sub-heading reveal reveal-delay-4">Simplifying AI. Automating your workflows. We help businesses
-            unlock real productivity
-            with intelligent, practical AI solutions.</div>
-        <div class="button-fill reveal reveal-delay-5">Get Your Free AI Guide
-            <i class="bi bi-box-arrow-in-down"></i>
-            <!-- <i class="bi bi-file-earmark-arrow-down"></i> -->
+
+        <div class="intro-tab reveal reveal-delay-1">
+            <i class="bi bi-cpu me-2"></i>AI Systems & Implementation Platform
         </div>
-        <div class="button-hollow reveal reveal-delay-6"><a href="/products"
-                style="text-decoration: none; color: white;">Explore
-                Solutions</a>
-            <i class="bi bi-arrow-right"></i>
+
+        <div class="heading-w reveal reveal-delay-2">Build Smarter.</div>
+        <div class="heading-b reveal reveal-delay-3">Automate Faster.</div>
+
+        <div class="sub-heading reveal reveal-delay-4">
+            BUDASAI helps businesses implement AI across marketing, sales, HR, and operations —
+            clear roadmaps, proven workflows, and the right tools. No confusion. No wasted time.
         </div>
-        <div class="container text-center mt-5 pt-5 pb-5 reveal reveal-delay-7">
-            <div class="text-content text-uppercase pb-3">
-                <p>Trusted by forward-thinking companies</p>
+
+        <a href="/products#plans" style="text-decoration:none;">
+            <div class="button-fill reveal reveal-delay-5">
+                Get Your Free AI Guide <i class="bi bi-box-arrow-in-down ms-2"></i>
             </div>
-            <div class="egtext">
-                <p>TechFlow GreenScale DataNest CoreStack Lumina</p>
+        </a>
+        <a href="/products" style="text-decoration:none;">
+            <div class="button-hollow reveal reveal-delay-6">
+                Explore Solutions <i class="bi bi-arrow-right ms-2"></i>
             </div>
-        </div>
+        </a>
+
     </div>
 </div>
 
 
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- WHO WE HELP                                                -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<div class="container mt-5 pt-5">
 
-<!-- AI TOOLS RATING SECTION -->
+    <h2 class="reveal">Who We Help</h2>
+    <p class="text-content reveal reveal-delay-1">Two audiences. One mission — make AI actually work for you.</p>
 
+    <div class="row g-4 justify-content-center mt-2">
+
+        <div class="col-md-6">
+            <div class="cards reveal-left reveal-delay-2">
+                <div class="card-head">
+                    <i class="bi bi-building me-2" style="color:#3C83F6;"></i>Businesses & Startups
+                </div>
+                <div class="card-content">
+                    Automate your operations, scale your marketing, and design AI workflows across every department — without needing a technical team.
+                </div>
+                <div class="card-content">
+                    <strong style="color:#3C83F6;">Best for:</strong> Founders · Agencies · Service businesses · HR teams · Retail
+                </div>
+                <div class="card-link mt-3">
+                    <a href="/products">View Business Plans <i class="bi bi-arrow-right-short"></i></a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="cards reveal-right reveal-delay-2">
+                <div class="card-head">
+                    <i class="bi bi-camera-video me-2" style="color:#10b981;"></i>Creators & Solopreneurs
+                </div>
+                <div class="card-content">
+                    Build AI-powered content workflows for YouTube, Instagram, and beyond. Get prompt libraries, tool stacks, and ready-made creator systems.
+                </div>
+                <div class="card-content">
+                    <strong style="color:#10b981;">Best for:</strong> YouTubers · Instagram creators · Freelancers · Coaches
+                </div>
+                <div class="card-link mt-3">
+                    <a href="/products">View Creator Plans <i class="bi bi-arrow-right-short"></i></a>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- AI TOOLS RATING SECTION                                    -->
+<!-- ═══════════════════════════════════════════════════════════ -->
 <section class="ai-rating-section container mt-5 pt-5 pb-5">
     <div class="container" style="position: relative; z-index: 1;">
+
         <div class="text-center">
-            <h2 class="ai-rating-heading reveal">We Rate AI Tools <span>So You Don't Have To</span></h2>
+            <h2 class="ai-rating-heading reveal">AI Tool <span>Ratings & Comparisons</span></h2>
             <p class="ai-rating-sub reveal reveal-delay-1">
-                We test every major AI tool across 10 real criteria - quality, speed, value, creativity and more.<br>
+                We test every major AI tool across 10 real criteria — quality, speed, value, creativity and more.<br>
                 Honest ratings. No sponsorships. Just facts.
             </p>
         </div>
@@ -59,54 +115,40 @@
                 <div class="top-pick-info">
                     <div class="top-pick-name">{{ top_ai_tool.name }}</div>
                     <div class="top-pick-cat">AI Tool Ranking</div>
-                    <div class="top-pick-best"><i class="bi bi-check-circle-fill" style="color:#10b981"></i> Best
-                        for: {{ top_ai_tool.best_for }}</div>
-
+                    <div class="top-pick-best">
+                        <i class="bi bi-check-circle-fill" style="color:#10b981"></i>
+                        Best for: {{ top_ai_tool.best_for }}
+                    </div>
                     <div class="top-pick-bars">
                         <div class="mini-bar-row">
                             <div class="mini-bar-label">Quality</div>
-                            <div class="mini-bar-track">
-                                <div class="mini-bar-fill" data-width="{{ top_ai_tool.quality * 10 }}"></div>
-                            </div>
+                            <div class="mini-bar-track"><div class="mini-bar-fill" data-width="{{ top_ai_tool.quality * 10 }}"></div></div>
                             <div class="mini-bar-val">{{ top_ai_tool.quality }}</div>
                         </div>
                         <div class="mini-bar-row">
                             <div class="mini-bar-label">Creativity</div>
-                            <div class="mini-bar-track">
-                                <div class="mini-bar-fill" data-width="{{ top_ai_tool.creativity * 10 }}"></div>
-                            </div>
+                            <div class="mini-bar-track"><div class="mini-bar-fill" data-width="{{ top_ai_tool.creativity * 10 }}"></div></div>
                             <div class="mini-bar-val">{{ top_ai_tool.creativity }}</div>
                         </div>
                         <div class="mini-bar-row">
                             <div class="mini-bar-label">Accuracy</div>
-                            <div class="mini-bar-track">
-                                <div class="mini-bar-fill" data-width="{{ top_ai_tool.accuracy * 10 }}"></div>
-                            </div>
+                            <div class="mini-bar-track"><div class="mini-bar-fill" data-width="{{ top_ai_tool.accuracy * 10 }}"></div></div>
                             <div class="mini-bar-val">{{ top_ai_tool.accuracy }}</div>
                         </div>
                         <div class="mini-bar-row">
                             <div class="mini-bar-label">Consistency</div>
-                            <div class="mini-bar-track">
-                                <div class="mini-bar-fill" data-width="{{ top_ai_tool.consistency * 10 }}"></div>
-                            </div>
+                            <div class="mini-bar-track"><div class="mini-bar-fill" data-width="{{ top_ai_tool.consistency * 10 }}"></div></div>
                             <div class="mini-bar-val">{{ top_ai_tool.consistency }}</div>
                         </div>
                     </div>
                 </div>
-
                 <div class="top-pick-score-block">
                     <div class="top-pick-score">{{ top_ai_tool.overall }}</div>
-                    {% if top_ai_tool.overall >= 9 %}
-                    <div class="top-pick-stars">★★★★★</div>
-                    {% elif top_ai_tool.overall >= 8 %}
-                    <div class="top-pick-stars">★★★★☆</div>
-                    {% elif top_ai_tool.overall >= 7 %}
-                    <div class="top-pick-stars">★★★☆☆</div>
-                    {% elif top_ai_tool.overall >= 6 %}
-                    <div class="top-pick-stars">★★☆☆☆</div>
-                    {% else %}
-                    <div class="top-pick-stars">★☆☆☆☆</div>
-                    {% endif %}
+                    {% if top_ai_tool.overall >= 9 %}<div class="top-pick-stars">★★★★★</div>
+                    {% elif top_ai_tool.overall >= 8 %}<div class="top-pick-stars">★★★★☆</div>
+                    {% elif top_ai_tool.overall >= 7 %}<div class="top-pick-stars">★★★☆☆</div>
+                    {% elif top_ai_tool.overall >= 6 %}<div class="top-pick-stars">★★☆☆☆</div>
+                    {% else %}<div class="top-pick-stars">★☆☆☆☆</div>{% endif %}
                     <div class="top-pick-score-label">out of 10</div>
                 </div>
             </div>
@@ -141,14 +183,78 @@
             </div>
             {% endfor %}
         </div>
+
         {% elif not top_ai_tool %}
-        <div class="top-pick-card reveal reveal-delay-2">
-            <div class="top-pick-layout" style="justify-content:center;">
-                <div class="top-pick-info" style="text-align:center;">
-                    <div class="top-pick-name">No AI Tools Available Yet</div>
-                    <div class="top-pick-cat">Add tools in admin to show live rankings here.</div>
+        <div class="tool-grid reveal reveal-delay-3">
+
+            <div class="tool-mini-card">
+                <div class="tool-mini-rank">#1</div>
+                <div class="tool-mini-top">
+                    <div class="tool-mini-icon" style="background:#eff6ff;">
+                        <i class="bi bi-chat-dots" style="color:#3C83F6;font-size:16px;"></i>
+                    </div>
+                    <div>
+                        <div class="tool-mini-name">ChatGPT</div>
+                        <div class="tool-mini-cat">Writing & General AI</div>
+                    </div>
+                </div>
+                <div class="tool-mini-score-row">
+                    <div class="tool-mini-bar-track"><div class="tool-mini-bar-fill" style="width:87%;"></div></div>
+                    <div class="tool-mini-score-num">8.7</div>
                 </div>
             </div>
+
+            <div class="tool-mini-card">
+                <div class="tool-mini-rank">#2</div>
+                <div class="tool-mini-top">
+                    <div class="tool-mini-icon" style="background:#f0fdf4;">
+                        <i class="bi bi-stars" style="color:#10b981;font-size:16px;"></i>
+                    </div>
+                    <div>
+                        <div class="tool-mini-name">Claude</div>
+                        <div class="tool-mini-cat">Writing & Research</div>
+                    </div>
+                </div>
+                <div class="tool-mini-score-row">
+                    <div class="tool-mini-bar-track"><div class="tool-mini-bar-fill" style="width:84%;"></div></div>
+                    <div class="tool-mini-score-num">8.4</div>
+                </div>
+            </div>
+
+            <div class="tool-mini-card">
+                <div class="tool-mini-rank">#3</div>
+                <div class="tool-mini-top">
+                    <div class="tool-mini-icon" style="background:#fefce8;">
+                        <i class="bi bi-search" style="color:#f59e0b;font-size:16px;"></i>
+                    </div>
+                    <div>
+                        <div class="tool-mini-name">Perplexity</div>
+                        <div class="tool-mini-cat">Research & Web AI</div>
+                    </div>
+                </div>
+                <div class="tool-mini-score-row">
+                    <div class="tool-mini-bar-track"><div class="tool-mini-bar-fill" style="width:82%;"></div></div>
+                    <div class="tool-mini-score-num">8.2</div>
+                </div>
+            </div>
+
+            <div class="tool-mini-card">
+                <div class="tool-mini-rank">#4</div>
+                <div class="tool-mini-top">
+                    <div class="tool-mini-icon" style="background:#faf5ff;">
+                        <i class="bi bi-image" style="color:#8b5cf6;font-size:16px;"></i>
+                    </div>
+                    <div>
+                        <div class="tool-mini-name">Midjourney</div>
+                        <div class="tool-mini-cat">AI Image Generation</div>
+                    </div>
+                </div>
+                <div class="tool-mini-score-row">
+                    <div class="tool-mini-bar-track"><div class="tool-mini-bar-fill" style="width:80%;"></div></div>
+                    <div class="tool-mini-score-num">8.0</div>
+                </div>
+            </div>
+
         </div>
         {% endif %}
 
@@ -171,125 +277,75 @@
             bars.forEach(function (bar) {
                 var raw = Number(bar.getAttribute('data-width') || 0);
                 var width = Math.max(0, Math.min(100, raw));
-                bar.style.width = width + '%';
+                if (raw > 0) bar.style.width = width + '%';
             });
         });
     </script>
 </section>
-<!-- END AI TOOLS RATING SECTION -->
 
 
-
-
-
-
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- AI SOLUTIONS FOR REAL BUSINESSES                           -->
+<!-- ═══════════════════════════════════════════════════════════ -->
 <div class="container mt-5 pt-5">
 
     <h2 class="reveal reveal-delay-1">AI Solutions for Real Businesses</h2>
     <p class="text-content reveal reveal-delay-2">See how AI solves real problems across industries.</p>
 
-    <div class="row g-4 justify-content-center">
+    <div class="row g-4 justify-content-center mt-2">
 
-        <!-- CARD 1 -->
         <div class="col-md-6">
             <div class="cards reveal-left reveal-delay-2">
-                <div class="card-head">AI for Real Estate Leads</div>
-
-                <div class="card-content">
-                    <strong class="text-danger">Problem:</strong> Manual follow-ups waste hours every day
+                <div class="card-head">
+                    <i class="bi bi-house-door me-2" style="color:#3C83F6;"></i>AI for Real Estate
                 </div>
-
-                <div class="card-content">
-                    <strong class="text-primary">Solution:</strong> AI lead qualification + automation
-                </div>
-
-                <div class="card-content">
-                    <strong class="text-success">Result:</strong> Faster conversions, less manual work
-                </div>
-
-                <div class="card-link">
-                    <a href="/products">
-                        Get Your Custom AI Plan
-                        <i class="bi bi-arrow-right-short"></i>
-                    </a>
+                <div class="card-content"><strong class="text-danger">Problem:</strong> Manual lead follow-ups waste hours every day</div>
+                <div class="card-content"><strong class="text-primary">Solution:</strong> AI lead qualification + WhatsApp automation</div>
+                <div class="card-content"><strong class="text-success">Result:</strong> Faster conversions, zero manual follow-up</div>
+                <div class="card-link mt-3">
+                    <a href="/products">Get Your Custom AI Plan <i class="bi bi-arrow-right-short"></i></a>
                 </div>
             </div>
         </div>
 
-        <!-- CARD 2 -->
         <div class="col-md-6">
             <div class="cards reveal-right reveal-delay-2">
-                <div class="card-head">AI for Social Media Agencies</div>
-
-                <div class="card-content">
-                    <strong class="text-danger">Problem:</strong> Manual reporting eats into creative time
+                <div class="card-head">
+                    <i class="bi bi-megaphone me-2" style="color:#8b5cf6;"></i>AI for Social Media Agencies
                 </div>
-
-                <div class="card-content">
-                    <strong class="text-primary">Solution:</strong> AI content + reporting automation
-                </div>
-
-                <div class="card-content">
-                    <strong class="text-success">Result:</strong> Save 10–20 hours weekly
-                </div>
-
-                <div class="card-link">
-                    <a href="/products">
-                        Get Your Custom AI Plan
-                        <i class="bi bi-arrow-right-short"></i>
-                    </a>
+                <div class="card-content"><strong class="text-danger">Problem:</strong> Manual reporting eats into creative time</div>
+                <div class="card-content"><strong class="text-primary">Solution:</strong> AI content scheduling + auto-reporting</div>
+                <div class="card-content"><strong class="text-success">Result:</strong> Save 10–20 hours every week</div>
+                <div class="card-link mt-3">
+                    <a href="/products">Get Your Custom AI Plan <i class="bi bi-arrow-right-short"></i></a>
                 </div>
             </div>
         </div>
 
-        <!-- CARD 3 -->
         <div class="col-md-6">
-            <div class="cards reveal-left reveal-delay-2">
-                <div class="card-head">AI for HR Resume Screening</div>
-
-                <div class="card-content">
-                    <strong class="text-danger">Problem:</strong> Manual resume sorting slows hiring
+            <div class="cards reveal-left reveal-delay-3">
+                <div class="card-head">
+                    <i class="bi bi-people me-2" style="color:#10b981;"></i>AI for HR Teams
                 </div>
-
-                <div class="card-content">
-                    <strong class="text-primary">Solution:</strong> AI screening automation
-                </div>
-
-                <div class="card-content">
-                    <strong class="text-success">Result:</strong> 70% faster hiring pipeline
-                </div>
-
-                <div class="card-link">
-                    <a href="/products">
-                        Get Your Custom AI Plan
-                        <i class="bi bi-arrow-right-short"></i>
-                    </a>
+                <div class="card-content"><strong class="text-danger">Problem:</strong> Manual resume sorting slows down hiring</div>
+                <div class="card-content"><strong class="text-primary">Solution:</strong> AI resume screening + candidate scoring</div>
+                <div class="card-content"><strong class="text-success">Result:</strong> 70% faster hiring pipeline</div>
+                <div class="card-link mt-3">
+                    <a href="/products">Get Your Custom AI Plan <i class="bi bi-arrow-right-short"></i></a>
                 </div>
             </div>
         </div>
 
-        <!-- CARD 4 -->
         <div class="col-md-6">
-            <div class="cards reveal-right reveal-delay-2">
-                <div class="card-head">AI for Small Retail Shops</div>
-
-                <div class="card-content">
-                    <strong class="text-danger">Problem:</strong> Inventory + follow-ups are manual
+            <div class="cards reveal-right reveal-delay-3">
+                <div class="card-head">
+                    <i class="bi bi-shop me-2" style="color:#f59e0b;"></i>AI for Retail & E-commerce
                 </div>
-
-                <div class="card-content">
-                    <strong class="text-primary">Solution:</strong> AI forecasting + WhatsApp automation
-                </div>
-
-                <div class="card-content">
-                    <strong class="text-success">Result:</strong> Increased repeat sales
-                </div>
-
-                <div class="card-link">
-                    <a href="/products">
-                        Get Your Custom AI Plan
-                        <i class="bi bi-arrow-right-short"></i>
-                    </a>
+                <div class="card-content"><strong class="text-danger">Problem:</strong> Inventory forecasting and follow-ups are fully manual</div>
+                <div class="card-content"><strong class="text-primary">Solution:</strong> AI demand forecasting + re-engagement automation</div>
+                <div class="card-content"><strong class="text-success">Result:</strong> Increased repeat sales, less dead stock</div>
+                <div class="card-link mt-3">
+                    <a href="/products">Get Your Custom AI Plan <i class="bi bi-arrow-right-short"></i></a>
                 </div>
             </div>
         </div>
@@ -298,14 +354,15 @@
 </div>
 
 
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- STATS                                                      -->
+<!-- ═══════════════════════════════════════════════════════════ -->
 <div class="container mt-5">
     <div class="row g-4 text-center reveal-zoom reveal-delay-2">
 
         <div class="col-md-4">
             <div class="stat-card">
-                <div style="color: #3C83F6; font-size: 25px;">
-                    <i class="bi bi-clock"></i>
-                </div>
+                <div style="color:#3C83F6;font-size:25px;"><i class="bi bi-clock"></i></div>
                 <h3>20+</h3>
                 <p>Hours Saved Weekly</p>
             </div>
@@ -313,9 +370,7 @@
 
         <div class="col-md-4">
             <div class="stat-card">
-                <div style="color: #12BA82; font-size: 25px;">
-                    <i class="bi bi-graph-down-arrow"></i>
-                </div>
+                <div style="color:#12BA82;font-size:25px;"><i class="bi bi-graph-down-arrow"></i></div>
                 <h3>40%</h3>
                 <p>Error Reduction</p>
             </div>
@@ -323,9 +378,7 @@
 
         <div class="col-md-4">
             <div class="stat-card">
-                <div style="color: #F59E0B; font-size: 25px;">
-                    <i class="bi bi-lightning-charge"></i>
-                </div>
+                <div style="color:#F59E0B;font-size:25px;"><i class="bi bi-lightning-charge"></i></div>
                 <h3>3x</h3>
                 <p>Faster Workflows</p>
             </div>
@@ -334,119 +387,209 @@
     </div>
 </div>
 
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- HOW IT WORKS                                               -->
+<!-- ═══════════════════════════════════════════════════════════ -->
 <div class="container mt-5 pt-5">
-    <h2 class="reveal">What Our Clients Say</h2>
-    <div class="container mt-5">
-        <div class="row g-4">
 
-            <div class="col-md-4">
-                <div class="review-card reveal-left reveal-delay-2">
-                    <div class="review-text">
-                        "BUDASAI transformed our hiring pipeline. What took days now takes hours."
-                    </div>
-                    <h3>Sarah Chen</h3>
-                    <p>HR Director, Phoenix Infrateh</p>
-                </div>
+    <h2 class="reveal">How It Works</h2>
+    <p class="text-content reveal reveal-delay-1">Three simple steps to get your AI implementation started.</p>
+
+    <div class="row g-4 justify-content-center mt-2">
+
+        <div class="col-md-4">
+            <div class="process-card reveal reveal-delay-2">
+                <div class="step-number">01</div>
+                <div class="icon-circle mb-3"><i class="bi bi-clipboard-data"></i></div>
+                <h5>Share Your Business</h5>
+                <p class="card-content">
+                    Fill out a short form about your business — your industry, team size, current tools, and biggest pain points.
+                </p>
             </div>
-
-            <div class="col-md-4">
-                <div class="review-card reveal-zoom reveal-delay-2">
-                    <div class="review-text">
-                        "The AI audit revealed inefficiencies we didn't even know existed."
-                    </div>
-                    <h3>Mark Rivera</h3>
-                    <p>COO, Flow Experts</p>
-                </div>
-            </div>
-
-            <div class="col-md-4">
-                <div class="review-card reveal-right reveal-delay-2">
-                    <div class="review-text">
-                        "Simple, effective, no fluff. Exactly what our team needed."
-                    </div>
-                    <h3>Priya Sharma</h3>
-                    <p>Founder, Royal Steel</p>
-                </div>
-            </div>
-
         </div>
-    </div>
 
+        <div class="col-md-4">
+            <div class="process-card reveal reveal-delay-3">
+                <div class="step-number">02</div>
+                <div class="icon-circle mb-3"><i class="bi bi-cpu"></i></div>
+                <h5>We Build Your Roadmap</h5>
+                <p class="card-content">
+                    We analyse your workflow and design a department-wise AI strategy with tool recommendations and a 30-day plan.
+                </p>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="process-card reveal reveal-delay-4">
+                <div class="step-number">03</div>
+                <div class="icon-circle mb-3"><i class="bi bi-rocket-takeoff"></i></div>
+                <h5>Implement & Automate</h5>
+                <p class="card-content">
+                    Follow the roadmap, implement the tools, and start saving time within the first week. We support you throughout.
+                </p>
+            </div>
+        </div>
+
+    </div>
 </div>
 
 
-
-
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- WHY JOIN EARLY (replaces fake testimonials)                -->
+<!-- ═══════════════════════════════════════════════════════════ -->
 <div class="container mt-5 pt-5">
 
-    <h2 class="reveal">Success Stories</h2>
-    <p class="text-content reveal reveal-delay-1">See how AI solves real problems across industries.</p>
+    <h2 class="reveal">Why Join Early</h2>
+    <p class="text-content reveal reveal-delay-1">BUDASAI is in early access. Get in before we scale.</p>
+
+    <div class="row g-4 justify-content-center mt-2">
+
+        <div class="col-md-4">
+            <div class="cards reveal-left reveal-delay-2" style="text-align:center;">
+                <div style="font-size:2.2rem;margin-bottom:14px;color:#3C83F6;">
+                    <i class="bi bi-tag-fill"></i>
+                </div>
+                <div class="card-head">Early Access Pricing</div>
+                <div class="card-content">
+                    Lock in launch pricing before we scale. Blueprint starts at ₹4,999. Price increases as we grow.
+                </div>
+                <div class="card-link mt-3">
+                    <a href="/products">View Plans <i class="bi bi-arrow-right-short"></i></a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="cards reveal-zoom reveal-delay-2" style="text-align:center;">
+                <div style="font-size:2.2rem;margin-bottom:14px;color:#10b981;">
+                    <i class="bi bi-person-check-fill"></i>
+                </div>
+                <div class="card-head">Direct Founder Access</div>
+                <div class="card-content">
+                    Work directly with the founder. Get a personalised AI strategy built for your exact business — not a template.
+                </div>
+                <div class="card-link mt-3">
+                    <a href="/about#contact-section">Talk to Us <i class="bi bi-arrow-right-short"></i></a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="cards reveal-right reveal-delay-2" style="text-align:center;">
+                <div style="font-size:2.2rem;margin-bottom:14px;color:#f59e0b;">
+                    <i class="bi bi-envelope-paper-fill"></i>
+                </div>
+                <div class="card-head">Weekly AI Insights</div>
+                <div class="card-content">
+                    Practical AI tips, tool breakdowns, workflow ideas, and automation guides — every week, free.
+                </div>
+                <div class="card-link mt-3">
+                    <a href="/about#contact-section">Join Newsletter <i class="bi bi-arrow-right-short"></i></a>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- EXAMPLE IMPLEMENTATIONS                                    -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<div class="container mt-5 pt-5">
+
+    <h2 class="reveal">Example AI Implementations</h2>
+    <p class="text-content reveal reveal-delay-1">
+        Real-world scenarios showing how businesses use BUDASAI workflows.
+    </p>
 
     <div class="row g-4 justify-content-center">
 
-        <!-- CARD 1 -->
         <div class="col-md-6">
             <div class="cards reveal-left reveal-delay-2">
                 <div class="story-card-cat">Marketing</div>
-                <div class="card-head">Marketing Agency Saved 15 Hours/Week</div>
-
+                <div class="card-head">Agency Saves 15+ Hours Every Week</div>
                 <div class="card-content">
-                    Used AI content automation to eliminate manual reporting and scheduling, freeing up the team for
-                    creative work.
+                    A social media agency eliminates manual reporting and content scheduling using AI automation —
+                    freeing the whole team to focus on creative strategy instead of repetitive tasks.
                 </div>
-
-                <div class="card-link">
-                    <a href="/story">
-                        Read Full Story
-                        <i class="bi bi-chevron-right"></i>
-                    </a>
+                <div class="card-link mt-2">
+                    <a href="/story">See How It Works <i class="bi bi-chevron-right"></i></a>
                 </div>
             </div>
         </div>
 
-        <!-- CARD 2 -->
         <div class="col-md-6">
             <div class="cards reveal-right reveal-delay-2">
                 <div class="story-card-cat">HR</div>
-                <div class="card-head">HR Firm Cut Resume Processing by 60%</div>
-
+                <div class="card-head">HR Team Cuts Resume Processing by 60%</div>
                 <div class="card-content">
-                    AI-powered resume screening reduced time-to-shortlist dramatically, improving candidate quality.
+                    An HR team replaces manual resume sorting with an AI screening system — reducing
+                    time-to-shortlist and improving the quality of candidates that reach interviews.
                 </div>
-
-                <div class="card-link">
-                    <a href="/story">
-                        Read Full Story
-                        <i class="bi bi-chevron-right"></i>
-                    </a>
+                <div class="card-link mt-2">
+                    <a href="/story">See How It Works <i class="bi bi-chevron-right"></i></a>
                 </div>
             </div>
         </div>
+
+        <div class="col-md-6">
+            <div class="cards reveal-left reveal-delay-3">
+                <div class="story-card-cat">Sales</div>
+                <div class="card-head">Sales Team Automates Lead Follow-Up</div>
+                <div class="card-content">
+                    A real estate agency uses AI to qualify inbound leads and trigger personalised follow-ups
+                    automatically — converting more leads without adding headcount.
+                </div>
+                <div class="card-link mt-2">
+                    <a href="/story">See How It Works <i class="bi bi-chevron-right"></i></a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="cards reveal-right reveal-delay-3">
+                <div class="story-card-cat">Operations</div>
+                <div class="card-head">Founder Reclaims 10 Hours a Week</div>
+                <div class="card-content">
+                    A solo founder automates email triage, report generation, and client onboarding using a custom
+                    AI workflow stack — spending less time on admin and more time on growth.
+                </div>
+                <div class="card-link mt-2">
+                    <a href="/story">See How It Works <i class="bi bi-chevron-right"></i></a>
+                </div>
+            </div>
+        </div>
+
     </div>
 </div>
 
 
-<div class="container mt-5">
-    <div class="download-card text-center reveal zoom reveal-delay-2">
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- FREE GUIDE CTA                                             -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<div class="container mt-5 mb-5">
+    <div class="download-card text-center reveal reveal-zoom reveal-delay-2">
 
         <i class="bi bi-download download-icon"></i>
 
         <h2>Free AI Starter Guide</h2>
 
-        <p class="card-content">
-            Download our comprehensive PDF to discover how AI can transform your daily workflows.
+        <p class="card-content" style="max-width:500px;margin:auto;">
+            Download our free PDF and discover exactly where AI can save your business time and money —
+            no technical knowledge required.
         </p>
 
-        <form class="download-form">
-            <!-- <input type="email" name="email" placeholder="Enter your email  " required> -->
-            <button type="submit" class="button-fill-square">
-                <a href="/products#plans" style="text-decoration: none; color: inherit;">Download Free PDF</a>
+        <div class="download-form mt-3">
+            <button type="button" class="button-fill-square">
+                <a href="/products#plans" style="text-decoration:none;color:inherit;">
+                    Download Free PDF <i class="bi bi-file-earmark-arrow-down ms-1"></i>
+                </a>
             </button>
-        </form>
+        </div>
 
     </div>
 </div>
-
-
 
 {% endblock %}

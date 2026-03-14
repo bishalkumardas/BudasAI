@@ -472,7 +472,18 @@ async def products(request: Request):
         currency = ctx.get('currency', 'INR')
         
         # Fetch all pricing plans so inactive ones can be shown as Coming Soon.
-        plans_response = supabase.table("pricing_plans").select("*").order("display_order").execute()
+        plans_response = (
+            supabase
+            .table("pricing_plans")
+            .select(
+                "id,plan_heading,plan_subheading,price_inr,discount_percent,price_note,"
+                "features_heading_1,features_list_1,features_heading_2,features_list_2,"
+                "is_active,is_popular,badge_text,button_text,show_terms,"
+                "card_bg_color,badge_bg_color,badge_text_color,display_order"
+            )
+            .order("display_order")
+            .execute()
+        )
         
         if plans_response.data:
             plans = []
@@ -2023,7 +2034,15 @@ async def get_user(request: Request):
         if not user:
             return JSONResponse({"user": None, "has_premium": False})
 
-        response = JSONResponse({"user": user, "has_premium": bool(entitlement.get("has_premium"))})
+        user_payload = {
+            "id": getattr(user, "id", None),
+            "email": getattr(user, "email", None),
+            "user_metadata": getattr(user, "user_metadata", {}) or {},
+            "app_metadata": getattr(user, "app_metadata", {}) or {},
+            "created_at": str(getattr(user, "created_at", "") or ""),
+        }
+
+        response = JSONResponse({"user": user_payload, "has_premium": bool(entitlement.get("has_premium"))})
         if auth_state.get("refreshed") and auth_state.get("access_token"):
             _set_auth_cookies(response, auth_state.get("access_token"), auth_state.get("refresh_token"))
         return response
@@ -2073,6 +2092,12 @@ async def contact(request: Request):
         if not all([name, email, business_type, message]):
             return JSONResponse(
                 {"success": False, "message": "All fields are required."},
+                status_code=400
+            )
+
+        if ("@" not in email) or email.startswith("@") or email.endswith("@"):
+            return JSONResponse(
+                {"success": False, "message": "Please enter a valid email address."},
                 status_code=400
             )
 
@@ -2209,6 +2234,14 @@ async def contact(request: Request):
             )
 
     except Exception as e:
+        if "row-level security policy" in str(e).lower():
+            return JSONResponse(
+                {
+                    "success": False,
+                    "message": "Contact form is temporarily unavailable. Please try again in a few minutes."
+                },
+                status_code=503
+            )
         print(f"❌ Contact form error: {e}")
         import traceback
         traceback.print_exc()

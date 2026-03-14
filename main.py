@@ -71,6 +71,8 @@ async def lifespan(app: FastAPI):
 
 print("✅ [MAIN] Creating app with lifespan...")
 app = FastAPI(lifespan=lifespan)
+REQUEST_LOG_ENABLED = os.getenv("ENABLE_REQUEST_LOGS", "false").strip().lower() == "true"
+EXPOSE_ERROR_DETAILS = os.getenv("EXPOSE_ERROR_DETAILS", "false").strip().lower() == "true"
 
 
 def _parse_csv_env(name: str, default: str) -> list[str]:
@@ -80,6 +82,9 @@ def _parse_csv_env(name: str, default: str) -> list[str]:
 
 @app.middleware("http")
 async def debug_middleware(request: Request, call_next):
+    if not REQUEST_LOG_ENABLED:
+        return await call_next(request)
+
     request_id = id(request)
     start_time = time.time()
 
@@ -121,13 +126,22 @@ async def global_exception_handler(request: Request, exc: Exception):
     traceback.print_exc()
     print(f"{'='*70}\n")
     
+    if EXPOSE_ERROR_DETAILS:
+        return JSONResponse(
+            status_code=500,
+            content={
+                "error": str(exc),
+                "error_id": error_id,
+                "path": str(request.url.path),
+                "type": type(exc).__name__
+            }
+        )
+
     return JSONResponse(
         status_code=500,
         content={
-            "error": str(exc),
+            "error": "Internal server error",
             "error_id": error_id,
-            "path": str(request.url.path),
-            "type": type(exc).__name__
         }
     )
 

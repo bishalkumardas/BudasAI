@@ -6,7 +6,11 @@ from dotenv import load_dotenv
 load_dotenv()
 
 SUPABASE_URL = os.getenv("SUPABASE_URL")
-SUPABASE_KEY = os.getenv("SUPABASE_KEY")
+SUPABASE_KEY = (
+    os.getenv("SUPABASE_SERVICE_ROLE_KEY")
+    or os.getenv("SUPABASE_SERVICE_KEY")
+    or os.getenv("SUPABASE_KEY")
+)
 
 # Safety check (recommended)
 if not SUPABASE_URL or not SUPABASE_KEY:
@@ -16,6 +20,10 @@ if not SUPABASE_URL or not SUPABASE_KEY:
     raise RuntimeError(error_msg)
 
 print("✅ Supabase credentials loaded successfully")
+if os.getenv("SUPABASE_SERVICE_ROLE_KEY") or os.getenv("SUPABASE_SERVICE_KEY"):
+    print("✅ Using Supabase service-role key for server operations")
+else:
+    print("⚠️ Using SUPABASE_KEY fallback. Set SUPABASE_SERVICE_ROLE_KEY for reliable server-side writes.")
 
 # Create client
 try:

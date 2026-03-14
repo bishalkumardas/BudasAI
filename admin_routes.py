@@ -118,31 +118,40 @@ async def admin_dashboard(
             .execute()
         )
         ai_tools = ai_tools_data.data if ai_tools_data.data else []
-        
-        # Fetch details for each tool and attach
+
+        details_map = {}
+        tool_ids = [tool.get("id") for tool in ai_tools if tool.get("id") is not None]
+        if tool_ids:
+            details_res = (
+                supabase
+                .table("ai_tool_details")
+                .select("*")
+                .in_("ai_tool_id", tool_ids)
+                .execute()
+            )
+            for detail in (details_res.data or []):
+                if detail.get("pros"):
+                    try:
+                        detail["pros"] = json.loads(detail["pros"]) if isinstance(detail["pros"], str) else detail["pros"]
+                    except Exception:
+                        pass
+                if detail.get("cons"):
+                    try:
+                        detail["cons"] = json.loads(detail["cons"]) if isinstance(detail["cons"], str) else detail["cons"]
+                    except Exception:
+                        pass
+                if detail.get("pricing"):
+                    try:
+                        detail["pricing"] = json.loads(detail["pricing"]) if isinstance(detail["pricing"], str) else detail["pricing"]
+                    except Exception:
+                        pass
+
+                ai_tool_id = detail.get("ai_tool_id")
+                if ai_tool_id is not None and ai_tool_id not in details_map:
+                    details_map[ai_tool_id] = detail
+
         for tool in ai_tools:
-            try:
-                details_res = supabase.table("ai_tool_details").select("*").eq("ai_tool_id", tool["id"]).execute()
-                if details_res.data and len(details_res.data) > 0:
-                    detail = details_res.data[0]
-                    # Parse JSON fields
-                    if detail.get("pros"):
-                        try:
-                            detail["pros"] = json.loads(detail["pros"]) if isinstance(detail["pros"], str) else detail["pros"]
-                        except: pass
-                    if detail.get("cons"):
-                        try:
-                            detail["cons"] = json.loads(detail["cons"]) if isinstance(detail["cons"], str) else detail["cons"]
-                        except: pass
-                    if detail.get("pricing"):
-                        try:
-                            detail["pricing"] = json.loads(detail["pricing"]) if isinstance(detail["pricing"], str) else detail["pricing"]
-                        except: pass
-                    tool["details"] = detail
-                else:
-                    tool["details"] = None
-            except:
-                tool["details"] = None
+            tool["details"] = details_map.get(tool.get("id"))
     except Exception:
         ai_tools = []
     
