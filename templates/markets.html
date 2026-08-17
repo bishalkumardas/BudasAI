@@ -1,0 +1,4 @@
+{% extends 'base.html' %}{% block content %}
+<section class="page-head wrap"><p class="eyebrow">Market dashboard</p><h1>Markets</h1><p>Latest market data stored in the BudasAI database.</p><div class="filters"><a class="{{'active' if region=='All'}}" href="/markets">All</a><a class="{{'active' if region=='India'}}" href="/markets?region=India">India</a><a class="{{'active' if region=='Global'}}" href="/markets?region=Global">Global</a></div></section>
+<section class="wrap market-grid market-index-grid">{% for market in markets %}{% include 'components/market_card.html' %}{% endfor %}</section><div class="market-footer-spacer" aria-hidden="true"></div>
+{% endblock %}

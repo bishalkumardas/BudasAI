@@ -1,0 +1,1 @@
+{% extends 'base.html' %}{% block content %}<section class="page-head wrap"><p class="eyebrow">Search</p><h1>Results for “{{q}}”</h1></section><section class="wrap article-grid page-section">{% for article in results %}{% include 'components/article_card.html' %}{% else %}<p>No matching research found.</p>{% endfor %}</section>{% endblock %}
