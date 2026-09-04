@@ -1,3 +1,5 @@
+from math import ceil
+
 from fastapi import APIRouter, Query, Request
 from fastapi.responses import HTMLResponse
 
@@ -15,6 +17,7 @@ def daily_news(request: Request, page: int = Query(1, ge=1)):
         {
             "news": news,
             "page": page,
+            "total_pages": ceil(total / 10) if total else 0,
             "has_previous": page > 1,
             "has_next": page * 10 < total,
             "error": error,

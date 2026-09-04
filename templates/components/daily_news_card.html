@@ -7,12 +7,13 @@
     {% endif %}
   </div>
   <div class="news-card-content">
-    <div class="news-labels">{% if item.category %}<span class="news-category">{{ item.category|replace('_', ' ')|title }}</span>{% endif %}{% if item.id is not none %}<span class="news-id">ID {{ item.id }}</span>{% endif %}</div>
+    {% if item.category %}<div class="news-labels"><span class="news-category">{{ item.category|replace('_', ' ')|title }}</span></div>{% endif %}
     <h2>{{ item.headline or 'Untitled news article' }}</h2>
     {% if item.summary %}<p class="news-summary">{{ item.summary }}</p>{% endif %}
     <div class="news-meta">
       {% if item.source %}<span>{{ item.source }}</span>{% endif %}
       {% if item.published_at %}<time datetime="{{ item.published_at }}">{{ item.published_at|format_display_date }}</time>{% endif %}
+      {% if item.id is not none %}<span class="news-id">ID {{ item.id }}</span>{% endif %}
     </div>
     {% if item.article_url %}<a class="news-read-link" href="{{ item.article_url }}" target="_blank" rel="noopener noreferrer">Read Article <span aria-hidden="true">&rarr;</span></a>{% endif %}
   </div>
