@@ -342,6 +342,26 @@ def get_daily_news(page=1, per_page=10):
         return [], 0, True
 
 
+def search_site(query):
+    """Search the public content sources using the existing normalized data."""
+    needle = query.strip().casefold()
+    if not needle:
+        return {"research": [], "markets": [], "news": []}
+    research = search_articles(query)
+    markets = [
+        market for market in get_markets()
+        if needle in " ".join(str(market.get(field) or "") for field in ("name", "symbol", "category", "region")).casefold()
+    ]
+    news, _, error = get_daily_news(page=1, per_page=1000)
+    if error:
+        news = []
+    news = [
+        item for item in news
+        if needle in str(item.get("headline") or "").casefold()
+    ]
+    return {"research": research, "markets": markets, "news": news}
+
+
 def get_categories():
     counts = Counter(article["category"] for article in _all_articles() if article.get("category"))
     return [{"name": name, "description": _CATEGORY_DESCRIPTIONS.get(name, "Research and learning notes."), "article_count": count} for name, count in sorted(counts.items())]

@@ -12,4 +12,4 @@ app.state.templates=templates
 for route in (home.router, markets.router, research.router, about.router, daily_news.router): app.include_router(route)
 @app.get("/search")
 def search(request:Request, q:str=""):
-    return templates.TemplateResponse(request,"search_results.html",{"results":data.search_articles(q),"q":q,"seo":{"title":"Search | BudasAI Research","description":"Search BudasAI Research."}})
+    return templates.TemplateResponse(request,"search_results.html",{"results":data.search_site(q),"q":q,"seo":{"title":"Search | BudasAI Research","description":"Search BudasAI Research."}})
