@@ -23,3 +23,6 @@
 /* Desktop navigation stays visible; the hamburger rules above apply only below 760px. */
 .footer{background:#051c2a!important}.footer-grid-simple{grid-template-columns:minmax(0,1.35fr) minmax(0,1fr) minmax(0,1.35fr)}.footer-grid-simple>div{min-width:0}.footer-grid-simple .disclaimer{overflow-wrap:anywhere}
 @media(max-width:620px){.footer-grid-simple{grid-template-columns:minmax(0,1fr)}}
+
+.research-pagination{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:14px;margin:0 auto;padding:28px 20px 74px}.research-pagination .pagination{margin:0}.page-jump{display:flex;align-items:center;gap:8px}.page-jump label{color:var(--text-secondary);font-size:.82rem}.page-jump input{width:4.5rem;padding:9px 8px;border:1px solid var(--border);border-radius:3px;background:var(--bg-secondary);color:var(--text-primary);font:inherit}.page-jump .button{padding:9px 13px;background:var(--accent);border-color:var(--accent);color:#fff}.page-jump .button:hover,.page-jump .button:focus-visible{background:#18536f;border-color:#18536f}
+@media(max-width:620px){.research-pagination{align-items:stretch;flex-direction:column;padding-right:0;padding-left:0}.research-pagination .pagination{justify-content:flex-start;overflow-x:auto}.page-jump{display:none}}
