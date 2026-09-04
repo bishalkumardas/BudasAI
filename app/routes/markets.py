@@ -6,9 +6,12 @@ router = APIRouter(prefix="/markets")
 
 
 @router.get("", response_class=HTMLResponse)
-def markets(request: Request, region: str = "All"):
-    items = data.get_markets(None if region == "All" else region)
-    return request.app.state.templates.TemplateResponse(request, "markets.html", {"markets": items, "region": region, "seo": {"title": "Markets | BudasAI Research", "description": "Market dashboard powered by BudasAI data."}})
+def markets(request: Request, region: str = "All", category: str = "All"):
+    all_items = data.get_markets()
+    regions = data.get_market_regions(all_items)
+    selected_region = "All" if region.casefold() == "all" else next((value for value in regions if value.casefold() == region.casefold()), "All")
+    items = [market for market in all_items if data.region_matches(market, selected_region)]
+    return request.app.state.templates.TemplateResponse(request, "markets.html", {"markets": items, "region": selected_region, "category": category, "regions": regions, "latest_date": data.latest_reference_date(all_items), "seo": {"title": "Markets | BudasAI Research", "description": "Market dashboard powered by BudasAI data."}})
 
 
 @router.get("/{symbol}", response_class=HTMLResponse)

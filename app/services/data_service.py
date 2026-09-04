@@ -1,9 +1,14 @@
 """Repository boundary. Templates consume normalized rows from Supabase."""
 from collections import Counter
-from datetime import datetime, timedelta, timezone
+from datetime import date, datetime, timedelta, timezone
 from functools import lru_cache
 from html import escape
 from html.parser import HTMLParser
+import logging
+import re
+from math import isfinite
+from urllib.parse import urlparse
+from zoneinfo import ZoneInfo
 
 from app.config import SUPABASE_ANON_KEY, SUPABASE_URL
 
@@ -20,8 +25,12 @@ _ARTICLE_IMAGES = {
     "CFA Concepts": "/static/images/research-cfa.svg",
 }
 
-_ALLOWED_TAGS = {"a", "b", "blockquote", "br", "code", "em", "h2", "h3", "h4", "hr", "i", "img", "li", "ol", "p", "pre", "strong", "table", "tbody", "td", "th", "thead", "tr", "u", "ul"}
-_ALLOWED_ATTRIBUTES = {"a": {"href", "title"}, "img": {"src", "alt", "title", "width", "height"}, "td": {"colspan", "rowspan"}, "th": {"colspan", "rowspan"}}
+_ALLOWED_TAGS = {"a", "b", "blockquote", "br", "code", "div", "em", "h2", "h3", "h4", "hr", "i", "img", "li", "ol", "p", "pre", "span", "strong", "table", "tbody", "td", "th", "thead", "tr", "u", "ul"}
+_ALLOWED_ATTRIBUTES = {"a": {"href", "rel", "target", "title"}, "img": {"src", "alt", "title", "width", "height"}, "td": {"colspan", "rowspan"}, "th": {"colspan", "rowspan"}}
+_ALLOWED_STYLE_PROPERTIES = {"background", "background-color", "border", "border-collapse", "border-left", "border-radius", "border-spacing", "border-top", "color", "display", "flex", "flex-wrap", "font-size", "font-weight", "gap", "grid-template-columns", "letter-spacing", "line-height", "margin", "margin-bottom", "margin-top", "min-width", "overflow-x", "padding", "padding-left", "padding-right", "padding-top", "text-align", "text-transform", "width"}
+_DANGEROUS_STYLE_VALUE = re.compile(r"(?:url|expression|javascript|@import|behavior|-moz-binding)\s*[:(]", re.IGNORECASE)
+_INDIA_TIMEZONE = ZoneInfo("Asia/Kolkata")
+logger = logging.getLogger(__name__)
 
 
 class _ArticleHTMLSanitizer(HTMLParser):
@@ -34,12 +43,32 @@ class _ArticleHTMLSanitizer(HTMLParser):
             return
         safe_attrs = []
         for name, value in attrs:
+            if name == "style":
+                style = self._sanitize_style(value or "")
+                if style:
+                    safe_attrs.append(f' style="{escape(style, quote=True)}"')
+                continue
             if name not in _ALLOWED_ATTRIBUTES.get(tag, set()) or value is None:
                 continue
             if name in {"href", "src"} and not value.startswith(("https://", "http://", "/")):
                 continue
             safe_attrs.append(f' {name}="{escape(value, quote=True)}"')
         self.output.append(f"<{tag}{''.join(safe_attrs)}>")
+
+    @staticmethod
+    def _sanitize_style(value):
+        if _DANGEROUS_STYLE_VALUE.search(value) or any(char in value for char in "<>"):
+            return ""
+        declarations = []
+        for declaration in value.split(";"):
+            if ":" not in declaration:
+                continue
+            property_name, property_value = declaration.split(":", 1)
+            property_name = property_name.strip().lower()
+            property_value = property_value.strip()
+            if property_name in _ALLOWED_STYLE_PROPERTIES and property_value:
+                declarations.append(f"{property_name}:{property_value}")
+        return ";".join(declarations)
 
     def handle_startendtag(self, tag, attrs):
         self.handle_starttag(tag, attrs)
@@ -69,13 +98,57 @@ def _client():
 
 def _normalize_market(row):
     row["slug"] = row.get("slug") or row["symbol"].lower()
-    row["timestamp"] = row.get("timestamp") or row.get("updated_at") or "Latest stored close"
+    row["timestamp"] = row.get("timestamp") or row.get("updated_at")
     # Prices are sourced from market_history. Do not manufacture zero-valued
     # observations when a market has not received an import yet.
     row["current_value"] = None
     row["change_percent"] = None
+    row["previous_close"] = None
     row["history"] = row.get("history") or []
     return row
+
+
+def _valid_value(value):
+    try:
+        number = float(value)
+    except (TypeError, ValueError):
+        return None
+    return number if isfinite(number) else None
+
+
+def _market_date(value):
+    if not value:
+        return None
+    try:
+        timestamp = value if isinstance(value, datetime) else datetime.fromisoformat(str(value).replace("Z", "+00:00"))
+        if timestamp.tzinfo is None:
+            timestamp = timestamp.replace(tzinfo=_INDIA_TIMEZONE)
+        return timestamp.astimezone(_INDIA_TIMEZONE).date()
+    except (TypeError, ValueError):
+        return None
+
+
+def format_display_date(value):
+    if isinstance(value, date) and not isinstance(value, datetime):
+        display_date = value
+    else:
+        display_date = _market_date(value)
+    return f"{display_date.day} {display_date.strftime('%B %Y, %A')}" if display_date else "N/A"
+
+
+def _latest_valid_history(rows):
+    valid = []
+    for row in rows:
+        value = _valid_value(row.get("value"))
+        date = _market_date(row.get("timestamp"))
+        if value is not None and date is not None:
+            valid.append({"value": value, "timestamp": row.get("timestamp"), "date": date})
+    latest_by_date = {}
+    for row in valid:
+        existing = latest_by_date.get(row["date"])
+        if existing is None or str(row["timestamp"]) > str(existing["timestamp"]):
+            latest_by_date[row["date"]] = row
+    return sorted(latest_by_date.values(), key=lambda row: row["date"], reverse=True)
 
 
 def _normalize_article(row):
@@ -109,6 +182,26 @@ def get_markets(region=None):
     return _attach_recent_histories(markets)
 
 
+def get_market_regions(markets):
+    """Return unique, clean region labels from the loaded market rows."""
+    regions = {}
+    for market in markets:
+        value = market.get("region")
+        if not isinstance(value, str):
+            continue
+        label = " ".join(value.split())
+        if label:
+            regions.setdefault(label.casefold(), label)
+    return sorted(regions.values(), key=str.casefold)
+
+
+def region_matches(market, region):
+    if not region or region == "All":
+        return True
+    value = market.get("region")
+    return isinstance(value, str) and " ".join(value.split()).casefold() == region.casefold()
+
+
 def _attach_recent_histories(markets):
     """Attach history and derive the displayed price from market_history."""
     client = _client()
@@ -122,21 +215,30 @@ def _attach_recent_histories(markets):
     for row in rows:
         rows_by_market.setdefault(row["market_id"], []).append(row)
     for market in markets:
-        history_rows = rows_by_market.get(market["id"], [])
+        history_rows = _latest_valid_history(rows_by_market.get(market["id"], []))
         if not history_rows:
             continue
         latest = history_rows[0]
-        latest_value = float(latest["value"])
+        latest_value = latest["value"]
         market["current_value"] = latest_value
         market["timestamp"] = latest["timestamp"]
-        market["history"] = [float(row["value"]) for row in reversed(history_rows[:15])]
+        market["latest_date"] = latest["date"]
+        market["history"] = [row["value"] for row in reversed(history_rows[:15])]
         if len(history_rows) >= 2:
-            previous_value = float(history_rows[1]["value"])
+            previous_value = history_rows[1]["value"]
+            market["previous_close"] = previous_value
             market["change_percent"] = (
                 ((latest_value - previous_value) / previous_value) * 100
                 if previous_value != 0 else None
             )
+        else:
+            market["previous_close"] = _valid_value(market.get("previous_close"))
     return markets
+
+
+def latest_reference_date(markets, symbol="^NSEI"):
+    reference = next((market for market in markets if market.get("symbol", "").upper() == symbol.upper()), None)
+    return reference.get("latest_date") if reference else None
 
 
 def get_market(slug):
@@ -161,7 +263,7 @@ def get_market_history(slug, period="1M"):
     latest_at = datetime.fromisoformat(latest[0]["timestamp"].replace("Z", "+00:00"))
     cutoff = (latest_at - timedelta(days=days)).isoformat()
     rows = client.table("market_history").select("timestamp,value").eq("market_id", market["id"]).gte("timestamp", cutoff).order("timestamp").execute().data
-    return [{"timestamp": row["timestamp"], "value": float(row["value"])} for row in rows]
+    return [{"timestamp": row["timestamp"], "value": value} for row in rows if (value := _valid_value(row.get("value"))) is not None]
 
 
 def get_articles(category=None, page=1, per_page=6):
@@ -193,6 +295,51 @@ def search_articles(query):
     if not needle:
         return []
     return [article for article in _all_articles() if needle in (article["title"] + article["excerpt"] + article["category"]).lower()]
+
+
+def _safe_external_url(value):
+    if not isinstance(value, str):
+        return ""
+    value = value.strip()
+    parsed = urlparse(value)
+    return value if parsed.scheme in {"http", "https"} and parsed.netloc else ""
+
+
+def get_daily_news(page=1, per_page=10):
+    """Return one latest-first Daily News page and the total row count."""
+    page = max(1, int(page))
+    per_page = max(1, int(per_page))
+    client = _client()
+    if not client:
+        return [], 0, False
+    try:
+        rows = (
+            client.table("daily_news")
+            .select("id,category,published_at,headline,image_url,source,summary,article_url", count="exact")
+            .order("published_at", desc=True)
+            .range((page - 1) * per_page, page * per_page - 1)
+            .execute()
+        )
+        response = rows
+        news = []
+        for row in response.data:
+            item = dict(row)
+            for field in ("category", "headline", "source", "summary"):
+                if not isinstance(item.get(field), str) or not item[field].strip():
+                    item[field] = None
+                else:
+                    item[field] = item[field].strip()
+            if isinstance(item.get("published_at"), str):
+                item["published_at"] = item["published_at"].strip() or None
+            elif not isinstance(item.get("published_at"), (date, datetime)):
+                item["published_at"] = None
+            item["image_url"] = _safe_external_url(item.get("image_url"))
+            item["article_url"] = _safe_external_url(item.get("article_url"))
+            news.append(item)
+        return news, response.count or 0, False
+    except Exception:
+        logger.exception("Unable to load daily_news from Supabase")
+        return [], 0, True
 
 
 def get_categories():

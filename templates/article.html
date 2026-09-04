@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% block content %}
 <article class="reader">
-  <header><p class="eyebrow">{{article.category}}</p><h1>{{article.title}}</h1><p class="lede">{{article.subtitle}}</p><p class="byline">By {{article.author}} &middot; {{article.published_at}} &middot; {{article.reading_time}}</p></header>
+  <header><p class="eyebrow">{{article.category}}</p><h1>{{article.title}}</h1><p class="lede">{{article.subtitle}}</p><p class="byline">By {{article.author}} &middot; {{article.published_at|format_display_date}} &middot; {{article.reading_time}}</p></header>
   <figure class="article-hero-image"><img src="{{article.image}}" alt="Abstract visual for {{article.category}} research"><figcaption>Illustrative research visual</figcaption></figure>
   <div class="article-body">
     {% if article.body_html %}

@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+{% block content %}
+<section class="page-head wrap">
+  <p class="eyebrow">Daily News</p>
+  <h1>Latest business and market news</h1>
+  <p>Curated headlines and market context from the latest stored updates.</p>
+</section>
+<section class="wrap daily-news-section" aria-live="polite">
+  {% if error %}
+    <p class="news-state news-error">Unable to load Daily News right now. Please try again later.</p>
+  {% elif news %}
+    <div class="daily-news-grid">
+      {% for item in news %}{% include 'components/daily_news_card.html' %}{% endfor %}
+    </div>
+    <nav class="news-pagination" aria-label="Daily News pages">
+      {% if has_previous %}<a class="button" href="/daily-news?page={{ page - 1 }}">Previous</a>{% endif %}
+      <span>Page {{ page }}</span>
+      {% if has_next %}<a class="button" href="/daily-news?page={{ page + 1 }}">Next</a>{% endif %}
+    </nav>
+  {% else %}
+    <p class="news-state">No Daily News Available</p>
+  {% endif %}
+</section>
+<p class="daily-news-source">Source: finhub.io</p>
+{% endblock %}

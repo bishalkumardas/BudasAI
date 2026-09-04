@@ -1,6 +1,32 @@
 (() => {const modal=document.querySelector('[data-search-modal]'),input=document.querySelector('#site-search'),menu=document.querySelector('[data-menu]'),nav=document.querySelector('#primary-nav');const open=()=>{modal.hidden=false;setTimeout(()=>input.focus(),0)},close=()=>modal.hidden=true;document.querySelectorAll('[data-open-search]').forEach(button=>button.addEventListener('click',open));document.querySelector('[data-close-search]').addEventListener('click',close);modal.addEventListener('click',e=>{if(e.target===modal)close()});document.addEventListener('keydown',e=>{if(e.key==='Escape')close();if(e.key==='/'&&document.activeElement.tagName!=='INPUT'){e.preventDefault();open()}});menu.addEventListener('click',()=>{nav.classList.toggle('open');menu.setAttribute('aria-expanded',nav.classList.contains('open'))})})();
 
 (() => {
+  const ticker = document.querySelector('.ticker-track');
+  if (!ticker) return;
+  const viewport = ticker.closest('.ticker-viewport');
+  const source = ticker.querySelector('.ticker-set');
+  if (!viewport || !source) return;
+  const speed = 72;
+
+  const updateTicker = () => {
+    const distance = source.getBoundingClientRect().width;
+    if (!distance) return;
+    while (ticker.scrollWidth < viewport.clientWidth + distance) {
+      const copy = source.cloneNode(true);
+      copy.setAttribute('aria-hidden', 'true');
+      copy.querySelectorAll('a').forEach(link => link.setAttribute('tabindex', '-1'));
+      ticker.append(copy);
+    }
+    ticker.style.setProperty('--ticker-distance', `${distance}px`);
+    ticker.style.setProperty('--ticker-duration', `${distance / speed}s`);
+  };
+
+  updateTicker();
+  if (window.ResizeObserver) new ResizeObserver(updateTicker).observe(viewport);
+  else window.addEventListener('resize', updateTicker);
+})();
+
+(() => {
   const chart = document.querySelector('[data-market-chart]');
   if (!chart) return;
   const svg = chart.querySelector('svg');
@@ -10,12 +36,15 @@
   const currency = chart.dataset.currency || 'USD';
   const svgNS = 'http://www.w3.org/2000/svg';
   const price = value => new Intl.NumberFormat(undefined, { style: 'currency', currency, maximumFractionDigits: 4 }).format(value);
-  const date = value => new Intl.DateTimeFormat(undefined, { year: 'numeric', month: 'short', day: 'numeric' }).format(new Date(value));
-  const monthYear = value => new Intl.DateTimeFormat(undefined, { month: 'short', year: 'numeric' }).format(new Date(value));
+  const displayDate = value => {
+    const parts = new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'long', year: 'numeric', weekday: 'long', timeZone: 'Asia/Kolkata' }).formatToParts(new Date(value));
+    const get = type => parts.find(part => part.type === type)?.value || '';
+    return `${get('day')} ${get('month')} ${get('year')}, ${get('weekday')}`;
+  };
   const make = (name, attrs = {}, text = '') => { const node = document.createElementNS(svgNS, name); Object.entries(attrs).forEach(([key, value]) => node.setAttribute(key, value)); node.textContent = text; return node; };
   const hideTip = () => { tooltip.hidden = true; };
   const showTip = (point, event) => {
-    tooltip.innerHTML = `<strong>${price(point.value)}</strong>${date(point.timestamp)}`;
+    tooltip.innerHTML = `<strong>${price(point.value)}</strong>${displayDate(point.timestamp)}`;
     tooltip.hidden = false;
     const box = svg.getBoundingClientRect();
     const x = event?.clientX ? event.clientX - box.left : box.width * (point.x / 600);
@@ -40,7 +69,7 @@
     }
     for (let i = 0; i <= 3; i += 1) {
       const point = scaled[Math.round((scaled.length - 1) * i / 3)];
-      svg.append(make('text', { x: point.x, y: 228, 'text-anchor': i === 0 ? 'start' : i === 3 ? 'end' : 'middle', class: 'chart-axis-label' }, monthYear(point.timestamp)));
+      svg.append(make('text', { x: point.x, y: 228, 'text-anchor': i === 0 ? 'start' : i === 3 ? 'end' : 'middle', class: 'chart-axis-label' }, displayDate(point.timestamp)));
     }
     const line = make('polyline', { points: scaled.map(point => `${point.x},${point.y}`).join(' ') }); svg.append(line);
     const hitArea = make('rect', { x: left, y: top, width, height, fill: 'transparent', class: 'chart-hit-area' });
@@ -56,3 +85,10 @@
   buttons.forEach(button => button.addEventListener('click', () => setPeriod(button.dataset.period)));
   draw(window.marketHistory || []);
 })();
+
+document.querySelectorAll('[data-news-image]').forEach(image => {
+  image.addEventListener('error', () => {
+    image.hidden = true;
+    image.parentElement.classList.add('has-image-fallback');
+  }, { once: true });
+});
