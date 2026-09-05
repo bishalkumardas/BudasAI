@@ -136,6 +136,19 @@ def format_display_date(value):
     return f"{display_date.day} {display_date.strftime('%B %Y, %A')}" if display_date else "N/A"
 
 
+def format_news_date(value):
+    if isinstance(value, datetime):
+        display_date = value.date()
+    elif isinstance(value, date):
+        display_date = value
+    else:
+        try:
+            display_date = datetime.fromisoformat(str(value).replace("Z", "+00:00")).date()
+        except (TypeError, ValueError):
+            display_date = None
+    return f"{display_date.day} {display_date.strftime('%B %Y, %A')}" if display_date else "N/A"
+
+
 def _latest_valid_history(rows):
     valid = []
     for row in rows:
@@ -316,7 +329,8 @@ def get_daily_news(page=1, per_page=10):
         rows = (
             client.table("daily_news")
             .select("id,category,published_at,headline,image_url,source,summary,article_url", count="exact")
-            .order("published_at", desc=True)
+            .order("published_at", desc=True, nullsfirst=False)
+            .order("id", desc=True)
             .range((page - 1) * per_page, page * per_page - 1)
             .execute()
         )

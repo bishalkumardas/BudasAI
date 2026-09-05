@@ -8,6 +8,7 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 templates=Jinja2Templates(directory="templates")
 templates.env.globals.update(get_markets=data.get_markets, search_articles=data.search_articles)
 templates.env.filters["format_display_date"] = data.format_display_date
+templates.env.filters["format_news_date"] = data.format_news_date
 app.state.templates=templates
 for route in (home.router, markets.router, research.router, about.router, daily_news.router): app.include_router(route)
 @app.get("/search")
